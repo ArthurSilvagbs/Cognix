@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Trash2, BookOpen, Clock, CalendarDays } from "lucide-react";
-import { useStore, Session } from "@/lib/store";
+import { useStore, useGroupData, Session } from "@/lib/store";
 import { formatMinutes } from "@/lib/utils";
 
 interface FormData { subject: string; durationMin: number; date: string; notes: string; }
@@ -17,7 +17,10 @@ function subjectColor(subject: string) {
 }
 
 export default function SessionsPage() {
-  const { sessions, addSession, deleteSession } = useStore();
+  const { addSession, deleteSession } = useStore();
+  const { sessions, activeGroupId } = useGroupData();
+  const { groups } = useStore();
+  const activeGroup = groups.find((g) => g.id === activeGroupId);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState<FormData>(EMPTY);
 
@@ -25,7 +28,7 @@ export default function SessionsPage() {
 
   function handleSave() {
     if (!form.subject.trim()) return;
-    addSession(form);
+    addSession({ ...form, groupId: activeGroupId });
     setShowModal(false);
     setForm({ ...EMPTY, date: todayStr() });
   }
@@ -34,7 +37,14 @@ export default function SessionsPage() {
     <div className="p-7 max-w-4xl mx-auto">
       <div className="flex items-end justify-between mb-7">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Sessões de Estudo</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight">Sessões de Estudo</h1>
+            {activeGroup && (
+              <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: `${activeGroup.color}15`, color: activeGroup.color }}>
+                {activeGroup.emoji} {activeGroup.name}
+              </span>
+            )}
+          </div>
           <p className="text-sm text-slate-400 mt-0.5">
             <span className="text-slate-600 font-medium">{sessions.length}</span> sessão{sessions.length !== 1 ? "ões" : ""} ·{" "}
             <span className="text-slate-600 font-medium">{formatMinutes(totalMin)}</span> totais

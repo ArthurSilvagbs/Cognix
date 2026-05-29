@@ -1,14 +1,16 @@
 "use client";
 
 import { TrendingUp, Trophy, Flame, Code2, BookOpen } from "lucide-react";
-import { useStore, ACHIEVEMENTS } from "@/lib/store";
+import { useStore, useGroupData, ACHIEVEMENTS } from "@/lib/store";
 import { formatMinutes, cn } from "@/lib/utils";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 
 const PIE_COLORS = ["#7c3aed","#0891b2","#059669","#d97706","#db2777","#4f46e5","#0284c7"];
 
 export default function EvolutionPage() {
-  const { user, tasks, sessions, exercises, unlockedAchievements } = useStore();
+  const { user, unlockedAchievements, groups } = useStore();
+  const { tasks, sessions, exercises, activeGroupId } = useGroupData();
+  const activeGroup = groups.find((g) => g.id === activeGroupId);
 
   const doneTasks = tasks.filter((t) => t.status === "done").length;
   const doneExercises = exercises.filter((e) => e.status === "done").length;
@@ -38,7 +40,14 @@ export default function EvolutionPage() {
   return (
     <div className="p-7 max-w-5xl mx-auto space-y-5">
       <div>
-        <h1 className="text-xl font-bold text-slate-900 tracking-tight">Evolução de Conhecimento</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Evolução de Conhecimento</h1>
+          {activeGroup && (
+            <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: `${activeGroup.color}15`, color: activeGroup.color }}>
+              {activeGroup.emoji} {activeGroup.name}
+            </span>
+          )}
+        </div>
         <p className="text-sm text-slate-400 mt-0.5">Acompanhe seu progresso e conquistas</p>
       </div>
 

@@ -5,7 +5,7 @@ import {
   CheckSquare, BookOpen, Code2, RefreshCw,
   TrendingUp, MessageSquare, ArrowRight, Star, Zap,
 } from "lucide-react";
-import { useStore } from "@/lib/store";
+import { useStore, useGroupData } from "@/lib/store";
 import { formatDate, formatMinutes, getGreeting } from "@/lib/utils";
 
 const exploreCards = [
@@ -42,7 +42,9 @@ const exploreCards = [
 ];
 
 export default function DashboardPage() {
-  const { tasks, sessions, exercises } = useStore();
+  const { tasks, sessions, exercises, activeGroupId } = useGroupData();
+  const { groups } = useStore();
+  const activeGroup = groups.find((g) => g.id === activeGroupId);
 
   const doneTasks = tasks.filter((t) => t.status === "done").length;
   const totalMinutes = sessions.reduce((acc, s) => acc + s.durationMin, 0);
@@ -99,7 +101,9 @@ export default function DashboardPage() {
               <p className="text-violet-300 text-xs font-medium tracking-wide uppercase mb-1">
                 {formatDate(today)}
               </p>
-              <h1 className="text-2xl font-bold tracking-tight">{getGreeting()}!</h1>
+              <h1 className="text-2xl font-bold tracking-tight">
+                {getGreeting()}!{activeGroup ? ` — ${activeGroup.emoji} ${activeGroup.name}` : ""}
+              </h1>
               <p className="text-violet-200 text-sm mt-1">
                 {pendingTasks.length === 0
                   ? "Nenhuma tarefa pendente. Que tal um novo desafio?"

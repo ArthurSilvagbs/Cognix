@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Code2, Star, CheckCircle, Sparkles, Send, ChevronRight } from "lucide-react";
-import { useStore, Exercise, Difficulty } from "@/lib/store";
+import { useStore, useGroupData, Exercise, Difficulty } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 const LANGUAGES = ["JavaScript","TypeScript","Python","Java","C","C++","Go","Rust","PHP","Ruby","Swift","Kotlin"];
@@ -15,7 +15,8 @@ const DIFFS: { key: Difficulty; label: string; bg: string; text: string }[] = [
 const diffStyle = (d: Difficulty) => DIFFS.find((x) => x.key === d)!;
 
 export default function ExercisesPage() {
-  const { exercises, addExercise, updateExercise } = useStore();
+  const { addExercise, updateExercise } = useStore();
+  const { exercises, activeGroupId } = useGroupData();
   const [selected, setSelected] = useState<Exercise | null>(null);
   const [showGenModal, setShowGenModal] = useState(false);
   const [genForm, setGenForm] = useState({ language: "JavaScript", difficulty: "beginner" as Difficulty, topic: "" });
@@ -34,7 +35,7 @@ export default function ExercisesPage() {
       topicTags: genForm.topic ? [genForm.topic] : ["lógica"],
       description: `Escreva um programa em ${genForm.language} que demonstre o conceito de ${genForm.topic || "lógica de programação"}. O programa deve receber entradas, processá-las e exibir o resultado correto.`,
       starterCode: `// Escreva seu código aqui\n`,
-      status: "pending", isStarred: false,
+      status: "pending", isStarred: false, groupId: activeGroupId,
     });
     setGenerating(false);
     setShowGenModal(false);
