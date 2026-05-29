@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { generateId } from "./utils";
+import * as db from "./supabase/db";
 
 export type TaskPriority = "low" | "medium" | "high";
 export type TaskType = "study" | "review" | "practice" | "project";
@@ -109,9 +110,13 @@ export const GROUP_COLORS = [
 export const GROUP_EMOJIS = ["📚","💻","🎯","🏆","📐","🔬","🌍","✍️","🎵","💡","🧠","🚀","📝","🔭","⚗️","🎨"];
 
 interface AppState {
+  // Sync state
+  userId: string | null;
+  initialized: boolean;
+
   // Groups
   groups: StudyGroup[];
-  activeGroupId: string | null; // null = "Visão Geral" (all groups)
+  activeGroupId: string | null;
 
   // Data
   tasks: Task[];
@@ -122,6 +127,17 @@ interface AppState {
   // User
   user: { name: string; xp: number; level: number };
   unlockedAchievements: string[];
+
+  // Sync actions
+  setUserId: (id: string | null) => void;
+  hydrateFromSupabase: (data: {
+    groups: StudyGroup[];
+    tasks: Task[];
+    sessions: Session[];
+    exercises: Exercise[];
+    profile: { name: string; xp: number; level: number; unlockedAchievements: string[] } | null;
+  }) => void;
+  clearStore: () => void;
 
   // Group actions
   addGroup: (group: Omit<StudyGroup, "id" | "createdAt">) => void;
@@ -153,6 +169,8 @@ interface AppState {
 export const useStore = create<AppState>()(
   persist(
     (set, get) => ({
+      userId: null,
+      initialized: false,
       groups: [],
       activeGroupId: null,
       tasks: [],
@@ -162,96 +180,146 @@ export const useStore = create<AppState>()(
       user: { name: "Estudante", xp: 0, level: 1 },
       unlockedAchievements: [],
 
-      // ── Groups ──────────────────────────────────────────────────────────
+      // ── Sync ────────────────────────────────────────────────────────────────
+      setUserId: (id) => set({ userId: id }),
+
+      hydrateFromSupabase: ({ groups, tasks, sessions, exercises, profile }) => {
+        set({
+          initialized: true,
+          groups,
+          tasks,
+          sessions,
+          exercises,
+          user: profile
+            ? { name: profile.name, xp: profile.xp, level: profile.level }
+            : { name: "Estudante", xp: 0, level: 1 },
+          unlockedAchievements: profile?.unlockedAchievements ?? [],
+        });
+      },
+
+      clearStore: () =>
+        set({
+          userId: null,
+          initialized: false,
+          groups: [],
+          tasks: [],
+          sessions: [],
+          exercises: [],
+          trainings: [],
+          user: { name: "Estudante", xp: 0, level: 1 },
+          unlockedAchievements: [],
+        }),
+
+      // ── Groups ──────────────────────────────────────────────────────────────
       addGroup: (group) => {
-        set((s) => ({
-          groups: [...s.groups, { ...group, id: generateId(), createdAt: new Date().toISOString() }],
-        }));
+        const newGroup: StudyGroup = { ...group, id: generateId(), createdAt: new Date().toISOString() };
+        set((s) => ({ groups: [...s.groups, newGroup] }));
+        const { userId } = get();
+        if (userId) db.insertGroup(userId, newGroup).catch(console.error);
         get().checkAchievements();
       },
 
-      updateGroup: (id, updates) =>
-        set((s) => ({ groups: s.groups.map((g) => (g.id === id ? { ...g, ...updates } : g)) })),
+      updateGroup: (id, updates) => {
+        set((s) => ({ groups: s.groups.map((g) => (g.id === id ? { ...g, ...updates } : g)) }));
+        const { userId } = get();
+        if (userId) db.patchGroup(id, updates).catch(console.error);
+      },
 
-      deleteGroup: (id) =>
+      deleteGroup: (id) => {
         set((s) => ({
           groups: s.groups.filter((g) => g.id !== id),
-          // Orphan content — set groupId to null
           tasks: s.tasks.map((t) => t.groupId === id ? { ...t, groupId: null } : t),
           sessions: s.sessions.map((s2) => s2.groupId === id ? { ...s2, groupId: null } : s2),
           exercises: s.exercises.map((e) => e.groupId === id ? { ...e, groupId: null } : e),
           trainings: s.trainings.map((t) => t.groupId === id ? { ...t, groupId: null } : t),
           activeGroupId: s.activeGroupId === id ? null : s.activeGroupId,
-        })),
+        }));
+        const { userId } = get();
+        if (userId) db.removeGroup(id).catch(console.error);
+      },
 
       setActiveGroup: (id) => set({ activeGroupId: id }),
 
-      // ── Tasks ────────────────────────────────────────────────────────────
+      // ── Tasks ────────────────────────────────────────────────────────────────
       addTask: (task) => {
-        set((s) => ({
-          tasks: [{ ...task, id: generateId(), createdAt: new Date().toISOString() }, ...s.tasks],
-        }));
+        const newTask: Task = { ...task, id: generateId(), createdAt: new Date().toISOString() };
+        set((s) => ({ tasks: [newTask, ...s.tasks] }));
+        const { userId } = get();
+        if (userId) db.insertTask(userId, newTask).catch(console.error);
         get().addXP(5);
         get().checkAchievements();
       },
 
       updateTask: (id, updates) => {
+        const completedNow = updates.status === "done" && get().tasks.find((t) => t.id === id)?.status !== "done";
+        const finalUpdates = completedNow
+          ? { ...updates, completedAt: new Date().toISOString() }
+          : updates;
         set((s) => ({
-          tasks: s.tasks.map((t) => {
-            if (t.id !== id) return t;
-            const updated = { ...t, ...updates };
-            if (updates.status === "done" && t.status !== "done") {
-              updated.completedAt = new Date().toISOString();
-              get().addXP(10);
-            }
-            return updated;
-          }),
+          tasks: s.tasks.map((t) => (t.id === id ? { ...t, ...finalUpdates } : t)),
         }));
+        const { userId } = get();
+        if (userId) db.patchTask(id, finalUpdates).catch(console.error);
+        if (completedNow) get().addXP(10);
         get().checkAchievements();
       },
 
-      deleteTask: (id) => set((s) => ({ tasks: s.tasks.filter((t) => t.id !== id) })),
+      deleteTask: (id) => {
+        set((s) => ({ tasks: s.tasks.filter((t) => t.id !== id) }));
+        const { userId } = get();
+        if (userId) db.removeTask(id).catch(console.error);
+      },
 
-      // ── Sessions ─────────────────────────────────────────────────────────
+      // ── Sessions ─────────────────────────────────────────────────────────────
       addSession: (session) => {
-        set((s) => ({
-          sessions: [{ ...session, id: generateId(), createdAt: new Date().toISOString() }, ...s.sessions],
-        }));
+        const newSession: Session = { ...session, id: generateId(), createdAt: new Date().toISOString() };
+        set((s) => ({ sessions: [newSession, ...s.sessions] }));
+        const { userId } = get();
+        if (userId) db.insertSession(userId, newSession).catch(console.error);
         get().addXP(Math.max(Math.floor(session.durationMin / 30) * 5, 5));
         get().checkAchievements();
       },
 
-      deleteSession: (id) => set((s) => ({ sessions: s.sessions.filter((s2) => s2.id !== id) })),
+      deleteSession: (id) => {
+        set((s) => ({ sessions: s.sessions.filter((s2) => s2.id !== id) }));
+        const { userId } = get();
+        if (userId) db.removeSession(id).catch(console.error);
+      },
 
-      // ── Exercises ────────────────────────────────────────────────────────
+      // ── Exercises ────────────────────────────────────────────────────────────
       addExercise: (exercise) => {
-        set((s) => ({
-          exercises: [{ ...exercise, id: generateId(), createdAt: new Date().toISOString() }, ...s.exercises],
-        }));
+        const newExercise: Exercise = { ...exercise, id: generateId(), createdAt: new Date().toISOString() };
+        set((s) => ({ exercises: [newExercise, ...s.exercises] }));
+        const { userId } = get();
+        if (userId) db.insertExercise(userId, newExercise).catch(console.error);
         get().addXP(20);
         get().checkAchievements();
       },
 
-      updateExercise: (id, updates) =>
-        set((s) => ({ exercises: s.exercises.map((e) => (e.id === id ? { ...e, ...updates } : e)) })),
+      updateExercise: (id, updates) => {
+        set((s) => ({ exercises: s.exercises.map((e) => (e.id === id ? { ...e, ...updates } : e)) }));
+        const { userId } = get();
+        if (userId) db.patchExercise(id, updates).catch(console.error);
+      },
 
-      // ── Trainings ────────────────────────────────────────────────────────
+      // ── Trainings ────────────────────────────────────────────────────────────
       addTraining: (training) => {
-        set((s) => ({
-          trainings: [{ ...training, id: generateId(), createdAt: new Date().toISOString() }, ...s.trainings],
-        }));
+        const newTraining: CodeTraining = { ...training, id: generateId(), createdAt: new Date().toISOString() };
+        set((s) => ({ trainings: [newTraining, ...s.trainings] }));
         get().addXP(15);
       },
 
-      // ── XP / Achievements ────────────────────────────────────────────────
-      addXP: (amount) =>
-        set((s) => {
-          const newXP = s.user.xp + amount;
-          return { user: { ...s.user, xp: newXP, level: Math.floor(newXP / 100) + 1 } };
-        }),
+      // ── XP / Achievements ────────────────────────────────────────────────────
+      addXP: (amount) => {
+        const { user, userId } = get();
+        const newXP = user.xp + amount;
+        const newUser = { ...user, xp: newXP, level: Math.floor(newXP / 100) + 1 };
+        set({ user: newUser });
+        if (userId) db.upsertProfile(userId, { xp: newUser.xp, level: newUser.level }).catch(console.error);
+      },
 
       checkAchievements: () => {
-        const { tasks, sessions, exercises, groups, user, unlockedAchievements } = get();
+        const { tasks, sessions, exercises, groups, user, unlockedAchievements, userId } = get();
         const toUnlock: string[] = [];
         const done = (arr: { status: string }[]) => arr.filter((x) => x.status === "done").length;
         const totalMin = sessions.reduce((a, s) => a + s.durationMin, 0);
@@ -270,18 +338,23 @@ export const useStore = create<AppState>()(
         check("3_groups",    groups.length >= 3);
 
         if (toUnlock.length > 0) {
+          const newUnlocked = [...unlockedAchievements, ...toUnlock];
           const xp = toUnlock.reduce((a, k) => a + (ACHIEVEMENTS.find((x) => x.key === k)?.xpReward ?? 0), 0);
-          set((s) => ({ unlockedAchievements: [...s.unlockedAchievements, ...toUnlock] }));
+          set({ unlockedAchievements: newUnlocked });
+          if (userId) db.upsertProfile(userId, { unlocked_achievements: newUnlocked }).catch(console.error);
           if (xp > 0) get().addXP(xp);
         }
       },
     }),
-    { name: "cognix-store" }
+    {
+      name: "cognix-store",
+      // Só persiste preferências de UI no localStorage — dados reais vêm do Supabase
+      partialize: (s) => ({ activeGroupId: s.activeGroupId }),
+    }
   )
 );
 
 // ── Filtered selectors ────────────────────────────────────────────────────────
-// Call these in components to get data scoped to the active group.
 export function useGroupData() {
   const { tasks, sessions, exercises, trainings, activeGroupId } = useStore();
   const filter = <T extends { groupId: string | null }>(arr: T[]) =>

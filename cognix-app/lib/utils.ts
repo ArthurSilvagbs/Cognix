@@ -27,5 +27,5 @@ export function formatDate(date: Date): string {
 }
 
 export function generateId(): string {
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+  return crypto.randomUUID();
 }
