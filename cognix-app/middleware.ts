@@ -1,68 +1,40 @@
-import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Never intercept static assets or OAuth callback
+  // Skip static assets and OAuth callback
   if (
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/auth/callback") ||
+    pathname.startsWith("/auth/") ||
     pathname === "/favicon.ico"
   ) {
-    return NextResponse.next({ request });
+    return NextResponse.next();
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+  const isAuthRoute =
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname === "/reset-password";
 
-  // If Supabase is not configured, allow everything through
-  if (!supabaseUrl || supabaseUrl.includes("SEU_PROJETO") || !supabaseKey) {
-    return NextResponse.next({ request });
+  // Supabase stores session in a cookie named sb-[project-ref]-auth-token
+  const hasSession = request.cookies.getAll().some(
+    (c) => c.name.startsWith("sb-") && c.name.endsWith("-auth-token")
+  );
+
+  if (!hasSession && !isAuthRoute) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
   }
 
-  let supabaseResponse = NextResponse.next({ request });
-
-  try {
-    const supabase = createServerClient(supabaseUrl, supabaseKey, {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          supabaseResponse = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          );
-        },
-      },
-    });
-
-    const { data: { user } } = await supabase.auth.getUser();
-
-    const isAuthRoute =
-      pathname === "/login" ||
-      pathname === "/register" ||
-      pathname === "/reset-password";
-
-    if (!user && !isAuthRoute) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/login";
-      return NextResponse.redirect(url);
-    }
-
-    if (user && isAuthRoute) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/dashboard";
-      return NextResponse.redirect(url);
-    }
-
-    return supabaseResponse;
-  } catch {
-    // On any Supabase error, fail open so the app remains accessible
-    return NextResponse.next({ request });
+  if (hasSession && isAuthRoute) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
+    return NextResponse.redirect(url);
   }
+
+  return NextResponse.next();
 }
 
 export const config = {
