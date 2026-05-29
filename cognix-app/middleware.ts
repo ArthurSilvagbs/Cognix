@@ -1,42 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  // Skip static assets and OAuth callback
-  if (
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/auth/") ||
-    pathname === "/favicon.ico"
-  ) {
-    return NextResponse.next();
-  }
-
-  const isAuthRoute =
-    pathname === "/login" ||
-    pathname === "/register" ||
-    pathname === "/reset-password";
-
-  // Supabase stores session in a cookie named sb-[project-ref]-auth-token
-  const hasSession = request.cookies.getAll().some(
-    (c) => c.name.startsWith("sb-") && c.name.endsWith("-auth-token")
-  );
-
-  if (!hasSession && !isAuthRoute) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
-  }
-
-  if (hasSession && isAuthRoute) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
-    return NextResponse.redirect(url);
-  }
-
+// Passthrough — auth protection is handled in server layouts
+export function middleware(_request: NextRequest) {
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon\\.ico).*)"],
+  matcher: [],
 };
