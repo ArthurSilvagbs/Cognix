@@ -1,37 +1,38 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { RefreshCw, Eye, EyeOff, Sparkles, CheckCircle, BookOpen } from "lucide-react";
+import { RefreshCw, Eye, EyeOff, Sparkles, CheckCircle } from "lucide-react";
 import { useStore, Difficulty } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 type Phase = "setup" | "memorize" | "write" | "result";
 
-const LANGUAGES = ["Python", "JavaScript", "TypeScript", "Java", "C", "C++", "Go", "Rust"];
-const DIFFICULTIES: { key: Difficulty; label: string }[] = [
+const LANGUAGES = ["Python","JavaScript","TypeScript","Java","C","C++","Go","Rust"];
+const DIFFS: { key: Difficulty; label: string }[] = [
   { key: "beginner", label: "Iniciante" },
   { key: "intermediate", label: "Intermediário" },
   { key: "advanced", label: "Avançado" },
 ];
 
-const MOCK_CODES: Record<Difficulty, string[]> = {
+const MOCK: Record<Difficulty, string[]> = {
   beginner: [
-    `def calcular_media(notas):
+`def calcular_media(notas):
     total = sum(notas)
     return total / len(notas)
 
 notas = [7.5, 8.0, 9.0, 6.5]
 media = calcular_media(notas)
 print(f"Média: {media:.2f}")`,
-    `def fatorial(n):
+`def fatorial(n):
     if n <= 1:
         return 1
     return n * fatorial(n - 1)
 
-print(fatorial(5))  # 120`,
+resultado = fatorial(5)
+print(f"5! = {resultado}")`,
   ],
   intermediate: [
-    `class Pilha:
+`class Pilha:
     def __init__(self):
         self.items = []
 
@@ -43,17 +44,24 @@ print(fatorial(5))  # 120`,
             return self.items.pop()
 
     def is_empty(self):
-        return len(self.items) == 0`,
+        return len(self.items) == 0
+
+    def peek(self):
+        if not self.is_empty():
+            return self.items[-1]`,
   ],
   advanced: [
-    `def quicksort(arr):
+`def quicksort(arr):
     if len(arr) <= 1:
         return arr
     pivot = arr[len(arr) // 2]
-    left = [x for x in arr if x < pivot]
+    left   = [x for x in arr if x < pivot]
     middle = [x for x in arr if x == pivot]
-    right = [x for x in arr if x > pivot]
-    return quicksort(left) + middle + quicksort(right)`,
+    right  = [x for x in arr if x > pivot]
+    return quicksort(left) + middle + quicksort(right)
+
+nums = [3, 6, 8, 10, 1, 2, 1]
+print(quicksort(nums))`,
   ],
 };
 
@@ -65,189 +73,133 @@ export default function TrainingPage() {
   const [topic, setTopic] = useState("");
   const [memorizeSec, setMemorizeSec] = useState(30);
   const [generating, setGenerating] = useState(false);
-
   const [currentCode, setCurrentCode] = useState("");
   const [userCode, setUserCode] = useState("");
   const [timeLeft, setTimeLeft] = useState(30);
   const [score, setScore] = useState(0);
   const [feedback, setFeedback] = useState("");
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     if (phase === "memorize" && timeLeft > 0) {
-      intervalRef.current = setInterval(() => {
+      timerRef.current = setInterval(() => {
         setTimeLeft((t) => {
-          if (t <= 1) {
-            clearInterval(intervalRef.current!);
-            setPhase("write");
-            return 0;
-          }
+          if (t <= 1) { clearInterval(timerRef.current!); setPhase("write"); return 0; }
           return t - 1;
         });
       }, 1000);
     }
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [phase]);
 
   async function handleGenerate() {
     setGenerating(true);
-    await new Promise((r) => setTimeout(r, 1000));
-    const codes = MOCK_CODES[difficulty];
-    const code = codes[Math.floor(Math.random() * codes.length)];
-    setCurrentCode(code);
-    setUserCode("");
-    setTimeLeft(memorizeSec);
-    setPhase("memorize");
+    await new Promise((r) => setTimeout(r, 900));
+    const pool = MOCK[difficulty];
+    setCurrentCode(pool[Math.floor(Math.random() * pool.length)]);
+    setUserCode(""); setTimeLeft(memorizeSec); setPhase("memorize");
     setGenerating(false);
   }
 
-  function handleSkipMemorize() {
-    clearInterval(intervalRef.current!);
-    setPhase("write");
-  }
-
   async function handleSubmit() {
-    const original = currentCode.replace(/\s+/g, " ").trim();
+    const orig = currentCode.replace(/\s+/g, " ").trim();
     const written = userCode.replace(/\s+/g, " ").trim();
-
-    let matches = 0;
-    const origWords = original.split(" ");
-    const writtenWords = written.split(" ");
-    origWords.forEach((word) => {
-      if (writtenWords.includes(word)) matches++;
-    });
-    const s = Math.round((matches / origWords.length) * 100);
-    setScore(s);
-
-    const fb =
-      s >= 90
-        ? "Excelente! Você memorizou o código quase perfeitamente! 🎉"
-        : s >= 70
-        ? "Muito bom! Você captou a essência do código. Continue praticando!"
-        : s >= 50
-        ? "Bom progresso! Tente focar nos detalhes da sintaxe na próxima tentativa."
-        : "Continue praticando! Tente memorizar a estrutura principal primeiro.";
-
-    setFeedback(fb);
+    const origW = orig.split(" "); const writtenW = new Set(written.split(" "));
+    const matches = origW.filter((w) => writtenW.has(w)).length;
+    const s = Math.round((matches / origW.length) * 100);
+    const fb = s >= 90 ? "Excelente! Memorização quase perfeita. 🎉"
+      : s >= 70 ? "Muito bom! Você captou bem a estrutura do código."
+      : s >= 50 ? "Bom progresso. Foque nos detalhes sintáticos na próxima."
+      : "Continue praticando. Tente memorizar a estrutura primeiro.";
+    setScore(s); setFeedback(fb);
     addTraining({ language, difficulty, topic, originalCode: currentCode, userCode, score: s, feedback: fb, memorizeSec });
     setPhase("result");
   }
 
-  function handleReset() {
-    setPhase("setup");
-    setCurrentCode("");
-    setUserCode("");
-    setScore(0);
-    setFeedback("");
-  }
-
-  const timerPct = (timeLeft / memorizeSec) * 100;
+  const pct = (timeLeft / memorizeSec) * 100;
+  const scoreColor = score >= 80 ? "#15803d" : score >= 50 ? "#b45309" : "#b91c1c";
+  const scoreBg = score >= 80 ? "#f0fdf4" : score >= 50 ? "#fffbeb" : "#fef2f2";
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <div className="flex items-center gap-3 mb-6">
-        <RefreshCw className="w-6 h-6 text-purple-600" />
+    <div className="p-7 max-w-3xl mx-auto">
+      <div className="flex items-center gap-3 mb-7">
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "#fff7ed" }}>
+          <RefreshCw className="w-4 h-4" style={{ color: "#d97706" }} />
+        </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Treino de Memorização</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Veja o código, memorize e reescreva — o sistema avalia seu entendimento.</p>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Treino de Memorização</h1>
+          <p className="text-sm text-slate-400">Veja o código, memorize e reescreva — a IA avalia sua resposta</p>
         </div>
       </div>
 
       {phase === "setup" && (
-        <div className="bg-purple-50 border border-purple-200 rounded-2xl p-6">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 rounded-xl bg-purple-200 flex items-center justify-center">
-              <BookOpen className="w-5 h-5 text-purple-700" />
+        <div className="card p-6">
+          {/* How it works */}
+          <div className="flex items-start gap-3 mb-6 p-4 rounded-xl" style={{ background: "#faf5ff", border: "1px solid #ede9fe" }}>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "#ede9fe" }}>
+              <Eye className="w-4 h-4" style={{ color: "#7c3aed" }} />
             </div>
             <div>
-              <p className="font-semibold text-purple-900">Como funciona?</p>
-              <p className="text-xs text-purple-600">A IA gera um código → você memoriza → reescreve de memória → recebe feedback</p>
+              <p className="text-sm font-semibold text-slate-800">Como funciona</p>
+              <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                {["IA gera código", "Você memoriza", "Reescreve de memória", "Recebe feedback"].map((s, i) => (
+                  <span key={s} className="flex items-center gap-1.5">
+                    <span className="text-xs text-slate-500">{s}</span>
+                    {i < 3 && <span className="text-slate-300 text-xs">→</span>}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4 mb-4">
+
+          <div className="grid grid-cols-2 gap-4 mb-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Linguagem</label>
-              <select
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-white outline-none focus:border-purple-500"
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-              >
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Linguagem</label>
+              <select className="select" value={language} onChange={(e) => setLanguage(e.target.value)}>
                 {LANGUAGES.map((l) => <option key={l}>{l}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Dificuldade</label>
-              <select
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-white outline-none focus:border-purple-500"
-                value={difficulty}
-                onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-              >
-                {DIFFICULTIES.map((d) => <option key={d.key} value={d.key}>{d.label}</option>)}
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Dificuldade</label>
+              <select className="select" value={difficulty} onChange={(e) => setDifficulty(e.target.value as Difficulty)}>
+                {DIFFS.map((d) => <option key={d.key} value={d.key}>{d.label}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Tópico (opcional)</label>
-              <input
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-white outline-none focus:border-purple-500 transition-colors"
-                placeholder="Ex: loops, funções..."
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-              />
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Tópico <span className="font-normal text-slate-400">(opcional)</span></label>
+              <input className="input" placeholder="Ex: loops, funções..." value={topic} onChange={(e) => setTopic(e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Tempo para memorizar (seg)</label>
-              <input
-                type="number"
-                min={10}
-                max={300}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-white outline-none focus:border-purple-500"
-                value={memorizeSec}
-                onChange={(e) => setMemorizeSec(Number(e.target.value))}
-              />
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Tempo para memorizar (s)</label>
+              <input type="number" min={10} max={300} className="input" value={memorizeSec} onChange={(e) => setMemorizeSec(Number(e.target.value))} />
             </div>
           </div>
-          <button
-            onClick={handleGenerate}
-            disabled={generating}
-            className="w-full flex items-center justify-center gap-2 bg-purple-700 hover:bg-purple-800 disabled:opacity-60 text-white font-medium py-3 rounded-xl transition-colors"
-          >
-            {generating ? (
-              <><span className="animate-spin inline-block">⟳</span> Gerando...</>
-            ) : (
-              <><Sparkles className="w-4 h-4" /> Gerar Código para Memorizar</>
-            )}
+
+          <button onClick={handleGenerate} disabled={generating} className="btn btn-primary w-full" style={{ padding: "12px" }}>
+            {generating
+              ? <><span className="animate-spin inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full" /> Gerando código...</>
+              : <><Sparkles className="w-4 h-4" /> Gerar Código para Memorizar</>}
           </button>
         </div>
       )}
 
       {phase === "memorize" && (
         <div className="space-y-4">
-          <div className="bg-white rounded-2xl border border-gray-200 p-5">
+          <div className="card p-5">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <Eye className="w-4 h-4 text-purple-600" />
-                <p className="font-semibold text-gray-800">Memorize este código</p>
+                <Eye className="w-4 h-4 text-slate-500" />
+                <p className="text-sm font-semibold text-slate-800">Memorize este código</p>
               </div>
               <div className="flex items-center gap-3">
-                <span className={cn("text-lg font-bold", timeLeft <= 10 ? "text-red-500" : "text-purple-600")}>
-                  {timeLeft}s
-                </span>
-                <button
-                  onClick={handleSkipMemorize}
-                  className="text-sm text-gray-500 hover:text-gray-700 underline"
-                >
-                  Pular
-                </button>
+                <span className={cn("text-xl font-bold tabular-nums", timeLeft <= 10 ? "text-red-500" : "text-slate-800")}>{timeLeft}s</span>
+                <button onClick={() => { clearInterval(timerRef.current!); setPhase("write"); }} className="text-xs text-slate-400 hover:text-slate-600 underline">Pronto</button>
               </div>
             </div>
-            {/* Timer bar */}
-            <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden mb-4">
-              <div
-                className={cn("h-full rounded-full transition-all", timeLeft <= 10 ? "bg-red-400" : "bg-purple-500")}
-                style={{ width: `${timerPct}%` }}
-              />
+            <div className="h-1.5 rounded-full overflow-hidden mb-4" style={{ background: "#f1f5f9" }}>
+              <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${pct}%`, background: timeLeft <= 10 ? "#ef4444" : "#7c3aed" }} />
             </div>
-            <pre className="bg-gray-900 text-gray-100 rounded-xl p-4 text-sm font-mono overflow-x-auto whitespace-pre-wrap">
+            <pre className="text-sm font-mono leading-relaxed overflow-x-auto whitespace-pre p-4 rounded-xl" style={{ background: "#1e1e2e", color: "#cdd6f4" }}>
               {currentCode}
             </pre>
           </div>
@@ -256,33 +208,27 @@ export default function TrainingPage() {
 
       {phase === "write" && (
         <div className="space-y-4">
-          <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 flex items-center gap-2">
-            <EyeOff className="w-4 h-4 text-amber-600" />
-            <p className="text-sm text-amber-800">O código foi escondido. Reescreva o que você memorizou!</p>
+          <div className="flex items-center gap-2 p-3 rounded-xl text-sm" style={{ background: "#fffbeb", border: "1px solid #fde68a" }}>
+            <EyeOff className="w-4 h-4 text-amber-600 shrink-0" />
+            <span className="text-amber-800 font-medium">Código escondido.</span>
+            <span className="text-amber-700">Reescreva o que você memorizou!</span>
           </div>
-          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-            <div className="px-4 py-2 bg-gray-800 flex items-center justify-between">
-              <span className="text-xs text-gray-400 font-mono">sua_resposta.{language.toLowerCase()}</span>
+          <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #e2e8f0" }}>
+            <div className="flex items-center justify-between px-4 py-2.5" style={{ background: "#1e1e2e" }}>
+              <span className="text-xs text-slate-500 font-mono">sua_resposta</span>
               <div className="flex gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-red-400" />
-                <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                <div className="w-3 h-3 rounded-full bg-green-400" />
+                {["#ff5f57","#febc2e","#28c840"].map((c) => <div key={c} className="w-2.5 h-2.5 rounded-full" style={{ background: c }} />)}
               </div>
             </div>
             <textarea
-              className="w-full font-mono text-sm p-4 bg-gray-900 text-gray-100 resize-none outline-none min-h-52"
-              value={userCode}
-              onChange={(e) => setUserCode(e.target.value)}
+              className="w-full font-mono text-sm p-4 resize-none outline-none min-h-56 block"
+              style={{ background: "#1e1e2e", color: "#cdd6f4", caretColor: "#cdd6f4" }}
+              value={userCode} onChange={(e) => setUserCode(e.target.value)}
               placeholder="// Reescreva o código de memória..."
-              spellCheck={false}
-              autoFocus
+              spellCheck={false} autoFocus
             />
           </div>
-          <button
-            onClick={handleSubmit}
-            disabled={!userCode.trim()}
-            className="w-full bg-purple-700 hover:bg-purple-800 disabled:opacity-50 text-white font-medium py-3 rounded-xl transition-colors"
-          >
+          <button onClick={handleSubmit} disabled={!userCode.trim()} className="btn btn-primary w-full" style={{ padding: "12px" }}>
             Avaliar Resposta
           </button>
         </div>
@@ -290,41 +236,44 @@ export default function TrainingPage() {
 
       {phase === "result" && (
         <div className="space-y-4">
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 text-center">
-            <CheckCircle className="w-14 h-14 text-purple-600 mx-auto mb-3" />
-            <div className={cn("text-5xl font-bold mb-2", score >= 80 ? "text-green-600" : score >= 50 ? "text-yellow-500" : "text-red-500")}>
-              {score}%
-            </div>
-            <p className="text-gray-500 text-sm mb-4">{feedback}</p>
-            <div className="grid grid-cols-2 gap-3 mb-5">
-              <div className="bg-gray-50 rounded-xl p-3">
-                <p className="text-xs text-gray-500">Linguagem</p>
-                <p className="font-semibold text-gray-800">{language}</p>
+          <div className="card p-6">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0" style={{ background: scoreBg }}>
+                <span className="text-2xl font-bold" style={{ color: scoreColor }}>{score}%</span>
               </div>
-              <div className="bg-gray-50 rounded-xl p-3">
-                <p className="text-xs text-gray-500">Dificuldade</p>
-                <p className="font-semibold text-gray-800">{DIFFICULTIES.find(d => d.key === difficulty)?.label}</p>
+              <div>
+                <p className="font-semibold text-slate-800">{score >= 80 ? "Excelente!" : score >= 60 ? "Bom trabalho!" : "Continue praticando!"}</p>
+                <p className="text-sm text-slate-500 mt-0.5">{feedback}</p>
+              </div>
+            </div>
+            <div className="h-2 rounded-full overflow-hidden mb-5" style={{ background: "#f1f5f9" }}>
+              <div className="h-full rounded-full transition-all" style={{ width: `${score}%`, background: scoreColor }} />
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="rounded-xl p-3" style={{ background: "#f8fafc" }}>
+                <p className="text-xs text-slate-400 mb-0.5">Linguagem</p>
+                <p className="font-semibold text-slate-700">{language}</p>
+              </div>
+              <div className="rounded-xl p-3" style={{ background: "#f8fafc" }}>
+                <p className="text-xs text-slate-400 mb-0.5">Dificuldade</p>
+                <p className="font-semibold text-slate-700">{DIFFS.find((d) => d.key === difficulty)?.label}</p>
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white rounded-xl border border-gray-200 p-4">
-              <p className="text-xs font-semibold text-gray-500 mb-2">Original</p>
-              <pre className="text-xs font-mono text-gray-700 whitespace-pre-wrap overflow-x-auto">{currentCode}</pre>
-            </div>
-            <div className="bg-white rounded-xl border border-gray-200 p-4">
-              <p className="text-xs font-semibold text-gray-500 mb-2">Sua resposta</p>
-              <pre className="text-xs font-mono text-gray-700 whitespace-pre-wrap overflow-x-auto">{userCode}</pre>
-            </div>
+            {[{ label: "Original", code: currentCode }, { label: "Sua resposta", code: userCode }].map(({ label, code }) => (
+              <div key={label} className="rounded-xl overflow-hidden" style={{ border: "1px solid #e2e8f0" }}>
+                <div className="px-3 py-2" style={{ background: "#1e1e2e" }}>
+                  <span className="text-xs text-slate-500 font-mono">{label}</span>
+                </div>
+                <pre className="text-xs font-mono p-3 overflow-x-auto whitespace-pre-wrap" style={{ background: "#1e1e2e", color: "#cdd6f4" }}>{code}</pre>
+              </div>
+            ))}
           </div>
 
-          <button
-            onClick={handleReset}
-            className="w-full flex items-center justify-center gap-2 bg-purple-700 hover:bg-purple-800 text-white font-medium py-3 rounded-xl transition-colors"
-          >
-            <RefreshCw className="w-4 h-4" />
-            Treinar Novamente
+          <button onClick={() => { setPhase("setup"); setCurrentCode(""); setUserCode(""); setScore(0); setFeedback(""); }} className="btn btn-primary w-full" style={{ padding: "12px" }}>
+            <RefreshCw className="w-4 h-4" /> Treinar Novamente
           </button>
         </div>
       )}
