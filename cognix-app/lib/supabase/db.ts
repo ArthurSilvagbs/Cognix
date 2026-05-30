@@ -1,5 +1,5 @@
 import { createClient } from "./client";
-import type { StudyGroup, Task, Session, Exercise } from "../store";
+import type { StudyGroup, Task, Exercise } from "../store";
 
 // ── Profile ───────────────────────────────────────────────────────────────────
 
@@ -117,37 +117,6 @@ export async function patchTask(id: string, u: Partial<Task>) {
 
 export async function removeTask(id: string) {
   await createClient().from("tasks").delete().eq("id", id);
-}
-
-// ── Sessions ──────────────────────────────────────────────────────────────────
-
-export async function fetchSessions(userId: string): Promise<Session[]> {
-  const { data } = await createClient()
-    .from("sessions")
-    .select("*")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false });
-  return (data ?? []).map((r) => ({
-    id: r.id,
-    groupId: r.group_id ?? null,
-    subject: r.subject,
-    durationMin: r.duration_min,
-    date: r.date,
-    notes: r.notes ?? undefined,
-    createdAt: r.created_at,
-  }));
-}
-
-export async function insertSession(userId: string, s: Session) {
-  await createClient().from("sessions").insert({
-    id: s.id, user_id: userId, group_id: s.groupId ?? null,
-    subject: s.subject, duration_min: s.durationMin,
-    date: s.date, notes: s.notes ?? null, created_at: s.createdAt,
-  });
-}
-
-export async function removeSession(id: string) {
-  await createClient().from("sessions").delete().eq("id", id);
 }
 
 // ── Exercises ─────────────────────────────────────────────────────────────────

@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Plus, Trash2, Pencil, ArrowRight, FolderOpen, CheckSquare, BookOpen, Code2 } from "lucide-react";
+import { Plus, Trash2, Pencil, ArrowRight, FolderOpen, CheckSquare, Code2 } from "lucide-react";
 import { useStore, StudyGroup, GROUP_COLORS, GROUP_EMOJIS } from "@/lib/store";
 
 interface FormData { name: string; description: string; color: string; emoji: string; }
 const EMPTY: FormData = { name: "", description: "", color: "#7c3aed", emoji: "📚" };
 
 export default function GroupsPage() {
-  const { groups, tasks, sessions, exercises, addGroup, updateGroup, deleteGroup, setActiveGroup } = useStore();
+  const { groups, tasks, exercises, addGroup, updateGroup, deleteGroup, setActiveGroup } = useStore();
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<FormData>(EMPTY);
@@ -29,9 +29,8 @@ export default function GroupsPage() {
   function groupStats(id: string) {
     return {
       tasks: tasks.filter((t) => t.groupId === id).length,
-      sessions: sessions.filter((s) => s.groupId === id).length,
       exercises: exercises.filter((e) => e.groupId === id).length,
-      totalMin: sessions.filter((s) => s.groupId === id).reduce((a, s) => a + s.durationMin, 0),
+      doneExercises: exercises.filter((e) => e.groupId === id && e.status === "done").length,
     };
   }
 
@@ -72,8 +71,6 @@ export default function GroupsPage() {
         <div className="grid grid-cols-2 gap-4">
           {groups.map((g) => {
             const s = groupStats(g.id);
-            const totalH = Math.floor(s.totalMin / 60);
-            const totalM = s.totalMin % 60;
             return (
               <div
                 key={g.id}
@@ -130,10 +127,9 @@ export default function GroupsPage() {
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-3 gap-2 mb-4">
+                <div className="grid grid-cols-2 gap-2 mb-4">
                   {[
                     { icon: CheckSquare, label: "Tarefas", value: s.tasks },
-                    { icon: BookOpen, label: "Sessões", value: s.sessions },
                     { icon: Code2, label: "Exercícios", value: s.exercises },
                   ].map(({ icon: Icon, label, value }) => (
                     <div key={label} className="rounded-xl p-2.5 text-center" style={{ background: "var(--surface-subtle)" }}>
@@ -144,9 +140,9 @@ export default function GroupsPage() {
                   ))}
                 </div>
 
-                {s.totalMin > 0 && (
+                {s.doneExercises > 0 && (
                   <p className="text-xs text-slate-400 mb-3">
-                    ⏱️ <span className="font-medium text-slate-600">{totalH}h {totalM}m</span> estudadas neste grupo
+                    ✅ <span className="font-medium text-slate-600">{s.doneExercises}</span> exercício{s.doneExercises > 1 ? "s" : ""} concluído{s.doneExercises > 1 ? "s" : ""}
                   </p>
                 )}
 

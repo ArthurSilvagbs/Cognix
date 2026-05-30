@@ -14,38 +14,33 @@ export default function StoreInitializer() {
     async function init(userId: string) {
       setUserId(userId);
       try {
-        const [groups, tasks, sessions, exercises, profile] = await Promise.all([
+        const [groups, tasks, exercises, profile] = await Promise.all([
           db.fetchGroups(userId),
           db.fetchTasks(userId),
-          db.fetchSessions(userId),
           db.fetchExercises(userId),
           db.fetchProfile(userId),
         ]);
-        hydrateFromSupabase({ groups, tasks, sessions, exercises, profile });
+        hydrateFromSupabase({ groups, tasks, exercises, profile });
       } catch {
-        // Supabase not configured yet — mark as initialized so app loads normally
-        hydrateFromSupabase({ groups: [], tasks: [], sessions: [], exercises: [], profile: null });
+        hydrateFromSupabase({ groups: [], tasks: [], exercises: [], profile: null });
       }
     }
 
-    // Get current session
     supabase.auth.getUser().then(async ({ data }) => {
       if (data.user) {
         const expire = localStorage.getItem("cognix_expire");
         if (expire && Date.now() > parseInt(expire)) {
           localStorage.removeItem("cognix_expire");
           await supabase.auth.signOut();
-          hydrateFromSupabase({ groups: [], tasks: [], sessions: [], exercises: [], profile: null });
+          hydrateFromSupabase({ groups: [], tasks: [], exercises: [], profile: null });
           return;
         }
         init(data.user.id);
       } else {
-        // Not logged in — just mark as initialized (middleware will handle redirect)
-        hydrateFromSupabase({ groups: [], tasks: [], sessions: [], exercises: [], profile: null });
+        hydrateFromSupabase({ groups: [], tasks: [], exercises: [], profile: null });
       }
     });
 
-    // Listen for auth state changes (login/logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         init(session.user.id);

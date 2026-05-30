@@ -2,68 +2,62 @@
 
 import Link from "next/link";
 import {
-  CheckSquare, BookOpen, Code2, RefreshCw,
+  CheckSquare, Code2, RefreshCw,
   TrendingUp, MessageSquare, ArrowRight, Star, Zap,
 } from "lucide-react";
 import { useStore, useGroupData } from "@/lib/store";
-import { formatDate, formatMinutes, getGreeting } from "@/lib/utils";
+import { formatDate, getGreeting } from "@/lib/utils";
 
 const exploreCards = [
   {
     href: "/tasks", label: "Tarefas", sub: "Organize suas metas",
-    icon: CheckSquare,
-    bg: "#7c3aed", light: "#ede9fe", text: "#5b21b6",
-  },
-  {
-    href: "/sessions", label: "Sessões", sub: "Registre tempo estudado",
-    icon: BookOpen,
-    bg: "#0891b2", light: "#e0f2fe", text: "#0369a1",
+    icon: CheckSquare, bg: "#7c3aed",
   },
   {
     href: "/exercises", label: "Exercícios", sub: "Pratique com IA",
-    icon: Code2,
-    bg: "#059669", light: "#d1fae5", text: "#047857",
+    icon: Code2, bg: "#059669",
   },
   {
     href: "/training", label: "Treino", sub: "Memorize código",
-    icon: RefreshCw,
-    bg: "#d97706", light: "#fef3c7", text: "#b45309",
+    icon: RefreshCw, bg: "#d97706",
   },
   {
     href: "/evolution", label: "Evolução", sub: "Acompanhe progresso",
-    icon: TrendingUp,
-    bg: "#db2777", light: "#fce7f3", text: "#9d174d",
+    icon: TrendingUp, bg: "#db2777",
   },
   {
     href: "/tutor", label: "Tutor IA", sub: "Tire dúvidas",
-    icon: MessageSquare,
-    bg: "#4f46e5", light: "#e0e7ff", text: "#3730a3",
+    icon: MessageSquare, bg: "#4f46e5",
   },
 ];
 
 export default function DashboardPage() {
-  const { tasks, sessions, exercises, activeGroupId } = useGroupData();
-  const { groups } = useStore();
+  const { tasks, exercises, activeGroupId } = useGroupData();
+  const { groups, user } = useStore();
   const activeGroup = groups.find((g) => g.id === activeGroupId);
 
   const doneTasks = tasks.filter((t) => t.status === "done").length;
-  const totalMinutes = sessions.reduce((acc, s) => acc + s.durationMin, 0);
+  const doneExercises = exercises.filter((e) => e.status === "done").length;
   const pendingTasks = tasks.filter((t) => t.status !== "done").slice(0, 4);
   const recentExercises = exercises.slice(0, 3);
 
-  const subjects = sessions.reduce<Record<string, number>>((acc, s) => {
-    acc[s.subject] = (acc[s.subject] ?? 0) + s.durationMin;
+  const subjectMap = tasks.reduce<Record<string, { done: number; total: number }>>((acc, t) => {
+    if (!acc[t.subject]) acc[t.subject] = { done: 0, total: 0 };
+    acc[t.subject].total++;
+    if (t.status === "done") acc[t.subject].done++;
     return acc;
   }, {});
-  const topSubjects = Object.entries(subjects).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  const topSubjects = Object.entries(subjectMap)
+    .sort((a, b) => b[1].total - a[1].total)
+    .slice(0, 4);
 
   const today = new Date();
 
   const stats = [
-    { label: "Tarefas feitas", value: doneTasks, color: "#7c3aed" },
-    { label: "Horas estudadas", value: formatMinutes(totalMinutes), color: "#0891b2" },
-    { label: "Exercícios", value: exercises.length, color: "#059669" },
-    { label: "Sessões", value: sessions.length, color: "#d97706" },
+    { label: "Tarefas feitas",    value: doneTasks         },
+    { label: "Exercícios feitos", value: doneExercises     },
+    { label: "XP total",          value: user.xp           },
+    { label: "Nível atual",       value: `Nv. ${user.level}` },
   ];
 
   return (
@@ -77,7 +71,6 @@ export default function DashboardPage() {
           boxShadow: "0 8px 32px -4px rgb(109 40 217 / 0.3), 0 2px 8px -2px rgb(109 40 217 / 0.2)",
         }}
       >
-        {/* Grid pattern overlay */}
         <div
           className="absolute inset-0 opacity-[0.07]"
           style={{
@@ -88,8 +81,6 @@ export default function DashboardPage() {
             backgroundSize: "40px 40px",
           }}
         />
-
-        {/* Radial glow */}
         <div
           className="absolute -top-20 -right-20 w-80 h-80 rounded-full opacity-20"
           style={{ background: "radial-gradient(circle, #a78bfa, transparent 70%)" }}
@@ -132,7 +123,6 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Stats */}
           <div className="grid grid-cols-4 gap-3">
             {stats.map((s) => (
               <div
@@ -153,16 +143,13 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xs font-semibold text-slate-400 tracking-widest uppercase">Explorar</h2>
         </div>
-        <div className="grid grid-cols-6 gap-3">
-          {exploreCards.map(({ href, label, sub, icon: Icon, bg, light }) => (
+        <div className="grid grid-cols-5 gap-3">
+          {exploreCards.map(({ href, label, sub, icon: Icon, bg }) => (
             <Link
               key={href}
               href={href}
               className="group rounded-2xl p-4 flex flex-col items-start gap-3 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-              style={{
-                background: `${bg}18`,
-                border: `1px solid ${bg}30`,
-              }}
+              style={{ background: `${bg}18`, border: `1px solid ${bg}30` }}
               onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = `${bg}55`; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = `${bg}30`; }}
             >
@@ -244,14 +231,14 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Subjects studied */}
+        {/* Progress by subject */}
         <div className="card p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-blue-100 flex items-center justify-center">
-                <BookOpen className="w-3.5 h-3.5 text-blue-600" />
+              <div className="w-6 h-6 rounded-lg bg-violet-100 flex items-center justify-center">
+                <TrendingUp className="w-3.5 h-3.5 text-violet-600" />
               </div>
-              <h3 className="text-sm font-semibold text-slate-800">Matérias Estudadas</h3>
+              <h3 className="text-sm font-semibold text-slate-800">Progresso por Matéria</h3>
             </div>
             <Link
               href="/evolution"
@@ -264,27 +251,27 @@ export default function DashboardPage() {
           {topSubjects.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-6">
               <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center mb-2">
-                <BookOpen className="w-5 h-5 text-slate-300" />
+                <CheckSquare className="w-5 h-5 text-slate-300" />
               </div>
-              <p className="text-sm font-medium text-slate-500">Nenhuma sessão ainda</p>
-              <Link href="/sessions" className="text-xs text-violet-600 hover:text-violet-800 mt-1 font-medium">
-                Registrar sessão
+              <p className="text-sm font-medium text-slate-500">Nenhuma tarefa ainda</p>
+              <Link href="/tasks" className="text-xs text-violet-600 hover:text-violet-800 mt-1 font-medium">
+                Criar tarefa
               </Link>
             </div>
           ) : (
             <div className="space-y-3.5">
-              {topSubjects.map(([subject, minutes], i) => (
+              {topSubjects.map(([subject, { done, total }], i) => (
                 <div key={subject}>
                   <div className="flex justify-between items-center mb-1.5">
                     <span className="text-sm font-medium text-slate-700">{subject}</span>
-                    <span className="text-xs text-slate-400 font-medium">{formatMinutes(minutes)}</span>
+                    <span className="text-xs text-slate-400 font-medium">{done}/{total}</span>
                   </div>
                   <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--surface-subtle)" }}>
                     <div
                       className="h-full rounded-full transition-all"
                       style={{
-                        width: `${Math.min((minutes / totalMinutes) * 100, 100)}%`,
-                        background: i === 0 ? "#7c3aed" : i === 1 ? "#0891b2" : "#059669",
+                        width: `${total > 0 ? (done / total) * 100 : 0}%`,
+                        background: i === 0 ? "#7c3aed" : i === 1 ? "#0891b2" : i === 2 ? "#059669" : "#d97706",
                       }}
                     />
                   </div>

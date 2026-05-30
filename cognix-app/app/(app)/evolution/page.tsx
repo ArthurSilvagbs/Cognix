@@ -1,20 +1,20 @@
 "use client";
 
-import { TrendingUp, Trophy, Flame, Code2, BookOpen } from "lucide-react";
+import { TrendingUp, Trophy, Code2, CheckCircle } from "lucide-react";
 import { useStore, useGroupData, ACHIEVEMENTS } from "@/lib/store";
-import { formatMinutes, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 
 const PIE_COLORS = ["#7c3aed","#0891b2","#059669","#d97706","#db2777","#4f46e5","#0284c7"];
 
 export default function EvolutionPage() {
   const { user, unlockedAchievements, groups } = useStore();
-  const { tasks, sessions, exercises, activeGroupId } = useGroupData();
+  const { tasks, exercises, activeGroupId } = useGroupData();
   const activeGroup = groups.find((g) => g.id === activeGroupId);
 
   const doneTasks = tasks.filter((t) => t.status === "done").length;
   const doneExercises = exercises.filter((e) => e.status === "done").length;
-  const totalMinutes = sessions.reduce((a, s) => a + s.durationMin, 0);
+  const pendingExercises = exercises.filter((e) => e.status !== "done").length;
   const xpInLevel = user.xp % 100;
 
   const today = new Date();
@@ -22,8 +22,8 @@ export default function EvolutionPage() {
     const d = new Date(today);
     d.setDate(today.getDate() - (13 - i));
     const dateStr = d.toISOString().split("T")[0];
-    const minutes = sessions.filter((s) => s.date === dateStr).reduce((a, s) => a + s.durationMin, 0);
-    return { day: d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }), minutes };
+    const count = exercises.filter((e) => e.status === "done" && e.createdAt.startsWith(dateStr)).length;
+    return { day: d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }), count };
   });
 
   const subjectMap = tasks.reduce<Record<string, { done: number; total: number }>>((acc, t) => {
@@ -81,9 +81,9 @@ export default function EvolutionPage() {
           </div>
           <div className="grid grid-cols-3 gap-3 mt-5">
             {[
-              { icon: Flame, label: "Tarefas", value: doneTasks },
-              { icon: Code2, label: "Exercícios", value: doneExercises },
-              { icon: BookOpen, label: `${sessions.length} sessões`, value: formatMinutes(totalMinutes) },
+              { icon: TrendingUp, label: "Tarefas",    value: doneTasks      },
+              { icon: Code2,      label: "Feitos",      value: doneExercises  },
+              { icon: CheckCircle, label: "Pendentes",  value: pendingExercises },
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className="rounded-xl p-3 text-center" style={{ background: "rgb(255 255 255 / 0.12)" }}>
                 <Icon className="w-4 h-4 text-violet-200 mx-auto mb-1" />
@@ -98,23 +98,23 @@ export default function EvolutionPage() {
       {/* Charts */}
       <div className="grid grid-cols-2 gap-4">
         <div className="card p-5">
-          <p className="text-sm font-semibold text-slate-800 mb-4">Horas Estudadas — 14 dias</p>
-          {totalMinutes === 0 ? (
+          <p className="text-sm font-semibold text-slate-800 mb-4">Exercícios Concluídos — 14 dias</p>
+          {doneExercises === 0 ? (
             <div className="flex flex-col items-center py-8 text-slate-400">
-              <BookOpen className="w-8 h-8 text-slate-200 mb-2" />
-              <p className="text-sm">Nenhuma sessão ainda</p>
+              <Code2 className="w-8 h-8 text-slate-200 mb-2" />
+              <p className="text-sm">Nenhum exercício ainda</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={last14} margin={{ top: 0, right: 0, left: -25, bottom: 0 }}>
                 <XAxis dataKey="day" tick={{ fontSize: 10, fill: "var(--text-muted)" }} tickLine={false} axisLine={false} interval={2} />
-                <YAxis tick={{ fontSize: 10, fill: "var(--text-muted)" }} tickLine={false} axisLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: "var(--text-muted)" }} tickLine={false} axisLine={false} allowDecimals={false} />
                 <Tooltip
-                  formatter={(v) => [formatMinutes(Number(v)), "Tempo"]}
+                  formatter={(v) => [v, "Exercícios"]}
                   contentStyle={{ borderRadius: "10px", border: "1px solid var(--border)", fontSize: "12px", background: "var(--surface)", color: "var(--text-primary)" }}
                   cursor={{ fill: "var(--surface-subtle)" }}
                 />
-                <Bar dataKey="minutes" fill="#7c3aed" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="count" fill="#7c3aed" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}

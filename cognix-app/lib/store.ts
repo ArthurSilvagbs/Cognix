@@ -34,16 +34,6 @@ export interface Task {
   completedAt?: string;
 }
 
-export interface Session {
-  id: string;
-  groupId: string | null;
-  subject: string;
-  durationMin: number;
-  date: string;
-  notes?: string;
-  createdAt: string;
-}
-
 export interface Exercise {
   id: string;
   groupId: string | null;
@@ -83,15 +73,13 @@ export interface Achievement {
 }
 
 export const ACHIEVEMENTS: Achievement[] = [
-  { key: "first_task",  name: "Primeira Tarefa",  description: "Complete sua primeira tarefa",     icon: "🎯", xpReward: 10  },
-  { key: "first_code",  name: "Primeiro Código",  description: "Complete seu primeiro exercício",  icon: "💻", xpReward: 20  },
-  { key: "5_sessions",  name: "5 Sessões",         description: "Registre 5 sessões de estudo",     icon: "📚", xpReward: 30  },
-  { key: "10_tasks",    name: "10 Tarefas Feitas", description: "Complete 10 tarefas",              icon: "🔥", xpReward: 50  },
-  { key: "5_exercises", name: "5 Exercícios",      description: "Complete 5 exercícios",            icon: "⚡", xpReward: 40  },
-  { key: "level_5",     name: "Nível 5",           description: "Alcance o nível 5",               icon: "🏆", xpReward: 100 },
-  { key: "10h_studied", name: "10h Estudadas",     description: "Estude 10 horas no total",        icon: "⏱️", xpReward: 60  },
-  { key: "level_10",    name: "Nível 10",          description: "Alcance o nível 10",              icon: "🌟", xpReward: 200 },
-  { key: "3_groups",    name: "3 Áreas",           description: "Crie 3 grupos de estudo",         icon: "🗂️", xpReward: 25  },
+  { key: "first_task",  name: "Primeira Tarefa",  description: "Complete sua primeira tarefa",    icon: "🎯", xpReward: 10  },
+  { key: "first_code",  name: "Primeiro Código",  description: "Complete seu primeiro exercício", icon: "💻", xpReward: 20  },
+  { key: "10_tasks",    name: "10 Tarefas Feitas", description: "Complete 10 tarefas",             icon: "🔥", xpReward: 50  },
+  { key: "5_exercises", name: "5 Exercícios",      description: "Complete 5 exercícios",           icon: "⚡", xpReward: 40  },
+  { key: "level_5",     name: "Nível 5",           description: "Alcance o nível 5",              icon: "🏆", xpReward: 100 },
+  { key: "level_10",    name: "Nível 10",          description: "Alcance o nível 10",             icon: "🌟", xpReward: 200 },
+  { key: "3_groups",    name: "3 Áreas",           description: "Crie 3 grupos de estudo",        icon: "🗂️", xpReward: 25  },
 ];
 
 export const GROUP_COLORS = [
@@ -120,7 +108,6 @@ interface AppState {
 
   // Data
   tasks: Task[];
-  sessions: Session[];
   exercises: Exercise[];
   trainings: CodeTraining[];
 
@@ -133,7 +120,6 @@ interface AppState {
   hydrateFromSupabase: (data: {
     groups: StudyGroup[];
     tasks: Task[];
-    sessions: Session[];
     exercises: Exercise[];
     profile: { name: string; xp: number; level: number; unlockedAchievements: string[] } | null;
   }) => void;
@@ -149,10 +135,6 @@ interface AppState {
   addTask: (task: Omit<Task, "id" | "createdAt">) => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
-
-  // Session actions
-  addSession: (session: Omit<Session, "id" | "createdAt">) => void;
-  deleteSession: (id: string) => void;
 
   // Exercise actions
   addExercise: (exercise: Omit<Exercise, "id" | "createdAt">) => void;
@@ -174,7 +156,6 @@ export const useStore = create<AppState>()(
       groups: [],
       activeGroupId: null,
       tasks: [],
-      sessions: [],
       exercises: [],
       trainings: [],
       user: { name: "Estudante", xp: 0, level: 1 },
@@ -183,12 +164,11 @@ export const useStore = create<AppState>()(
       // ── Sync ────────────────────────────────────────────────────────────────
       setUserId: (id) => set({ userId: id }),
 
-      hydrateFromSupabase: ({ groups, tasks, sessions, exercises, profile }) => {
+      hydrateFromSupabase: ({ groups, tasks, exercises, profile }) => {
         set({
           initialized: true,
           groups,
           tasks,
-          sessions,
           exercises,
           user: profile
             ? { name: profile.name, xp: profile.xp, level: profile.level }
@@ -203,7 +183,6 @@ export const useStore = create<AppState>()(
           initialized: false,
           groups: [],
           tasks: [],
-          sessions: [],
           exercises: [],
           trainings: [],
           user: { name: "Estudante", xp: 0, level: 1 },
@@ -229,7 +208,6 @@ export const useStore = create<AppState>()(
         set((s) => ({
           groups: s.groups.filter((g) => g.id !== id),
           tasks: s.tasks.map((t) => t.groupId === id ? { ...t, groupId: null } : t),
-          sessions: s.sessions.map((s2) => s2.groupId === id ? { ...s2, groupId: null } : s2),
           exercises: s.exercises.map((e) => e.groupId === id ? { ...e, groupId: null } : e),
           trainings: s.trainings.map((t) => t.groupId === id ? { ...t, groupId: null } : t),
           activeGroupId: s.activeGroupId === id ? null : s.activeGroupId,
@@ -270,22 +248,6 @@ export const useStore = create<AppState>()(
         if (userId) db.removeTask(id).catch(console.error);
       },
 
-      // ── Sessions ─────────────────────────────────────────────────────────────
-      addSession: (session) => {
-        const newSession: Session = { ...session, id: generateId(), createdAt: new Date().toISOString() };
-        set((s) => ({ sessions: [newSession, ...s.sessions] }));
-        const { userId } = get();
-        if (userId) db.insertSession(userId, newSession).catch(console.error);
-        get().addXP(Math.max(Math.floor(session.durationMin / 30) * 5, 5));
-        get().checkAchievements();
-      },
-
-      deleteSession: (id) => {
-        set((s) => ({ sessions: s.sessions.filter((s2) => s2.id !== id) }));
-        const { userId } = get();
-        if (userId) db.removeSession(id).catch(console.error);
-      },
-
       // ── Exercises ────────────────────────────────────────────────────────────
       addExercise: (exercise) => {
         const newExercise: Exercise = { ...exercise, id: generateId(), createdAt: new Date().toISOString() };
@@ -319,21 +281,18 @@ export const useStore = create<AppState>()(
       },
 
       checkAchievements: () => {
-        const { tasks, sessions, exercises, groups, user, unlockedAchievements, userId } = get();
+        const { tasks, exercises, groups, user, unlockedAchievements, userId } = get();
         const toUnlock: string[] = [];
         const done = (arr: { status: string }[]) => arr.filter((x) => x.status === "done").length;
-        const totalMin = sessions.reduce((a, s) => a + s.durationMin, 0);
 
         const check = (key: string, cond: boolean) => {
           if (cond && !unlockedAchievements.includes(key)) toUnlock.push(key);
         };
         check("first_task",  done(tasks) >= 1);
         check("first_code",  done(exercises) >= 1);
-        check("5_sessions",  sessions.length >= 5);
         check("10_tasks",    done(tasks) >= 10);
         check("5_exercises", done(exercises) >= 5);
         check("level_5",     user.level >= 5);
-        check("10h_studied", totalMin >= 600);
         check("level_10",    user.level >= 10);
         check("3_groups",    groups.length >= 3);
 
@@ -348,7 +307,6 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "cognix-store",
-      // Só persiste preferências de UI no localStorage — dados reais vêm do Supabase
       partialize: (s) => ({ activeGroupId: s.activeGroupId }),
     }
   )
@@ -356,12 +314,11 @@ export const useStore = create<AppState>()(
 
 // ── Filtered selectors ────────────────────────────────────────────────────────
 export function useGroupData() {
-  const { tasks, sessions, exercises, trainings, activeGroupId } = useStore();
+  const { tasks, exercises, trainings, activeGroupId } = useStore();
   const filter = <T extends { groupId: string | null }>(arr: T[]) =>
     activeGroupId === null ? arr : arr.filter((x) => x.groupId === activeGroupId);
   return {
     tasks: filter(tasks),
-    sessions: filter(sessions),
     exercises: filter(exercises),
     trainings: filter(trainings),
     activeGroupId,

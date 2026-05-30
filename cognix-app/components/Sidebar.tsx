@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  LayoutDashboard, CheckSquare, BookOpen, Code2,
+  LayoutDashboard, CheckSquare, Code2,
   TrendingUp, MessageSquare, GraduationCap,
   ChevronDown, Globe, Plus, Settings2, FolderOpen, LogOut,
 } from "lucide-react";
@@ -16,7 +16,6 @@ const navItems = [
   { href: "/dashboard",  label: "Dashboard",      icon: LayoutDashboard },
   { href: "/groups",     label: "Grupos",          icon: FolderOpen      },
   { href: "/tasks",      label: "Tarefas",         icon: CheckSquare     },
-  { href: "/sessions",   label: "Sessões",          icon: BookOpen        },
   { href: "/exercises",  label: "Exercícios",       icon: Code2           },
   { href: "/evolution",  label: "Evolução",         icon: TrendingUp      },
   { href: "/tutor",      label: "Tutor IA",         icon: MessageSquare   },
