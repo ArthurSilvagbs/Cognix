@@ -8,14 +8,14 @@ import { cn, formatMinutes } from "@/lib/utils";
 type FilterTab = "all" | "pending" | "in_progress" | "done";
 
 const PRIORITY_STYLES: Record<TaskPriority, { bg: string; text: string; dot: string; label: string }> = {
-  low:    { bg: "#f0fdf4", text: "#15803d", dot: "#22c55e", label: "Baixa"  },
-  medium: { bg: "#fffbeb", text: "#b45309", dot: "#f59e0b", label: "Média"  },
-  high:   { bg: "#fef2f2", text: "#b91c1c", dot: "#ef4444", label: "Alta"   },
+  low:    { bg: "var(--color-success-bg)", text: "var(--color-success-text)", dot: "#22c55e", label: "Baixa"  },
+  medium: { bg: "var(--color-warning-bg)", text: "var(--color-warning-text)", dot: "#f59e0b", label: "Média"  },
+  high:   { bg: "var(--color-danger-bg)",  text: "var(--color-danger-text)",  dot: "#ef4444", label: "Alta"   },
 };
 const STATUS_STYLES: Record<TaskStatus, { bg: string; text: string; label: string }> = {
-  pending:     { bg: "#fff7ed", text: "#c2410c", label: "Pendente"     },
-  in_progress: { bg: "#eff6ff", text: "#1d4ed8", label: "Em Andamento" },
-  done:        { bg: "#f0fdf4", text: "#15803d", label: "Concluída"    },
+  pending:     { bg: "var(--color-warning-bg)", text: "var(--color-warning-text)", label: "Pendente"     },
+  in_progress: { bg: "var(--color-info-bg)",    text: "var(--color-info-text)",    label: "Em Andamento" },
+  done:        { bg: "var(--color-success-bg)", text: "var(--color-success-text)", label: "Concluída"    },
 };
 const TYPE_LABELS: Record<TaskType, string> = {
   study: "Estudo", review: "Revisão", practice: "Prática", project: "Projeto",
@@ -84,10 +84,10 @@ export default function TasksPage() {
         </button>
       </div>
 
-      <div className="flex gap-1 mb-5 p-1 rounded-xl w-fit" style={{ background: "#f1f5f9" }}>
+      <div className="flex gap-1 mb-5 p-1 rounded-xl w-fit" style={{ background: "var(--surface-subtle)" }}>
         {TABS.map(({ key, label }) => (
           <button key={key} onClick={() => setTab(key)} className="text-sm px-4 py-1.5 rounded-lg font-medium transition-all duration-150"
-            style={tab === key ? { background: "#fff", color: "#0f172a", boxShadow: "0 1px 3px rgb(0 0 0 / 0.1)" } : { background: "transparent", color: "#64748b" }}>
+            style={tab === key ? { background: "var(--surface)", color: "var(--text-primary)", boxShadow: "0 1px 3px rgb(0 0 0 / 0.15)" } : { background: "transparent", color: "var(--text-muted)" }}>
             {label}
           </button>
         ))}
@@ -95,7 +95,7 @@ export default function TasksPage() {
 
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3" style={{ background: "#f1f5f9" }}>
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3" style={{ background: "var(--surface-subtle)" }}>
             <SlidersHorizontal className="w-6 h-6 text-slate-300" />
           </div>
           <p className="font-semibold text-slate-500">Nenhuma tarefa encontrada</p>
@@ -136,16 +136,16 @@ export default function TasksPage() {
                   {task.status !== "done" && (
                     <button onClick={() => updateTask(task.id, { status: task.status === "pending" ? "in_progress" : "pending" })}
                       className="text-xs px-2.5 py-1.5 rounded-lg font-medium transition-colors"
-                      style={{ background: "#f1f5f9", color: "#475569" }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#e2e8f0"; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "#f1f5f9"; }}>
+                      style={{ background: "var(--surface-subtle)", color: "var(--text-secondary)" }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--border)"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--surface-subtle)"; }}>
                       {task.status === "pending" ? "Iniciar" : "Pausar"}
                     </button>
                   )}
                   <button onClick={() => openEdit(task)} className="text-xs px-2.5 py-1.5 rounded-lg font-medium transition-colors"
-                    style={{ background: "#f1f5f9", color: "#475569" }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#e2e8f0"; }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "#f1f5f9"; }}>
+                    style={{ background: "var(--surface-subtle)", color: "var(--text-secondary)" }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--border)"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--surface-subtle)"; }}>
                     Editar
                   </button>
                   <button onClick={() => deleteTask(task.id)} className="p-1.5 rounded-lg transition-colors text-slate-300 hover:text-red-400 hover:bg-red-50">
@@ -161,7 +161,7 @@ export default function TasksPage() {
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: "1px solid #f1f5f9" }}>
+            <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: "1px solid var(--border)" }}>
               <div>
                 <h2 className="text-base font-semibold text-slate-900">{editId ? "Editar Tarefa" : "Nova Tarefa"}</h2>
                 {activeGroup && !editId && (

@@ -107,12 +107,12 @@ export default function EvolutionPage() {
           ) : (
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={last14} margin={{ top: 0, right: 0, left: -25, bottom: 0 }}>
-                <XAxis dataKey="day" tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} interval={2} />
-                <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
+                <XAxis dataKey="day" tick={{ fontSize: 10, fill: "var(--text-muted)" }} tickLine={false} axisLine={false} interval={2} />
+                <YAxis tick={{ fontSize: 10, fill: "var(--text-muted)" }} tickLine={false} axisLine={false} />
                 <Tooltip
                   formatter={(v) => [formatMinutes(Number(v)), "Tempo"]}
-                  contentStyle={{ borderRadius: "10px", border: "1px solid #e2e8f0", fontSize: "12px", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.07)" }}
-                  cursor={{ fill: "#f8fafc" }}
+                  contentStyle={{ borderRadius: "10px", border: "1px solid var(--border)", fontSize: "12px", background: "var(--surface)", color: "var(--text-primary)" }}
+                  cursor={{ fill: "var(--surface-subtle)" }}
                 />
                 <Bar dataKey="minutes" fill="#7c3aed" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -133,8 +133,8 @@ export default function EvolutionPage() {
                 <Pie data={languageData} cx="50%" cy="45%" innerRadius={50} outerRadius={72} dataKey="value" paddingAngle={3}>
                   {languageData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
                 </Pie>
-                <Tooltip contentStyle={{ borderRadius: "10px", border: "1px solid #e2e8f0", fontSize: "12px" }} />
-                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: "11px", color: "#64748b" }} />
+                <Tooltip contentStyle={{ borderRadius: "10px", border: "1px solid var(--border)", fontSize: "12px", background: "var(--surface)", color: "var(--text-primary)" }} />
+                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: "11px", color: "var(--text-muted)" }} />
               </PieChart>
             </ResponsiveContainer>
           )}
@@ -152,7 +152,7 @@ export default function EvolutionPage() {
                   <span className="font-medium text-slate-700">{subject}</span>
                   <span className="text-slate-400 text-xs font-medium">{done}/{total} tarefas</span>
                 </div>
-                <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "#f1f5f9" }}>
+                <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--surface-subtle)" }}>
                   <div className="h-full rounded-full transition-all" style={{ width: `${total > 0 ? (done / total) * 100 : 0}%`, background: PIE_COLORS[i % PIE_COLORS.length] }} />
                 </div>
               </div>
@@ -172,8 +172,8 @@ export default function EvolutionPage() {
                 key={ach.key}
                 className={cn("rounded-xl p-4 text-center transition-all", unlocked ? "" : "opacity-50")}
                 style={unlocked
-                  ? { background: "#fefce8", border: "1px solid #fde68a" }
-                  : { background: "#f8fafc", border: "1px solid #f1f5f9" }}
+                  ? { background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.25)" }
+                  : { background: "var(--surface-subtle)", border: "1px solid var(--border)" }}
               >
                 <div className="text-2xl mb-2">{ach.icon}</div>
                 <p className={cn("text-xs font-semibold leading-tight", unlocked ? "text-slate-800" : "text-slate-500")}>{ach.name}</p>

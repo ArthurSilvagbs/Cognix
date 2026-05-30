@@ -57,7 +57,7 @@ export default function GroupsPage() {
       {/* Empty */}
       {groups.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "#f1f5f9" }}>
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "var(--surface-subtle)" }}>
             <FolderOpen className="w-7 h-7 text-slate-300" />
           </div>
           <p className="font-semibold text-slate-600 text-base">Nenhum grupo criado</p>
@@ -107,7 +107,7 @@ export default function GroupsPage() {
                         <button
                           onClick={() => { deleteGroup(g.id); setDeleteConfirm(null); }}
                           className="text-xs px-2 py-1 rounded-lg font-medium transition-colors"
-                          style={{ background: "#fef2f2", color: "#dc2626" }}
+                          style={{ background: "var(--color-danger-bg)", color: "var(--color-danger-text)" }}
                         >
                           Confirmar
                         </button>
@@ -136,7 +136,7 @@ export default function GroupsPage() {
                     { icon: BookOpen, label: "Sessões", value: s.sessions },
                     { icon: Code2, label: "Exercícios", value: s.exercises },
                   ].map(({ icon: Icon, label, value }) => (
-                    <div key={label} className="rounded-xl p-2.5 text-center" style={{ background: "#f8fafc" }}>
+                    <div key={label} className="rounded-xl p-2.5 text-center" style={{ background: "var(--surface-subtle)" }}>
                       <Icon className="w-3.5 h-3.5 mx-auto mb-1 text-slate-400" />
                       <p className="text-base font-bold text-slate-700">{value}</p>
                       <p className="text-xs text-slate-400">{label}</p>
@@ -176,7 +176,7 @@ export default function GroupsPage() {
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: "1px solid #f1f5f9" }}>
+            <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: "1px solid var(--border)" }}>
               <h2 className="text-base font-semibold text-slate-900">{editId ? "Editar Grupo" : "Novo Grupo"}</h2>
               <button onClick={() => setShowModal(false)} className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors text-lg leading-none">×</button>
             </div>
@@ -237,7 +237,7 @@ export default function GroupsPage() {
                       style={{
                         background: value,
                         transform: form.color === value ? "scale(1.2)" : "scale(1)",
-                        boxShadow: form.color === value ? `0 0 0 3px ${value}40, 0 0 0 5px white` : "none",
+                        boxShadow: form.color === value ? `0 0 0 3px ${value}40, 0 0 0 5px var(--surface)` : "none",
                       }}
                     />
                   ))}

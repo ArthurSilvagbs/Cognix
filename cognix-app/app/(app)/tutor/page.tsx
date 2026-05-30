@@ -45,9 +45,9 @@ export default function TutorPage() {
   const showSuggestions = messages.length === 1;
 
   return (
-    <div className="flex flex-col h-full" style={{ background: "#f8fafc" }}>
+    <div className="flex flex-col h-full" style={{ background: "var(--bg)" }}>
       {/* Header */}
-      <div className="px-6 py-4 bg-white" style={{ borderBottom: "1px solid #e2e8f0" }}>
+      <div className="px-6 py-4" style={{ background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
         <div className="flex items-center gap-3 max-w-3xl mx-auto">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #7c3aed, #4f46e5)" }}>
             <Sparkles className="w-4 h-4 text-white" />
@@ -56,7 +56,7 @@ export default function TutorPage() {
             <p className="text-sm font-semibold text-slate-900">Tutor IA</p>
             <p className="text-xs text-slate-400">Pergunte sobre qualquer matéria</p>
           </div>
-          <div className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full" style={{ background: "#f0fdf4", color: "#15803d" }}>
+          <div className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full" style={{ background: "var(--color-success-bg)", color: "var(--color-success-text)" }}>
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
             Online
           </div>
@@ -82,7 +82,7 @@ export default function TutorPage() {
                 className={cn("max-w-[78%] px-4 py-3 text-sm leading-relaxed", msg.role === "user" ? "rounded-2xl rounded-tr-sm" : "rounded-2xl rounded-tl-sm")}
                 style={msg.role === "user"
                   ? { background: "#7c3aed", color: "white" }
-                  : { background: "white", color: "#0f172a", border: "1px solid #e2e8f0", boxShadow: "0 1px 2px rgb(0 0 0 / 0.04)" }}
+                  : { background: "var(--surface)", color: "var(--text-primary)", border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)" }}
               >
                 <p className="whitespace-pre-wrap">{msg.content}</p>
                 <p className={cn("text-xs mt-1.5", msg.role === "user" ? "text-violet-200" : "text-slate-400")}>
@@ -97,7 +97,7 @@ export default function TutorPage() {
               <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center">
                 <Sparkles className="w-3.5 h-3.5" style={{ color: "#7c3aed" }} />
               </div>
-              <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-sm px-4 py-3" style={{ boxShadow: "0 1px 2px rgb(0 0 0 / 0.04)" }}>
+              <div className="rounded-2xl rounded-tl-sm px-4 py-3" style={{ background: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)" }}>
                 <div className="flex gap-1 items-center h-5">
                   {[0, 1, 2].map((i) => (
                     <div key={i} className="w-1.5 h-1.5 rounded-full bg-slate-300 animate-bounce" style={{ animationDelay: `${i * 150}ms` }} />
@@ -121,9 +121,9 @@ export default function TutorPage() {
                   key={s}
                   onClick={() => send(s)}
                   className="text-xs px-3 py-1.5 rounded-full transition-colors font-medium"
-                  style={{ background: "white", border: "1px solid #e2e8f0", color: "#475569" }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "#7c3aed"; (e.currentTarget as HTMLElement).style.color = "#7c3aed"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "#e2e8f0"; (e.currentTarget as HTMLElement).style.color = "#475569"; }}
+                  style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--text-secondary)" }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--primary)"; (e.currentTarget as HTMLElement).style.color = "var(--primary)"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--border)"; (e.currentTarget as HTMLElement).style.color = "var(--text-secondary)"; }}
                 >
                   {s}
                 </button>
@@ -134,13 +134,13 @@ export default function TutorPage() {
       )}
 
       {/* Input */}
-      <div className="pb-5 pt-3" style={{ background: "#f8fafc" }}>
+      <div className="pb-5 pt-3" style={{ background: "var(--bg)" }}>
         <div className="max-w-3xl mx-auto px-6">
           <div
             className="flex items-center gap-3 rounded-2xl px-4 py-3 transition-all"
-            style={{ background: "white", border: "1.5px solid #e2e8f0", boxShadow: "0 1px 3px rgb(0 0 0 / 0.06)" }}
-            onFocusCapture={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "#7c3aed"; (e.currentTarget as HTMLElement).style.boxShadow = "0 0 0 3px rgb(124 58 237 / 0.1)"; }}
-            onBlurCapture={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "#e2e8f0"; (e.currentTarget as HTMLElement).style.boxShadow = "0 1px 3px rgb(0 0 0 / 0.06)"; }}
+            style={{ background: "var(--surface)", border: "1.5px solid var(--border)", boxShadow: "var(--shadow-sm)" }}
+            onFocusCapture={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--primary)"; (e.currentTarget as HTMLElement).style.boxShadow = "0 0 0 3px rgb(124 58 237 / 0.15)"; }}
+            onBlurCapture={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--border)"; (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-sm)"; }}
           >
             <input
               ref={inputRef}
@@ -158,9 +158,9 @@ export default function TutorPage() {
                 onClick={() => send()}
                 disabled={!input.trim() || loading}
                 className="w-8 h-8 rounded-xl flex items-center justify-center transition-all"
-                style={{ background: !input.trim() || loading ? "#f1f5f9" : "#7c3aed" }}
+                style={{ background: !input.trim() || loading ? "var(--surface-subtle)" : "var(--primary)" }}
               >
-                <Send className="w-3.5 h-3.5" style={{ color: !input.trim() || loading ? "#94a3b8" : "white" }} />
+                <Send className="w-3.5 h-3.5" style={{ color: !input.trim() || loading ? "var(--text-muted)" : "white" }} />
               </button>
             </div>
           </div>

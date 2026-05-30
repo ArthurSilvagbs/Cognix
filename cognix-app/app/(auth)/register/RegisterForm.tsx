@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { GraduationCap, Mail, Lock, Eye, EyeOff, User, Loader2, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -22,6 +23,7 @@ function passwordStrength(pw: string): { score: number; label: string; color: st
 }
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,23 +44,33 @@ export default function RegisterPage() {
     if (password.length < 6) { setError("A senha deve ter pelo menos 6 caracteres."); return; }
     setLoading(true);
     const supabase = createClient();
-    const { error: authError } = await supabase.auth.signUp({
+    const { data, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { name } },
     });
     setLoading(false);
     if (authError) { setError(translateError(authError.message)); return; }
+    if (data.session) {
+      router.push("/dashboard");
+      router.refresh();
+      return;
+    }
     setSuccess(true);
   }
 
   async function handleGoogle() {
     setGoogleLoading(true);
+    setError("");
     const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${location.origin}/auth/callback` },
     });
+    if (error) {
+      setError("Erro ao entrar com Google. Tente novamente.");
+      setGoogleLoading(false);
+    }
   }
 
   if (success) {

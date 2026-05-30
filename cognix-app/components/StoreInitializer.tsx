@@ -29,8 +29,15 @@ export default function StoreInitializer() {
     }
 
     // Get current session
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(async ({ data }) => {
       if (data.user) {
+        const expire = localStorage.getItem("cognix_expire");
+        if (expire && Date.now() > parseInt(expire)) {
+          localStorage.removeItem("cognix_expire");
+          await supabase.auth.signOut();
+          hydrateFromSupabase({ groups: [], tasks: [], sessions: [], exercises: [], profile: null });
+          return;
+        }
         init(data.user.id);
       } else {
         // Not logged in — just mark as initialized (middleware will handle redirect)

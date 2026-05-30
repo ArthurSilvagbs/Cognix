@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { GraduationCap, Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -15,6 +16,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (searchParams.get("error") === "auth") {
+      setError("Erro de autenticação com Google. Verifique se o provedor está configurado e tente novamente.");
+    }
+  }, [searchParams]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -27,17 +34,27 @@ export default function LoginPage() {
       setError(translateError(authError.message));
       return;
     }
+    if (!remember) {
+      localStorage.setItem("cognix_expire", String(Date.now() + 24 * 60 * 60 * 1000));
+    } else {
+      localStorage.removeItem("cognix_expire");
+    }
     router.push("/dashboard");
     router.refresh();
   }
 
   async function handleGoogle() {
     setGoogleLoading(true);
+    setError("");
     const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${location.origin}/auth/callback` },
     });
+    if (error) {
+      setError("Erro ao entrar com Google. Tente novamente.");
+      setGoogleLoading(false);
+    }
   }
 
   return (

@@ -30,6 +30,7 @@ export default function Sidebar() {
   async function handleLogout() {
     const supabase = createClient();
     await supabase.auth.signOut();
+    localStorage.removeItem("cognix_expire");
     router.push("/login");
     router.refresh();
   }
@@ -56,7 +57,7 @@ export default function Sidebar() {
   }
 
   return (
-    <aside style={{ width: 248, borderRight: "1px solid #e2e8f0" }} className="h-full bg-white flex flex-col shrink-0">
+    <aside style={{ width: 248, borderRight: "1px solid var(--border)", background: "var(--surface)" }} className="h-full flex flex-col shrink-0">
       {/* Logo */}
       <div className="px-4 pt-4 pb-3">
         <div className="flex items-center gap-2.5">
@@ -96,13 +97,13 @@ export default function Sidebar() {
           {dropdownOpen && (
             <div
               className="absolute top-full left-0 right-0 mt-1.5 rounded-xl overflow-hidden z-50"
-              style={{ background: "white", border: "1px solid #e2e8f0", boxShadow: "0 8px 24px -4px rgb(0 0 0 / 0.12)" }}
+              style={{ background: "var(--surface)", border: "1px solid var(--border)", boxShadow: "0 8px 24px -4px rgb(0 0 0 / 0.25)" }}
             >
               {/* All groups option */}
               <button
                 onClick={() => selectGroup(null)}
                 className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm transition-colors hover:bg-slate-50"
-                style={activeGroupId === null ? { background: "#f5f3ff", color: "#7c3aed" } : { color: "#475569" }}
+                style={activeGroupId === null ? { background: "var(--primary-subtle)", color: "var(--primary)" } : { color: "var(--text-secondary)" }}
               >
                 <Globe className="w-4 h-4 shrink-0" style={{ color: activeGroupId === null ? "#7c3aed" : "#94a3b8" }} />
                 <span className="font-medium">Visão Geral</span>
@@ -110,7 +111,7 @@ export default function Sidebar() {
               </button>
 
               {groups.length > 0 && (
-                <div className="h-px mx-3 my-1" style={{ background: "#f1f5f9" }} />
+                <div className="h-px mx-3 my-1" style={{ background: "var(--border)" }} />
               )}
 
               {/* Group list */}
@@ -120,7 +121,7 @@ export default function Sidebar() {
                     key={g.id}
                     onClick={() => selectGroup(g.id)}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm transition-colors hover:bg-slate-50"
-                    style={activeGroupId === g.id ? { background: `${g.color}12`, color: g.color } : { color: "#475569" }}
+                    style={activeGroupId === g.id ? { background: `${g.color}20`, color: g.color } : { color: "var(--text-secondary)" }}
                   >
                     <span className="text-base leading-none shrink-0">{g.emoji}</span>
                     <div className="flex-1 text-left min-w-0">
@@ -134,7 +135,7 @@ export default function Sidebar() {
                 ))}
               </div>
 
-              <div className="h-px mx-3 my-1" style={{ background: "#f1f5f9" }} />
+              <div className="h-px mx-3 my-1" style={{ background: "var(--border)" }} />
 
               <Link
                 href="/groups"
@@ -165,7 +166,7 @@ export default function Sidebar() {
       )}
 
       {/* Divider */}
-      <div className="mx-4 h-px mb-2" style={{ background: "#f1f5f9" }} />
+      <div className="mx-4 h-px mb-2" style={{ background: "var(--border)" }} />
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-1 space-y-0.5 overflow-y-auto">
@@ -195,7 +196,7 @@ export default function Sidebar() {
 
       {/* XP card + logout */}
       <div className="p-3 space-y-2">
-        <div className="rounded-xl p-3" style={{ background: "#faf5ff", border: "1px solid #ede9fe" }}>
+        <div className="rounded-xl p-3" style={{ background: "var(--primary-subtle)", border: "1px solid var(--primary-subtle-border)" }}>
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white"
@@ -209,7 +210,7 @@ export default function Sidebar() {
             </div>
             <span className="text-[10px] text-violet-500 font-medium">{100 - xpInLevel} XP</span>
           </div>
-          <div className="h-1 rounded-full overflow-hidden" style={{ background: "#ede9fe" }}>
+          <div className="h-1 rounded-full overflow-hidden" style={{ background: "var(--primary-subtle-border)" }}>
             <div className="h-full rounded-full transition-all"
               style={{ width: `${xpInLevel}%`, background: "linear-gradient(to right, #7c3aed, #4f46e5)" }} />
           </div>

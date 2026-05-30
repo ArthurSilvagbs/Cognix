@@ -7,9 +7,9 @@ import { cn } from "@/lib/utils";
 
 const LANGUAGES = ["JavaScript","TypeScript","Python","Java","C","C++","Go","Rust","PHP","Ruby","Swift","Kotlin"];
 const DIFFS: { key: Difficulty; label: string; bg: string; text: string }[] = [
-  { key: "beginner",     label: "Iniciante",     bg: "#f0fdf4", text: "#15803d" },
-  { key: "intermediate", label: "Intermediário", bg: "#fffbeb", text: "#b45309" },
-  { key: "advanced",     label: "Avançado",      bg: "#fef2f2", text: "#b91c1c" },
+  { key: "beginner",     label: "Iniciante",     bg: "var(--color-success-bg)", text: "var(--color-success-text)" },
+  { key: "intermediate", label: "Intermediário", bg: "var(--color-warning-bg)", text: "var(--color-warning-text)" },
+  { key: "advanced",     label: "Avançado",      bg: "var(--color-danger-bg)",  text: "var(--color-danger-text)"  },
 ];
 
 const diffStyle = (d: Difficulty) => DIFFS.find((x) => x.key === d)!;
@@ -60,8 +60,8 @@ export default function ExercisesPage() {
   return (
     <div className="flex h-full">
       {/* Left panel */}
-      <div className="w-72 bg-white flex flex-col shrink-0" style={{ borderRight: "1px solid #e2e8f0" }}>
-        <div className="flex items-center justify-between p-4" style={{ borderBottom: "1px solid #f1f5f9" }}>
+      <div className="w-72 flex flex-col shrink-0" style={{ background: "var(--surface)", borderRight: "1px solid var(--border)" }}>
+        <div className="flex items-center justify-between p-4" style={{ borderBottom: "1px solid var(--border)" }}>
           <div>
             <p className="text-sm font-semibold text-slate-800">Exercícios</p>
             <p className="text-xs text-slate-400 mt-0.5">{done}/{exercises.length} concluídos</p>
@@ -88,8 +88,8 @@ export default function ExercisesPage() {
                   onClick={() => selectEx(ex)}
                   className="w-full text-left p-3 rounded-xl transition-all duration-150"
                   style={{
-                    border: active ? "1.5px solid #7c3aed" : "1.5px solid #f1f5f9",
-                    background: active ? "#faf5ff" : "#fff",
+                    border: active ? "1.5px solid var(--primary)" : "1.5px solid var(--border)",
+                    background: active ? "var(--primary-subtle)" : "var(--surface)",
                   }}
                 >
                   <div className="flex items-center justify-between mb-1.5">
@@ -111,7 +111,7 @@ export default function ExercisesPage() {
       </div>
 
       {/* Right panel */}
-      <div className="flex-1 overflow-y-auto" style={{ background: "#f8fafc" }}>
+      <div className="flex-1 overflow-y-auto" style={{ background: "var(--bg)" }}>
         {!selected ? (
           <div className="flex flex-col items-center justify-center h-full">
             <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-4" style={{ background: "#ede9fe" }}>
@@ -128,12 +128,12 @@ export default function ExercisesPage() {
             <div className="flex items-start justify-between mb-5">
               <div>
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
-                  <span className="text-xs font-medium px-2 py-1 rounded-md" style={{ background: "#f1f5f9", color: "#475569" }}>{selected.language}</span>
+                  <span className="text-xs font-medium px-2 py-1 rounded-md" style={{ background: "var(--surface-subtle)", color: "var(--text-secondary)" }}>{selected.language}</span>
                   <span className="text-xs px-2 py-1 rounded-full" style={{ background: diffStyle(selected.difficulty).bg, color: diffStyle(selected.difficulty).text }}>
                     {diffStyle(selected.difficulty).label}
                   </span>
                   {selected.status === "done" && (
-                    <span className="text-xs px-2 py-1 rounded-full flex items-center gap-1" style={{ background: "#f0fdf4", color: "#15803d" }}>
+                    <span className="text-xs px-2 py-1 rounded-full flex items-center gap-1" style={{ background: "var(--color-success-bg)", color: "var(--color-success-text)" }}>
                       <CheckCircle className="w-3 h-3" /> Concluído
                     </span>
                   )}
@@ -154,7 +154,7 @@ export default function ExercisesPage() {
               {selected.topicTags.length > 0 && (
                 <div className="flex gap-1.5 mt-3 flex-wrap">
                   {selected.topicTags.map((tag) => (
-                    <span key={tag} className="text-xs px-2 py-0.5 rounded-md" style={{ background: "#ede9fe", color: "#5b21b6" }}>{tag}</span>
+                    <span key={tag} className="text-xs px-2 py-0.5 rounded-md" style={{ background: "var(--primary-subtle)", color: "var(--primary-subtle-text)" }}>{tag}</span>
                   ))}
                 </div>
               )}
@@ -180,7 +180,7 @@ export default function ExercisesPage() {
             </div>
 
             {selected.feedback && (
-              <div className="rounded-xl p-4 mb-4 flex gap-3" style={{ background: "#f0fdf4", border: "1px solid #bbf7d0" }}>
+              <div className="rounded-xl p-4 mb-4 flex gap-3" style={{ background: "var(--color-success-bg)", border: "1px solid rgba(34,197,94,0.25)" }}>
                 <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-semibold text-emerald-800 mb-0.5">Feedback da IA</p>
@@ -203,7 +203,7 @@ export default function ExercisesPage() {
       {showGenModal && (
         <div className="modal-overlay" onClick={() => setShowGenModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-6 py-5 border-b" style={{ borderColor: "#f1f5f9" }}>
+            <div className="flex items-center justify-between px-6 py-5 border-b" style={{ borderColor: "var(--border)" }}>
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4" style={{ color: "#7c3aed" }} />
                 <h2 className="text-base font-semibold text-slate-900">Gerar Exercício com IA</h2>

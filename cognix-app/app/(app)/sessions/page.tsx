@@ -57,7 +57,7 @@ export default function SessionsPage() {
 
       {sessions.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "#f1f5f9" }}>
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "var(--surface-subtle)" }}>
             <BookOpen className="w-7 h-7 text-slate-300" />
           </div>
           <p className="font-semibold text-slate-500">Nenhuma sessão registrada</p>
@@ -74,7 +74,7 @@ export default function SessionsPage() {
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-6 py-5 border-b" style={{ borderColor: "#f1f5f9" }}>
+            <div className="flex items-center justify-between px-6 py-5 border-b" style={{ borderColor: "var(--border)" }}>
               <h2 className="text-base font-semibold text-slate-900">Nova Sessão de Estudo</h2>
               <button onClick={() => setShowModal(false)} className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors text-lg leading-none">×</button>
             </div>

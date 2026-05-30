@@ -160,11 +160,11 @@ export default function DashboardPage() {
               href={href}
               className="group rounded-2xl p-4 flex flex-col items-start gap-3 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
               style={{
-                background: light,
-                border: `1px solid ${bg}22`,
+                background: `${bg}18`,
+                border: `1px solid ${bg}30`,
               }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = `${bg}44`; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = `${bg}22`; }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = `${bg}55`; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = `${bg}30`; }}
             >
               <div
                 className="w-9 h-9 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110"
@@ -214,7 +214,7 @@ export default function DashboardPage() {
                 <div
                   key={task.id}
                   className="flex items-center gap-3 py-2.5 px-3 rounded-xl transition-colors hover:bg-slate-50"
-                  style={{ border: "1px solid #f1f5f9" }}
+                  style={{ border: "1px solid var(--border)" }}
                 >
                   <div
                     className="w-1.5 h-1.5 rounded-full shrink-0"
@@ -232,8 +232,8 @@ export default function DashboardPage() {
                     className="text-xs font-medium px-2 py-0.5 rounded-full shrink-0"
                     style={
                       task.status === "in_progress"
-                        ? { background: "#dbeafe", color: "#1d4ed8" }
-                        : { background: "#fff7ed", color: "#c2410c" }
+                        ? { background: "var(--color-info-bg)", color: "var(--color-info-text)" }
+                        : { background: "var(--color-warning-bg)", color: "var(--color-warning-text)" }
                     }
                   >
                     {task.status === "in_progress" ? "Em andamento" : "Pendente"}
@@ -279,7 +279,7 @@ export default function DashboardPage() {
                     <span className="text-sm font-medium text-slate-700">{subject}</span>
                     <span className="text-xs text-slate-400 font-medium">{formatMinutes(minutes)}</span>
                   </div>
-                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "#f1f5f9" }}>
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--surface-subtle)" }}>
                     <div
                       className="h-full rounded-full transition-all"
                       style={{
@@ -314,7 +314,7 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between mb-3">
                   <span
                     className="text-xs font-medium px-2 py-0.5 rounded-md"
-                    style={{ background: "#f1f5f9", color: "#475569" }}
+                    style={{ background: "var(--surface-subtle)", color: "var(--text-secondary)" }}
                   >
                     {ex.language}
                   </span>
