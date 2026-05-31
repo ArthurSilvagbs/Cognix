@@ -13,7 +13,7 @@ import {
 } from "@/lib/store";
 import { Field, ModalHeader, ModalFooter, FormBody } from "@/components/ui";
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function fmtDur(min: number) {
   const h = Math.floor(min / 60), m = min % 60;
   return h === 0 ? `${m}min` : m === 0 ? `${h}h` : `${h}h ${m}min`;
@@ -25,7 +25,7 @@ function fmtDate(s: string) {
 const DAY_LABELS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
-// ── Page ──────────────────────────────────────────────────────────────────────
+// â”€â”€ Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function GroupDetailPage() {
   const params = useParams();
   const groupId = params.id as string;
@@ -44,7 +44,7 @@ export default function GroupDetailPage() {
     if (group && activeGroupId !== groupId) setActiveGroup(groupId);
   }, [groupId]);
 
-  // ── Subject add ─────────────────────────────────────────────────────────────
+  // â”€â”€ Subject add â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [newSubject, setNewSubject] = useState("");
   const subjectRef = useRef<HTMLInputElement>(null);
 
@@ -57,7 +57,7 @@ export default function GroupDetailPage() {
     subjectRef.current?.focus();
   }
 
-  // ── Edit modal ──────────────────────────────────────────────────────────────
+  // â”€â”€ Edit modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [editModal, setEditModal] = useState(false);
   const [editForm, setEditForm] = useState({ name: "", description: "", color: "", emoji: "" });
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -79,12 +79,12 @@ export default function GroupDetailPage() {
     return (
       <div style={{ padding: "40px 32px", textAlign: "center" }}>
         <p style={{ color: "var(--text-muted)", marginBottom: 12 }}>Grupo não encontrado.</p>
-        <Link href="/groups" style={{ color: "var(--primary)", fontSize: 14 }}>← Voltar para grupos</Link>
+        <Link href="/groups" style={{ color: "var(--primary)", fontSize: 15 }}>← Voltar para grupos</Link>
       </div>
     );
   }
 
-  // ── Derived data ─────────────────────────────────────────────────────────────
+  // â”€â”€ Derived data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const groupSubjects = subjects.filter(s => s.groupId === groupId);
   const groupTasks    = tasks.filter(t => t.groupId === groupId);
   const pendingTasks  = groupTasks.filter(t => t.status !== "done");
@@ -99,7 +99,9 @@ export default function GroupDetailPage() {
     return { sub, total: subTasks.length, done };
   });
 
-  const upcomingDays = WEEK_ORDER
+  const todayDow = new Date().getDay();
+  const orderedWeek = Array.from({ length: 7 }, (_, i) => (todayDow + i) % 7);
+  const upcomingDays = orderedWeek
     .map(dow => ({
       dow,
       planDay: planDays.find(pd => pd.dayOfWeek === dow),
@@ -117,13 +119,13 @@ export default function GroupDetailPage() {
     low: { bg: "var(--color-success-bg)", text: "var(--color-success-text)", label: "Baixa" },
   };
 
-  // ── Render ────────────────────────────────────────────────────────────────
+  // â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
     <div>
 
-      {/* ── Hero ── */}
+      {/* â”€â”€ Hero â”€â”€ */}
       <div style={{ background: `linear-gradient(135deg, ${group.color}e0 0%, ${group.color}70 100%)`, padding: "28px 32px 24px" }}>
-        <Link href="/groups" style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, color: "rgba(255,255,255,0.7)", marginBottom: 18, textDecoration: "none" }}>
+        <Link href="/groups" style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 13, color: "rgba(255,255,255,0.7)", marginBottom: 18, textDecoration: "none" }}>
           <ArrowLeft style={{ width: 13, height: 13 }} /> Grupos
         </Link>
 
@@ -133,14 +135,14 @@ export default function GroupDetailPage() {
               {group.emoji}
             </div>
             <div>
-              <h1 style={{ fontSize: 24, fontWeight: 800, color: "white", letterSpacing: -0.5, lineHeight: 1.1 }}>{group.name}</h1>
+              <h1 style={{ fontSize: 26, fontWeight: 800, color: "white", letterSpacing: -0.5, lineHeight: 1.1 }}>{group.name}</h1>
               {group.description && (
-                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.72)", marginTop: 4 }}>{group.description}</p>
+                <p style={{ fontSize: 14, color: "rgba(255,255,255,0.72)", marginTop: 4 }}>{group.description}</p>
               )}
             </div>
           </div>
           <button onClick={openEdit}
-            style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", borderRadius: 99, background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.2)", color: "white", fontSize: 13, fontWeight: 500, cursor: "pointer", flexShrink: 0 }}>
+            style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 15px", borderRadius: 99, background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.2)", color: "white", fontSize: 14, fontWeight: 500, cursor: "pointer", flexShrink: 0 }}>
             <Pencil style={{ width: 13, height: 13 }} /> Editar
           </button>
         </div>
@@ -151,49 +153,67 @@ export default function GroupDetailPage() {
             { label: "Matérias", value: groupSubjects.length },
             { label: "Tarefas concluídas", value: `${doneTasks.length}/${groupTasks.length}` },
             { label: "Sessões", value: groupSessions.length },
-            { label: "Tempo estudado", value: totalMin > 0 ? fmtDur(totalMin) : "—" },
+            { label: "Tempo estudado", value: totalMin > 0 ? fmtDur(totalMin) : "-" },
           ].map(stat => (
             <div key={stat.label}>
-              <p style={{ fontSize: 20, fontWeight: 700, color: "white", lineHeight: 1 }}>{stat.value}</p>
-              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", marginTop: 3 }}>{stat.label}</p>
+              <p style={{ fontSize: 22, fontWeight: 700, color: "white", lineHeight: 1 }}>{stat.value}</p>
+              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.68)", marginTop: 3 }}>{stat.label}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* ── Content ── */}
+      {/* â”€â”€ Content â”€â”€ */}
       <div style={{ padding: "24px 32px", display: "grid", gridTemplateColumns: "1fr 320px", gap: 18, alignItems: "flex-start" }}>
 
-        {/* ── LEFT: Sessões + Tarefas ── */}
+        {/* â”€â”€ LEFT: SessÃµes + Tarefas â”€â”€ */}
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
 
-          {/* Sessões */}
+          {/* SessÃµes */}
           <div style={{ background: "var(--surface)", border: "1px solid var(--border-strong)", borderRadius: 12, overflow: "hidden" }}>
             <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <h2 style={{ fontSize: 13, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: "var(--text-primary)" }}>Sessões</h2>
-              <Link href="/sessions" style={{ fontSize: 12, color: "var(--primary)", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
+              <h2 style={{ fontSize: 14, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: "var(--text-primary)" }}>Sessões</h2>
+              <Link href="/sessions" style={{ fontSize: 13, color: "var(--primary)", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
                 Calendário <ChevronRight style={{ width: 12, height: 12 }} />
               </Link>
             </div>
 
             {upcomingDays.length > 0 && (
-              <div style={{ padding: "16px 18px", borderBottom: recentSessions.length > 0 ? "1px solid var(--border)" : "none" }}>
-                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.7, textTransform: "uppercase", color: "var(--text-muted)", marginBottom: 12 }}>Planejadas por semana</p>
-                <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-                  {upcomingDays.map(({ dow, planDay, items }, dayIdx) => (
-                    <div key={dow} style={{ borderBottom: dayIdx < upcomingDays.length - 1 ? "1px solid var(--border)" : "none", paddingBottom: 12, marginBottom: 12 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                        <p style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>{DAY_LABELS[dow]}</p>
-                        {planDay && <p style={{ fontSize: 12, color: "var(--text-muted)" }}>· {fmtDur(planDay.plannedMin)}</p>}
+              <div style={{ padding: "18px", borderBottom: recentSessions.length > 0 ? "1px solid var(--border)" : "none" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 14 }}>
+                  <div>
+                    <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.7, textTransform: "uppercase", color: "var(--text-muted)" }}>Planejadas por semana</p>
+                    <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 3 }}>Começando por hoje e seguindo os próximos dias</p>
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: group.color, padding: "5px 10px", borderRadius: 99, background: `${group.color}18`, border: `1px solid ${group.color}35`, flexShrink: 0 }}>
+                    {groupPlanItems.length} {groupPlanItems.length === 1 ? "sessão" : "sessões"}
+                  </span>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {upcomingDays.map(({ dow, planDay, items }) => (
+                    <div key={dow} style={{ display: "grid", gridTemplateColumns: "132px 1fr", gap: 14, padding: 14, borderRadius: 12, background: "var(--surface-subtle)", border: "1px solid var(--border)" }}>
+                      <div style={{ borderRight: "1px solid var(--border)", paddingRight: 14 }}>
+                        <p style={{ fontSize: 16, fontWeight: 800, color: "var(--text-primary)", lineHeight: 1 }}>{DAY_LABELS[dow]}</p>
+                        {dow === todayDow && (
+                          <span style={{ display: "inline-flex", marginTop: 7, fontSize: 11, fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase", color: group.color, padding: "3px 7px", borderRadius: 99, background: `${group.color}18` }}>Hoje</span>
+                        )}
+                        {planDay && (
+                          <p style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13, color: "var(--text-muted)", marginTop: 8 }}>
+                            <Clock style={{ width: 13, height: 13 }} /> {fmtDur(planDay.plannedMin)}
+                          </p>
+                        )}
                       </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 5, paddingLeft: 4 }}>
+
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                         {items.map(item => {
                           const tc = SESSION_TYPE_CONFIG[item.sessionType];
                           return (
-                            <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 9 }}>
-                              <span style={{ fontSize: 14 }}>{tc.emoji}</span>
-                              <p style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", flex: 1 }}>{item.subject}</p>
-                              <p style={{ fontSize: 12, color: "var(--text-muted)", flexShrink: 0 }}>{tc.label}</p>
+                            <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, background: "var(--surface)", border: "1px solid var(--border)" }}>
+                              <span style={{ width: 4, height: 28, borderRadius: 99, background: group.color, flexShrink: 0 }} />
+                              <span style={{ width: 28, height: 28, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", background: `${group.color}18`, fontSize: 15, flexShrink: 0 }}>{tc.emoji}</span>
+                              <p style={{ fontSize: 15, fontWeight: 650, color: "var(--text-primary)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.subject}</p>
+                              <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", padding: "4px 8px", borderRadius: 99, background: "var(--surface-subtle)", border: "1px solid var(--border)", flexShrink: 0 }}>{tc.label}</span>
                             </div>
                           );
                         })}
@@ -203,18 +223,17 @@ export default function GroupDetailPage() {
                 </div>
               </div>
             )}
-
             {recentSessions.length > 0 ? (
               <div style={{ padding: "16px 18px" }}>
-                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.7, textTransform: "uppercase", color: "var(--text-muted)", marginBottom: 12 }}>Histórico recente</p>
+                <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.7, textTransform: "uppercase", color: "var(--text-muted)", marginBottom: 12 }}>Histórico recente</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   {recentSessions.map(s => (
                     <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 9, background: "var(--surface-subtle)" }}>
                       <div style={{ width: 7, height: 7, borderRadius: "50%", background: group.color, flexShrink: 0 }} />
-                      <p style={{ flex: 1, fontSize: 14, fontWeight: 500, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.subject}</p>
+                      <p style={{ flex: 1, fontSize: 15, fontWeight: 500, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.subject}</p>
                       <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
-                        {s.actualMin && <span style={{ fontSize: 13, color: "#059669", fontWeight: 600 }}>{fmtDur(s.actualMin)}</span>}
-                        <span style={{ fontSize: 12, color: "var(--text-muted)" }}>{fmtDate(s.date)}</span>
+                        {s.actualMin && <span style={{ fontSize: 14, color: "#059669", fontWeight: 600 }}>{fmtDur(s.actualMin)}</span>}
+                        <span style={{ fontSize: 13, color: "var(--text-muted)" }}>{fmtDate(s.date)}</span>
                       </div>
                     </div>
                   ))}
@@ -223,8 +242,8 @@ export default function GroupDetailPage() {
             ) : (
               upcomingDays.length === 0 && (
                 <div style={{ padding: "28px 18px", textAlign: "center" }}>
-                  <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 8 }}>Nenhuma sessão registrada ainda</p>
-                  <Link href="/sessions" style={{ fontSize: 12, color: "var(--primary)", textDecoration: "none" }}>Planejar sessões →</Link>
+                  <p style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 8 }}>Nenhuma sessão registrada ainda</p>
+                  <Link href="/sessions" style={{ fontSize: 13, color: "var(--primary)", textDecoration: "none" }}>Planejar sessões →</Link>
                 </div>
               )
             )}
@@ -233,8 +252,8 @@ export default function GroupDetailPage() {
           {/* Tarefas */}
           <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
             <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <h2 style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.6, textTransform: "uppercase", color: "var(--text-muted)" }}>Tarefas pendentes</h2>
-              <Link href="/tasks" style={{ fontSize: 12, color: "var(--primary)", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
+              <h2 style={{ fontSize: 13, fontWeight: 700, letterSpacing: 0.6, textTransform: "uppercase", color: "var(--text-muted)" }}>Tarefas pendentes</h2>
+              <Link href="/tasks" style={{ fontSize: 13, color: "var(--primary)", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
                 Ver todas <ChevronRight style={{ width: 12, height: 12 }} />
               </Link>
             </div>
@@ -242,7 +261,7 @@ export default function GroupDetailPage() {
             {pendingTasks.length === 0 ? (
               <div style={{ padding: "28px 18px", textAlign: "center" }}>
                 <CheckCircle2 style={{ width: 28, height: 28, color: "var(--text-muted)", margin: "0 auto 8px" }} />
-                <p style={{ fontSize: 14, color: "var(--text-muted)" }}>Tudo em dia! Nenhuma tarefa pendente.</p>
+                <p style={{ fontSize: 15, color: "var(--text-muted)" }}>Tudo em dia! Nenhuma tarefa pendente.</p>
               </div>
             ) : (
               pendingTasks.slice(0, 6).map((task, idx, arr) => {
@@ -255,16 +274,16 @@ export default function GroupDetailPage() {
                       <Circle style={{ width: 20, height: 20 }} />
                     </button>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{task.title}</p>
-                      <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>{task.subject}</p>
+                      <p style={{ fontSize: 15, fontWeight: 500, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{task.title}</p>
+                      <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 2 }}>{task.subject}</p>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
                       {task.estimatedMin > 0 && (
-                        <span style={{ fontSize: 12, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 3 }}>
+                        <span style={{ fontSize: 13, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 3 }}>
                           <Clock style={{ width: 11, height: 11 }} />{fmtDur(task.estimatedMin)}
                         </span>
                       )}
-                      <span style={{ fontSize: 11, fontWeight: 600, padding: "3px 9px", borderRadius: 99, background: pc.bg, color: pc.text }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, padding: "3px 9px", borderRadius: 99, background: pc.bg, color: pc.text }}>
                         {pc.label}
                       </span>
                     </div>
@@ -274,24 +293,24 @@ export default function GroupDetailPage() {
             )}
 
             <div style={{ padding: "10px 18px", borderTop: "1px solid var(--border)" }}>
-              <Link href="/tasks" style={{ fontSize: 12, color: "var(--primary)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}>
+              <Link href="/tasks" style={{ fontSize: 13, color: "var(--primary)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}>
                 <Plus style={{ width: 13, height: 13 }} /> Nova tarefa
               </Link>
             </div>
           </div>
         </div>
 
-        {/* ── RIGHT: Matérias ── */}
+        {/* â”€â”€ RIGHT: MatÃ©rias â”€â”€ */}
         <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
           <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--border)" }}>
-            <h2 style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.6, textTransform: "uppercase", color: "var(--text-muted)" }}>
-              Matérias <span style={{ fontWeight: 400, color: "var(--text-muted)", letterSpacing: 0, textTransform: "none", fontSize: 12 }}>· {groupSubjects.length}</span>
+            <h2 style={{ fontSize: 13, fontWeight: 700, letterSpacing: 0.6, textTransform: "uppercase", color: "var(--text-muted)" }}>
+              Matérias <span style={{ fontWeight: 400, color: "var(--text-muted)", letterSpacing: 0, textTransform: "none", fontSize: 13 }}>· {groupSubjects.length}</span>
             </h2>
           </div>
 
           {subjectData.length === 0 ? (
             <div style={{ padding: "24px 18px", textAlign: "center" }}>
-              <p style={{ fontSize: 14, color: "var(--text-muted)" }}>Nenhuma matéria ainda</p>
+              <p style={{ fontSize: 15, color: "var(--text-muted)" }}>Nenhuma matéria ainda</p>
             </div>
           ) : (
             <div>
@@ -299,11 +318,11 @@ export default function GroupDetailPage() {
                 <div key={sub.id} style={{ padding: "13px 18px", borderBottom: idx < subjectData.length - 1 ? "1px solid var(--border)" : "none" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: total > 0 ? 8 : 0 }}>
                     <div style={{ width: 8, height: 8, borderRadius: "50%", background: group.color, flexShrink: 0 }} />
-                    <p style={{ flex: 1, fontSize: 14, fontWeight: 500, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <p style={{ flex: 1, fontSize: 15, fontWeight: 500, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {sub.name}
                     </p>
                     {total > 0 && (
-                      <span style={{ fontSize: 12, color: done === total ? "#059669" : "var(--text-muted)", fontWeight: 500, flexShrink: 0 }}>
+                      <span style={{ fontSize: 13, color: done === total ? "#059669" : "var(--text-muted)", fontWeight: 500, flexShrink: 0 }}>
                         {done}/{total}
                       </span>
                     )}
@@ -326,7 +345,7 @@ export default function GroupDetailPage() {
             <input
               ref={subjectRef}
               className="input"
-              style={{ flex: 1, fontSize: 13, padding: "8px 12px" }}
+              style={{ flex: 1, fontSize: 14, padding: "8px 12px" }}
               placeholder="Nova matéria..."
               value={newSubject}
               onChange={e => setNewSubject(e.target.value)}
@@ -342,7 +361,7 @@ export default function GroupDetailPage() {
         </div>
       </div>
 
-      {/* ── Edit modal ── */}
+      {/* â”€â”€ Edit modal â”€â”€ */}
       {editModal && (
         <div className="modal-overlay" onClick={() => { setEditModal(false); setShowEmojiPicker(false); }}>
           <div className="modal" onClick={e => e.stopPropagation()}>
@@ -354,7 +373,7 @@ export default function GroupDetailPage() {
                 <div style={{ position: "relative", flexShrink: 0 }} onClick={e => e.stopPropagation()}>
                   <button
                     onClick={() => setShowEmojiPicker(p => !p)}
-                    style={{ width: 56, height: 56, borderRadius: 11, border: `1.5px solid ${showEmojiPicker ? editForm.color : "var(--border)"}`, background: showEmojiPicker ? `${editForm.color}12` : "var(--surface)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, cursor: "pointer" }}>
+                    style={{ width: 56, height: 56, borderRadius: 11, border: `1.5px solid ${showEmojiPicker ? editForm.color : "var(--border)"}`, background: showEmojiPicker ? `${editForm.color}12` : "var(--surface)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, cursor: "pointer" }}>
                     {editForm.emoji}
                   </button>
                   {showEmojiPicker && (
@@ -363,7 +382,7 @@ export default function GroupDetailPage() {
                       <div style={{ position: "absolute", top: 62, left: 0, zIndex: 100, background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, padding: 10, boxShadow: "var(--shadow-lg)", display: "grid", gridTemplateColumns: "repeat(5, 36px)", gap: 4 }}>
                         {GROUP_EMOJIS.map(e => (
                           <button key={e} onClick={() => { setEditForm(f => ({ ...f, emoji: e })); setShowEmojiPicker(false); }}
-                            style={{ width: 36, height: 36, borderRadius: 8, border: "none", background: editForm.emoji === e ? `${editForm.color}20` : "transparent", cursor: "pointer", fontSize: 20, display: "flex", alignItems: "center", justifyContent: "center", outline: editForm.emoji === e ? `2px solid ${editForm.color}` : "none" }}>
+                            style={{ width: 36, height: 36, borderRadius: 8, border: "none", background: editForm.emoji === e ? `${editForm.color}20` : "transparent", cursor: "pointer", fontSize: 22, display: "flex", alignItems: "center", justifyContent: "center", outline: editForm.emoji === e ? `2px solid ${editForm.color}` : "none" }}>
                             {e}
                           </button>
                         ))}
@@ -383,7 +402,7 @@ export default function GroupDetailPage() {
               </Field>
 
               <div>
-                <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.6, textTransform: "uppercase", color: "var(--text-muted)", marginBottom: 10 }}>Cor</p>
+                <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: 0.6, textTransform: "uppercase", color: "var(--text-muted)", marginBottom: 10 }}>Cor</p>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   {GROUP_COLORS.map(({ value, label }) => (
                     <button key={value} title={label} onClick={() => setEditForm(f => ({ ...f, color: value }))}

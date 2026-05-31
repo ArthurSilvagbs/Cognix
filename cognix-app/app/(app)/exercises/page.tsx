@@ -114,8 +114,8 @@ export default function ExercisesPage() {
       <div className="flex-1 overflow-y-auto" style={{ background: "var(--bg)" }}>
         {!selected ? (
           <div className="flex flex-col items-center justify-center h-full">
-            <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-4" style={{ background: "#ede9fe" }}>
-              <Code2 className="w-9 h-9" style={{ color: "#7c3aed" }} />
+            <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-4" style={{ background: "var(--primary-subtle)" }}>
+              <Code2 className="w-9 h-9" style={{ color: "var(--primary-subtle-text)" }} />
             </div>
             <p className="text-base font-semibold text-slate-700">Selecione um exercício</p>
             <p className="text-sm text-slate-400 mt-1 text-center max-w-xs">Escolha um da lista ou gere um novo com IA para começar a praticar</p>
@@ -160,7 +160,7 @@ export default function ExercisesPage() {
               )}
             </div>
 
-            <div className="rounded-xl overflow-hidden mb-4" style={{ border: "1px solid #e2e8f0", boxShadow: "var(--shadow-xs)" }}>
+            <div className="rounded-xl overflow-hidden mb-4" style={{ border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)" }}>
               <div className="flex items-center justify-between px-4 py-2.5" style={{ background: "#1e1e2e" }}>
                 <span className="text-xs text-slate-500 font-mono">solution.{selected.language.toLowerCase().replace(/\+/g, "p")}</span>
                 <div className="flex gap-1.5">
@@ -205,7 +205,7 @@ export default function ExercisesPage() {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between px-6 py-5 border-b" style={{ borderColor: "var(--border)" }}>
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4" style={{ color: "#7c3aed" }} />
+                <Sparkles className="w-4 h-4" style={{ color: "var(--primary-subtle-text)" }} />
                 <h2 className="text-base font-semibold text-slate-900">Gerar Exercício com IA</h2>
               </div>
               <button onClick={() => setShowGenModal(false)} className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors text-lg leading-none">×</button>

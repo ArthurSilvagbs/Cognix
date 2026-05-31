@@ -5,7 +5,7 @@ import { useStore, useGroupData, ACHIEVEMENTS } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 
-const PIE_COLORS = ["#7c3aed","#0891b2","#059669","#d97706","#db2777","#4f46e5","#0284c7"];
+const PIE_COLORS = ["#3a3934", "#56606a", "#5f7568", "#8a7658", "#766866", "#6f6b61", "#475569"];
 
 export default function EvolutionPage() {
   const { user, unlockedAchievements, groups } = useStore();
@@ -55,24 +55,24 @@ export default function EvolutionPage() {
       <div
         className="relative rounded-2xl p-6 text-white overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, #5b21b6 0%, #6d28d9 40%, #4338ca 100%)",
-          boxShadow: "0 8px 24px -4px rgb(109 40 217 / 0.25)",
+          background: "linear-gradient(135deg, #34342f 0%, #292927 55%, #1f1f1d 100%)",
+          boxShadow: "0 8px 24px -4px rgb(0 0 0 / 0.2)",
         }}
       >
         <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full opacity-10"
-          style={{ background: "radial-gradient(circle, #a78bfa, transparent 70%)" }} />
+          style={{ background: "radial-gradient(circle, rgb(255 255 255 / 0.25), transparent 70%)" }} />
         <div className="relative">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <p className="text-violet-300 text-xs font-medium tracking-wide uppercase">Seu Nível</p>
+              <p className="text-white/70 text-xs font-medium tracking-wide uppercase">Seu Nível</p>
               <p className="text-5xl font-bold mt-1 tracking-tight">Nv. {user.level}</p>
-              <p className="text-violet-300 text-sm mt-1">{user.xp} XP total</p>
+              <p className="text-white/70 text-sm mt-1">{user.xp} XP total</p>
             </div>
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "rgb(255 255 255 / 0.15)" }}>
               <Trophy className="w-6 h-6 text-white" />
             </div>
           </div>
-          <div className="flex justify-between text-xs text-violet-300 mb-1.5">
+          <div className="flex justify-between text-xs text-white/70 mb-1.5">
             <span>{xpInLevel} / 100 XP para o próximo nível</span>
             <span>{100 - xpInLevel} XP faltando</span>
           </div>
@@ -86,9 +86,9 @@ export default function EvolutionPage() {
               { icon: CheckCircle, label: "Pendentes",  value: pendingExercises },
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className="rounded-xl p-3 text-center" style={{ background: "rgb(255 255 255 / 0.12)" }}>
-                <Icon className="w-4 h-4 text-violet-200 mx-auto mb-1" />
+                <Icon className="w-4 h-4 text-white/65 mx-auto mb-1" />
                 <p className="text-xl font-bold">{value}</p>
-                <p className="text-violet-200 text-xs mt-0.5">{label}</p>
+                <p className="text-white/65 text-xs mt-0.5">{label}</p>
               </div>
             ))}
           </div>
@@ -114,7 +114,7 @@ export default function EvolutionPage() {
                   contentStyle={{ borderRadius: "10px", border: "1px solid var(--border)", fontSize: "12px", background: "var(--surface)", color: "var(--text-primary)" }}
                   cursor={{ fill: "var(--surface-subtle)" }}
                 />
-                <Bar dataKey="count" fill="#7c3aed" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="count" fill="var(--primary-subtle-text)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}

@@ -222,6 +222,26 @@ export async function removePlanDay(userId: string, dayOfWeek: number) {
 
 // ── Plan items ────────────────────────────────────────────────────────────────
 
+const PLAN_ITEM_DATE_PREFIX = "__cognix_date:";
+
+function encodePlanItemDescription(item: StudyPlanItem) {
+  if (!item.date) return item.description ?? null;
+  return `${PLAN_ITEM_DATE_PREFIX}${item.date}__\n${item.description ?? ""}`;
+}
+
+function decodePlanItemDescription(description: string | null | undefined) {
+  if (!description?.startsWith(PLAN_ITEM_DATE_PREFIX)) {
+    return { date: undefined, description: description ?? undefined };
+  }
+
+  const end = description.indexOf("__", PLAN_ITEM_DATE_PREFIX.length);
+  if (end === -1) return { date: undefined, description };
+
+  const date = description.slice(PLAN_ITEM_DATE_PREFIX.length, end);
+  const cleanDescription = description.slice(end + 3).trim();
+  return { date, description: cleanDescription || undefined };
+}
+
 export async function fetchPlanItems(userId: string): Promise<StudyPlanItem[]> {
   const { data } = await createClient()
     .from("study_plan_items")
@@ -229,30 +249,50 @@ export async function fetchPlanItems(userId: string): Promise<StudyPlanItem[]> {
     .eq("user_id", userId)
     .order("day_of_week")
     .order("position");
-  return (data ?? []).map((r) => ({
-    id: r.id,
-    dayOfWeek: r.day_of_week,
-    groupId: r.group_id ?? null,
-    subject: r.subject,
-    sessionType: r.session_type as SessionType,
-    description: r.description ?? undefined,
-    position: r.position,
-    createdAt: r.created_at,
-  }));
+  return (data ?? []).map((r) => {
+    const decoded = decodePlanItemDescription(r.description);
+
+    return {
+      id: r.id,
+      dayOfWeek: r.day_of_week,
+      date: decoded.date,
+      groupId: r.group_id ?? null,
+      subject: r.subject,
+      sessionType: r.session_type as SessionType,
+      description: decoded.description,
+      position: r.position,
+      createdAt: r.created_at,
+    };
+  });
 }
 
-export async function replacePlanItems(userId: string, dayOfWeek: number, items: StudyPlanItem[]) {
+export async function replacePlanItems(userId: string, dayOfWeek: number, items: StudyPlanItem[], date?: string) {
   const client = createClient();
-  await client.from("study_plan_items").delete().eq("user_id", userId).eq("day_of_week", dayOfWeek);
+  if (date) {
+    const { data } = await client
+      .from("study_plan_items")
+      .select("id, description")
+      .eq("user_id", userId)
+      .eq("day_of_week", dayOfWeek);
+    const idsToDelete = (data ?? [])
+      .filter((row) => decodePlanItemDescription(row.description).date === date)
+      .map((row) => row.id);
+    if (idsToDelete.length > 0) {
+      await client.from("study_plan_items").delete().in("id", idsToDelete);
+    }
+  } else {
+    await client.from("study_plan_items").delete().eq("user_id", userId).eq("day_of_week", dayOfWeek);
+  }
   if (items.length > 0) {
-    await client.from("study_plan_items").insert(
+    const { error } = await client.from("study_plan_items").insert(
       items.map((i) => ({
         id: i.id, user_id: userId, day_of_week: i.dayOfWeek,
         group_id: i.groupId ?? null, subject: i.subject,
-        session_type: i.sessionType, description: i.description ?? null,
+        session_type: i.sessionType, description: encodePlanItemDescription(i),
         position: i.position, created_at: i.createdAt,
       }))
     );
+    if (error) throw error;
   }
 }
 
@@ -270,7 +310,7 @@ export async function fetchSessions(userId: string): Promise<Session[]> {
     groupId: r.group_id ?? null,
     subject: r.subject,
     durationMin: r.duration_min,
-    actualMin: r.actual_min ?? undefined,
+    actualMin: r.actual_min ?? r.duration_min ?? undefined,
     date: r.date,
     notes: r.notes ?? undefined,
     createdAt: r.created_at,
@@ -278,7 +318,8 @@ export async function fetchSessions(userId: string): Promise<Session[]> {
 }
 
 export async function insertSession(userId: string, s: Session) {
-  await createClient().from("sessions").insert({
+  const client = createClient();
+  const { error } = await client.from("sessions").insert({
     id: s.id, user_id: userId,
     cycle_id: s.cycleId ?? null,
     group_id: s.groupId ?? null,
@@ -286,6 +327,15 @@ export async function insertSession(userId: string, s: Session) {
     actual_min: s.actualMin ?? null,
     date: s.date, notes: s.notes ?? null, created_at: s.createdAt,
   });
+  if (!error) return;
+
+  const { error: fallbackError } = await client.from("sessions").insert({
+    id: s.id, user_id: userId,
+    group_id: s.groupId ?? null,
+    subject: s.subject, duration_min: s.actualMin ?? s.durationMin,
+    date: s.date, notes: s.notes ?? null, created_at: s.createdAt,
+  });
+  if (fallbackError) throw fallbackError;
 }
 
 export async function patchSession(id: string, u: Partial<Session>) {

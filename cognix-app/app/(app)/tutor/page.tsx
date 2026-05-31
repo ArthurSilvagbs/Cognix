@@ -49,8 +49,8 @@ export default function TutorPage() {
       {/* Header */}
       <div className="px-6 py-4" style={{ background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
         <div className="flex items-center gap-3 max-w-3xl mx-auto">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #7c3aed, #4f46e5)" }}>
-            <Sparkles className="w-4 h-4 text-white" />
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "var(--primary)" }}>
+            <Sparkles className="w-4 h-4" style={{ color: "var(--bg)" }} />
           </div>
           <div className="flex-1">
             <p className="text-sm font-semibold text-slate-900">Tutor IA</p>
@@ -71,21 +71,21 @@ export default function TutorPage() {
               <div className={cn(
                 "w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5",
                 msg.role === "user"
-                  ? "bg-violet-600"
+                  ? "bg-slate-900"
                   : "bg-white border border-slate-200"
               )}>
                 {msg.role === "user"
                   ? <User className="w-4 h-4 text-white" />
-                  : <Sparkles className="w-3.5 h-3.5" style={{ color: "#7c3aed" }} />}
+                  : <Sparkles className="w-3.5 h-3.5" style={{ color: "var(--primary-subtle-text)" }} />}
               </div>
               <div
                 className={cn("max-w-[78%] px-4 py-3 text-sm leading-relaxed", msg.role === "user" ? "rounded-2xl rounded-tr-sm" : "rounded-2xl rounded-tl-sm")}
                 style={msg.role === "user"
-                  ? { background: "#7c3aed", color: "white" }
+                  ? { background: "var(--primary)", color: "var(--bg)" }
                   : { background: "var(--surface)", color: "var(--text-primary)", border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)" }}
               >
                 <p className="whitespace-pre-wrap">{msg.content}</p>
-                <p className={cn("text-xs mt-1.5", msg.role === "user" ? "text-violet-200" : "text-slate-400")}>
+                <p className={cn("text-xs mt-1.5", msg.role === "user" ? "text-white/65" : "text-slate-400")}>
                   {msg.ts.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
                 </p>
               </div>
@@ -95,7 +95,7 @@ export default function TutorPage() {
           {loading && (
             <div className="flex gap-3">
               <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center">
-                <Sparkles className="w-3.5 h-3.5" style={{ color: "#7c3aed" }} />
+                <Sparkles className="w-3.5 h-3.5" style={{ color: "var(--primary-subtle-text)" }} />
               </div>
               <div className="rounded-2xl rounded-tl-sm px-4 py-3" style={{ background: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)" }}>
                 <div className="flex gap-1 items-center h-5">
@@ -160,7 +160,7 @@ export default function TutorPage() {
                 className="w-8 h-8 rounded-xl flex items-center justify-center transition-all"
                 style={{ background: !input.trim() || loading ? "var(--surface-subtle)" : "var(--primary)" }}
               >
-                <Send className="w-3.5 h-3.5" style={{ color: !input.trim() || loading ? "var(--text-muted)" : "white" }} />
+                <Send className="w-3.5 h-3.5" style={{ color: !input.trim() || loading ? "var(--text-muted)" : "var(--bg)" }} />
               </button>
             </div>
           </div>

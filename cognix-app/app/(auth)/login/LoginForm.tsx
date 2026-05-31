@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GraduationCap, Eye, EyeOff, Loader2 } from "lucide-react";
@@ -16,13 +16,12 @@ export default function LoginPage() {
   const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(
+    searchParams.get("error") === "auth"
+      ? "Erro de autenticação com Google. Verifique se o provedor está configurado e tente novamente."
+      : ""
+  );
 
-  useEffect(() => {
-    if (searchParams.get("error") === "auth") {
-      setError("Erro de autenticação com Google. Verifique se o provedor está configurado e tente novamente.");
-    }
-  }, [searchParams]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,21 +53,16 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full opacity-20" style={{ background: "radial-gradient(circle, #7c3aed, transparent 70%)" }} />
-        <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full opacity-15" style={{ background: "radial-gradient(circle, #4f46e5, transparent 70%)" }} />
-      </div>
-
       <div className="relative w-full max-w-[400px]">
-        <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)", borderRadius: 20, padding: "36px 32px" }}>
+        <div style={{ background: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)", borderRadius: 20, padding: "36px 32px" }}>
 
           {/* Logo */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 32 }}>
-            <div style={{ width: 48, height: 48, borderRadius: 14, background: "linear-gradient(135deg, #7c3aed, #4f46e5)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
-              <GraduationCap style={{ width: 24, height: 24, color: "white" }} />
+            <div style={{ width: 48, height: 48, borderRadius: 14, background: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+              <GraduationCap style={{ width: 24, height: 24, color: "var(--bg)" }} />
             </div>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: "white", letterSpacing: -0.4 }}>Cognix</h1>
-            <p style={{ fontSize: 13, color: "#94a3b8", marginTop: 4 }}>Entre com suas credenciais para acessar</p>
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: "var(--text-primary)", letterSpacing: -0.4 }}>Cognix</h1>
+            <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>Entre com suas credenciais para acessar</p>
           </div>
 
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -79,7 +73,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                style={{ background: "rgba(255,255,255,0.07)", border: "1.5px solid rgba(255,255,255,0.12)", color: "white" }}
+                  style={{ background: "var(--surface-subtle)", border: "1.5px solid var(--border)", color: "var(--text-primary)" }}
               />
             </Field>
 
@@ -91,7 +85,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
-                  style={{ background: "rgba(255,255,255,0.07)", border: "1.5px solid rgba(255,255,255,0.12)", color: "white", paddingRight: 44 }}
+                  style={{ background: "var(--surface-subtle)", border: "1.5px solid var(--border)", color: "var(--text-primary)", paddingRight: 44 }}
                 />
               </Field>
               <button
@@ -107,12 +101,12 @@ export default function LoginPage() {
               <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", userSelect: "none" }}>
                 <div
                   onClick={() => setRemember(v => !v)}
-                  style={{ width: 16, height: 16, borderRadius: 5, display: "flex", alignItems: "center", justifyContent: "center", background: remember ? "#7c3aed" : "rgba(255,255,255,0.08)", border: remember ? "1px solid #7c3aed" : "1px solid rgba(255,255,255,0.15)", flexShrink: 0 }}>
-                  {remember && <svg viewBox="0 0 10 8" style={{ width: 10, height: 10, color: "white", fill: "none" }}><path d="M1 4l2.5 2.5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>}
+                  style={{ width: 16, height: 16, borderRadius: 5, display: "flex", alignItems: "center", justifyContent: "center", background: remember ? "var(--primary)" : "var(--surface-subtle)", border: remember ? "1px solid var(--primary)" : "1px solid var(--border)", flexShrink: 0 }}>
+                  {remember && <svg viewBox="0 0 10 8" style={{ width: 10, height: 10, color: "var(--bg)", fill: "none" }}><path d="M1 4l2.5 2.5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>}
                 </div>
-                <span style={{ fontSize: 13, color: "#94a3b8" }}>Lembrar-me</span>
+                <span style={{ fontSize: 13, color: "var(--text-muted)" }}>Lembrar-me</span>
               </label>
-              <Link href="/reset-password" style={{ fontSize: 13, fontWeight: 500, color: "#7c3aed", textDecoration: "none" }}>Esqueceu a senha?</Link>
+              <Link href="/reset-password" style={{ fontSize: 13, fontWeight: 500, color: "var(--primary-subtle-text)", textDecoration: "none" }}>Esqueceu a senha?</Link>
             </div>
 
             {error && (
@@ -121,30 +115,30 @@ export default function LoginPage() {
               </div>
             )}
 
-            <Btn type="submit" loading={loading} fullWidth style={{ background: "linear-gradient(135deg, #7c3aed, #4f46e5)", marginTop: 4 }}>
+            <Btn type="submit" loading={loading} fullWidth style={{ marginTop: 4 }}>
               {loading ? "" : "Entrar"}
             </Btn>
           </form>
 
           {/* Divider */}
           <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "20px 0" }}>
-            <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
-            <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.8, textTransform: "uppercase", color: "#475569" }}>ou continue com</span>
-            <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
+            <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
+            <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.8, textTransform: "uppercase", color: "var(--text-muted)" }}>ou continue com</span>
+            <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
           </div>
 
           <button
             onClick={handleGoogle}
             disabled={googleLoading}
             className="btn btn-ghost"
-            style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1.5px solid rgba(255,255,255,0.12)", color: "#e2e8f0" }}>
+            style={{ width: "100%", background: "var(--surface)", border: "1.5px solid var(--border)", color: "var(--text-primary)" }}>
             {googleLoading ? <Loader2 style={{ width: 16, height: 16, animation: "spin 1s linear infinite" }} /> : <GoogleIcon />}
             Continuar com Google
           </button>
 
-          <p style={{ textAlign: "center", fontSize: 13, color: "#64748b", marginTop: 20 }}>
+          <p style={{ textAlign: "center", fontSize: 13, color: "var(--text-muted)", marginTop: 20 }}>
             Não tem conta?{" "}
-            <Link href="/register" style={{ fontWeight: 600, color: "#7c3aed", textDecoration: "none" }}>Criar agora</Link>
+            <Link href="/register" style={{ fontWeight: 600, color: "var(--primary-subtle-text)", textDecoration: "none" }}>Criar agora</Link>
           </p>
         </div>
       </div>

@@ -75,6 +75,7 @@ export interface StudyPlanDay {
 export interface StudyPlanItem {
   id: string;
   dayOfWeek: number;
+  date?: string;
   groupId: string | null;
   subject: string;
   sessionType: SessionType;
@@ -128,16 +129,16 @@ export const ACHIEVEMENTS: Achievement[] = [
 ];
 
 export const GROUP_COLORS = [
-  { value: "#7c3aed", label: "Violeta"  },
-  { value: "#2563eb", label: "Azul"     },
-  { value: "#059669", label: "Verde"    },
-  { value: "#d97706", label: "Laranja"  },
-  { value: "#db2777", label: "Rosa"     },
-  { value: "#0891b2", label: "Ciano"   },
-  { value: "#dc2626", label: "Vermelho" },
-  { value: "#4f46e5", label: "Índigo"  },
-  { value: "#0d9488", label: "Teal"    },
-  { value: "#65a30d", label: "Lima"    },
+  { value: "#2563eb", label: "Azul"      },
+  { value: "#0891b2", label: "Ciano"     },
+  { value: "#059669", label: "Verde"     },
+  { value: "#65a30d", label: "Lima"      },
+  { value: "#d97706", label: "Ambar"     },
+  { value: "#ea580c", label: "Coral"     },
+  { value: "#dc2626", label: "Vermelho"  },
+  { value: "#be123c", label: "Cereja"    },
+  { value: "#0d9488", label: "Teal"      },
+  { value: "#475569", label: "Ardosia"   },
 ];
 
 export const GROUP_EMOJIS = ["📚","💻","🎯","🏆","📐","🔬","🌍","✍️","🎵","💡","🧠","🚀","📝","🔭","⚗️","🎨"];
@@ -199,7 +200,7 @@ interface AppState {
 
   // Plan actions
   savePlan: (configs: { dayOfWeek: number; plannedMin: number }[]) => void;
-  savePlanItems: (dayOfWeek: number, items: { groupId: string | null; subject: string; sessionType: SessionType; description?: string }[]) => void;
+  savePlanItems: (dayOfWeek: number, items: { groupId: string | null; subject: string; sessionType: SessionType; description?: string }[], date?: string) => void;
 
   // Session actions
   addSession: (session: Omit<Session, "id" | "createdAt">) => void;
@@ -232,9 +233,27 @@ export const useStore = create<AppState>()(
       unlockedAchievements: [],
 
       // ── Sync ────────────────────────────────────────────────────────────────
-      setUserId: (id) => set({ userId: id }),
+      setUserId: (id) => {
+        const currentUserId = get().userId;
+        if (currentUserId && id && currentUserId !== id) {
+          set({ userId: id, planItems: [], sessions: [], activeGroupId: null });
+          return;
+        }
+        set({ userId: id });
+      },
 
       hydrateFromSupabase: ({ groups, tasks, exercises, subjects, planDays, planItems, sessions, profile }) => {
+        const localState = get();
+        const localDatePlanItems = localState.planItems.filter((item) => item.date);
+        const mergedPlanItems = [
+          ...planItems,
+          ...localDatePlanItems.filter((localItem) => !planItems.some((item) => item.id === localItem.id)),
+        ];
+        const mergedSessions = [
+          ...sessions,
+          ...localState.sessions.filter((localSession) => !sessions.some((session) => session.id === localSession.id)),
+        ];
+
         set({
           initialized: true,
           groups,
@@ -242,8 +261,8 @@ export const useStore = create<AppState>()(
           exercises,
           subjects,
           planDays,
-          planItems,
-          sessions,
+          planItems: mergedPlanItems,
+          sessions: mergedSessions,
           user: profile
             ? { name: profile.name, xp: profile.xp, level: profile.level }
             : { name: "Estudante", xp: 0, level: 1 },
@@ -373,11 +392,12 @@ export const useStore = create<AppState>()(
         }
       },
 
-      savePlanItems: (dayOfWeek, items) => {
+      savePlanItems: (dayOfWeek, items, date) => {
         const { userId } = get();
         const newItems: StudyPlanItem[] = items.map((item, i) => ({
           id: generateId(),
           dayOfWeek,
+          date,
           groupId: item.groupId,
           subject: item.subject,
           sessionType: item.sessionType,
@@ -386,9 +406,12 @@ export const useStore = create<AppState>()(
           createdAt: new Date().toISOString(),
         }));
         set((s) => ({
-          planItems: [...s.planItems.filter((pi) => pi.dayOfWeek !== dayOfWeek), ...newItems],
+          planItems: [
+            ...s.planItems.filter((pi) => (date ? pi.date !== date : pi.dayOfWeek !== dayOfWeek || Boolean(pi.date))),
+            ...newItems,
+          ],
         }));
-        if (userId) db.replacePlanItems(userId, dayOfWeek, newItems).catch(console.error);
+        if (userId) db.replacePlanItems(userId, dayOfWeek, newItems, date).catch(console.error);
       },
 
       // ── Sessions ─────────────────────────────────────────────────────────────
@@ -453,7 +476,12 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "cognix-store",
-      partialize: (s) => ({ activeGroupId: s.activeGroupId }),
+      partialize: (s) => ({
+        userId: s.userId,
+        activeGroupId: s.activeGroupId,
+        planItems: s.planItems.filter((item) => item.date),
+        sessions: s.sessions,
+      }),
     }
   )
 );

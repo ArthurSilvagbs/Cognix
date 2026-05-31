@@ -111,8 +111,8 @@ export default function TasksPage() {
               <div key={task.id} className="card flex items-start gap-3 px-4 py-3.5 hover:shadow-sm transition-all duration-150" style={task.status === "done" ? { opacity: 0.6 } : {}}>
                 <button onClick={() => toggleDone(task)} className="mt-0.5 shrink-0">
                   {task.status === "done"
-                    ? <CheckCircle2 className="w-5 h-5" style={{ color: "#7c3aed" }} />
-                    : <Circle className="w-5 h-5 text-slate-300 hover:text-violet-400 transition-colors" />}
+                    ? <CheckCircle2 className="w-5 h-5" style={{ color: "var(--primary-subtle-text)" }} />
+                    : <Circle className="w-5 h-5 text-slate-300 hover:text-slate-500 transition-colors" />}
                 </button>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">

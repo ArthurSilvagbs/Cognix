@@ -61,8 +61,8 @@ export default function Sidebar() {
       <div className="px-4 pt-4 pb-3">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-            style={{ background: "linear-gradient(135deg, #7c3aed, #4f46e5)" }}>
-            <GraduationCap className="w-4 h-4 text-white" />
+            style={{ background: "var(--primary)" }}>
+            <GraduationCap className="w-4 h-4" style={{ color: "var(--bg)" }} />
           </div>
           <div>
             <p className="text-sm font-semibold text-slate-900 leading-none">Cognix</p>
@@ -78,8 +78,8 @@ export default function Sidebar() {
             onClick={() => setDropdownOpen((v) => !v)}
             className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
             style={{
-              background: activeGroup ? `${activeGroup.color}15` : "#f8fafc",
-              border: `1.5px solid ${activeGroup ? `${activeGroup.color}30` : "#e2e8f0"}`,
+              background: activeGroup ? `${activeGroup.color}14` : "var(--surface-subtle)",
+              border: `1.5px solid ${activeGroup ? `${activeGroup.color}30` : "var(--border)"}`,
             }}
           >
             <span className="text-base leading-none shrink-0">
@@ -104,9 +104,9 @@ export default function Sidebar() {
                 className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm transition-colors hover:bg-slate-50"
                 style={activeGroupId === null ? { background: "var(--primary-subtle)", color: "var(--primary)" } : { color: "var(--text-secondary)" }}
               >
-                <Globe className="w-4 h-4 shrink-0" style={{ color: activeGroupId === null ? "#7c3aed" : "#94a3b8" }} />
+                <Globe className="w-4 h-4 shrink-0" style={{ color: activeGroupId === null ? "var(--primary-subtle-text)" : "var(--text-muted)" }} />
                 <span className="font-medium">Visão Geral</span>
-                {activeGroupId === null && <span className="ml-auto text-xs text-violet-500">●</span>}
+                {activeGroupId === null && <span className="ml-auto text-xs" style={{ color: "var(--primary-subtle-text)" }}>●</span>}
               </button>
 
               {groups.length > 0 && (
@@ -180,13 +180,13 @@ export default function Sidebar() {
                 active ? "font-medium shadow-sm" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-normal"
               )}
               style={active
-                ? { background: "#7c3aed", color: "white" }
+                ? { background: "var(--primary)", color: "var(--bg)" }
                 : {}}
             >
-              <Icon className={cn("w-4 h-4 shrink-0", active ? "text-white" : "text-slate-400 group-hover:text-slate-600")} />
+              <Icon className={cn("w-4 h-4 shrink-0", active ? "" : "text-slate-400 group-hover:text-slate-600")} />
               <span className="truncate">{label}</span>
               {href === "/tutor" && !active && (
-                <span className="ml-auto text-[10px] font-medium px-1.5 py-0.5 rounded-md" style={{ background: "#ede9fe", color: "#7c3aed" }}>IA</span>
+                <span className="ml-auto text-[10px] font-medium px-1.5 py-0.5 rounded-md" style={{ background: "var(--primary-subtle)", color: "var(--primary-subtle-text)" }}>IA</span>
               )}
             </Link>
           );
@@ -198,8 +198,8 @@ export default function Sidebar() {
         <div className="rounded-xl p-3" style={{ background: "var(--primary-subtle)", border: "1px solid var(--primary-subtle-border)" }}>
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                style={{ background: "linear-gradient(135deg, #7c3aed, #4f46e5)" }}>
+              <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
+                style={{ background: "var(--primary)", color: "var(--bg)" }}>
                 {user.level}
               </div>
               <div>
@@ -207,11 +207,11 @@ export default function Sidebar() {
                 <p className="text-[10px] text-slate-400">{user.xp} XP total</p>
               </div>
             </div>
-            <span className="text-[10px] text-violet-500 font-medium">{100 - xpInLevel} XP</span>
+            <span className="text-[10px] font-medium" style={{ color: "var(--primary-subtle-text)" }}>{100 - xpInLevel} XP</span>
           </div>
           <div className="h-1 rounded-full overflow-hidden" style={{ background: "var(--primary-subtle-border)" }}>
             <div className="h-full rounded-full transition-all"
-              style={{ width: `${xpInLevel}%`, background: "linear-gradient(to right, #7c3aed, #4f46e5)" }} />
+              style={{ width: `${xpInLevel}%`, background: "var(--primary)" }} />
           </div>
         </div>
 

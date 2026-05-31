@@ -94,7 +94,7 @@ export function SelectField({ label, value, onChange, children, disabled }: Sele
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
       <label
         htmlFor={id}
-        style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.6, textTransform: "uppercase", color: "var(--text-muted)" }}>
+        style={{ fontSize: 12, fontWeight: 600, letterSpacing: 0.6, textTransform: "uppercase", color: "var(--text-muted)" }}>
         {label}
       </label>
       <select
@@ -154,7 +154,7 @@ export function ModalHeader({ title, subtitle, onClose }: ModalHeaderProps) {
             {title}
           </h2>
           {subtitle && (
-            <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 3 }}>{subtitle}</p>
+            <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 3 }}>{subtitle}</p>
           )}
         </div>
         <button

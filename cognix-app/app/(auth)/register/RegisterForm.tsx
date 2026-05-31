@@ -24,9 +24,9 @@ function passwordStrength(pw: string): { score: number; label: string; color: st
 }
 
 const inputStyle: React.CSSProperties = {
-  background: "rgba(255,255,255,0.07)",
-  border: "1.5px solid rgba(255,255,255,0.12)",
-  color: "white",
+  background: "var(--surface-subtle)",
+  border: "1.5px solid var(--border)",
+  color: "var(--text-primary)",
 };
 
 export default function RegisterPage() {
@@ -74,13 +74,13 @@ export default function RegisterPage() {
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
-        <div style={{ borderRadius: 20, padding: "40px 32px", textAlign: "center", maxWidth: 360, width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+        <div style={{ borderRadius: 20, padding: "40px 32px", textAlign: "center", maxWidth: 360, width: "100%", background: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)" }}>
           <div style={{ width: 60, height: 60, borderRadius: "50%", background: "rgba(16,185,129,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
             <CheckCircle2 style={{ width: 30, height: 30, color: "#10b981" }} />
           </div>
-          <h2 style={{ fontSize: 20, fontWeight: 700, color: "white", marginBottom: 8 }}>Conta criada!</h2>
-          <p style={{ fontSize: 13, color: "#94a3b8", marginBottom: 24 }}>
-            Enviamos um e-mail de confirmação para <strong style={{ color: "white" }}>{email}</strong>.
+          <h2 style={{ fontSize: 20, fontWeight: 700, color: "var(--text-primary)", marginBottom: 8 }}>Conta criada!</h2>
+          <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 24 }}>
+            Enviamos um e-mail de confirmação para <strong style={{ color: "var(--text-primary)" }}>{email}</strong>.
           </p>
           <Link href="/login" className="btn btn-primary" style={{ display: "flex", width: "100%" }}>
             Ir para o login
@@ -92,21 +92,16 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full opacity-20" style={{ background: "radial-gradient(circle, #7c3aed, transparent 70%)" }} />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full opacity-15" style={{ background: "radial-gradient(circle, #4f46e5, transparent 70%)" }} />
-      </div>
-
       <div className="relative w-full max-w-[400px]">
-        <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)", borderRadius: 20, padding: "36px 32px" }}>
+        <div style={{ background: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)", borderRadius: 20, padding: "36px 32px" }}>
 
           {/* Logo */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 32 }}>
-            <div style={{ width: 48, height: 48, borderRadius: 14, background: "linear-gradient(135deg, #7c3aed, #4f46e5)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
-              <GraduationCap style={{ width: 24, height: 24, color: "white" }} />
+            <div style={{ width: 48, height: 48, borderRadius: 14, background: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+              <GraduationCap style={{ width: 24, height: 24, color: "var(--bg)" }} />
             </div>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: "white", letterSpacing: -0.4 }}>Criar conta</h1>
-            <p style={{ fontSize: 13, color: "#94a3b8", marginTop: 4 }}>Comece sua jornada de estudos agora</p>
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: "var(--text-primary)", letterSpacing: -0.4 }}>Criar conta</h1>
+            <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>Comece sua jornada de estudos agora</p>
           </div>
 
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -157,27 +152,27 @@ export default function RegisterPage() {
               </div>
             )}
 
-            <Btn type="submit" loading={loading} fullWidth style={{ background: "linear-gradient(135deg, #7c3aed, #4f46e5)", marginTop: 4 }}>
+            <Btn type="submit" loading={loading} fullWidth style={{ marginTop: 4 }}>
               {loading ? "" : "Criar conta"}
             </Btn>
           </form>
 
           {/* Divider */}
           <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "20px 0" }}>
-            <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
-            <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.8, textTransform: "uppercase", color: "#475569" }}>ou continue com</span>
-            <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
+            <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
+            <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.8, textTransform: "uppercase", color: "var(--text-muted)" }}>ou continue com</span>
+            <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
           </div>
 
           <button onClick={handleGoogle} disabled={googleLoading} className="btn btn-ghost"
-            style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1.5px solid rgba(255,255,255,0.12)", color: "#e2e8f0" }}>
+            style={{ width: "100%", background: "var(--surface)", border: "1.5px solid var(--border)", color: "var(--text-primary)" }}>
             {googleLoading ? <Loader2 style={{ width: 16, height: 16, animation: "spin 1s linear infinite" }} /> : <GoogleIcon />}
             Continuar com Google
           </button>
 
-          <p style={{ textAlign: "center", fontSize: 13, color: "#64748b", marginTop: 20 }}>
+          <p style={{ textAlign: "center", fontSize: 13, color: "var(--text-muted)", marginTop: 20 }}>
             Já tem conta?{" "}
-            <Link href="/login" style={{ fontWeight: 600, color: "#7c3aed", textDecoration: "none" }}>Entrar</Link>
+            <Link href="/login" style={{ fontWeight: 600, color: "var(--primary-subtle-text)", textDecoration: "none" }}>Entrar</Link>
           </p>
         </div>
       </div>
