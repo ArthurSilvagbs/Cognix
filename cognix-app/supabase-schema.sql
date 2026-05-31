@@ -82,6 +82,50 @@ create table public.sessions (
 alter table public.sessions enable row level security;
 create policy "sessions_own" on public.sessions for all using (auth.uid() = user_id);
 
+-- Matérias por grupo
+create table public.subjects (
+  id uuid primary key,
+  user_id uuid references auth.users on delete cascade not null,
+  group_id uuid references public.groups on delete cascade not null,
+  name text not null,
+  created_at timestamptz not null default now(),
+  unique (group_id, name)
+);
+alter table public.subjects enable row level security;
+create policy "subjects_own" on public.subjects for all using (auth.uid() = user_id);
+
+-- Sessões de estudo
+create table public.sessions (
+  id uuid primary key,
+  user_id uuid references auth.users on delete cascade not null,
+  group_id uuid references public.groups on delete set null,
+  subject text not null,
+  duration_min integer not null,
+  date date not null,
+  notes text,
+  created_at timestamptz not null default now()
+);
+alter table public.sessions enable row level security;
+create policy "sessions_own" on public.sessions for all using (auth.uid() = user_id);
+
+-- Ciclos de estudo semanais
+create table public.study_cycles (
+  id uuid primary key,
+  user_id uuid references auth.users on delete cascade not null,
+  group_id uuid references public.groups on delete set null,
+  subject text not null,
+  planned_min integer not null,
+  days_of_week integer[] not null,
+  active boolean not null default true,
+  created_at timestamptz not null default now()
+);
+alter table public.study_cycles enable row level security;
+create policy "cycles_own" on public.study_cycles for all using (auth.uid() = user_id);
+
+-- Novas colunas na tabela sessions (rodar via ALTER no Supabase SQL Editor)
+-- alter table public.sessions add column if not exists cycle_id uuid references public.study_cycles on delete set null;
+-- alter table public.sessions add column if not exists actual_min integer;
+
 -- Exercícios
 create table public.exercises (
   id uuid primary key,

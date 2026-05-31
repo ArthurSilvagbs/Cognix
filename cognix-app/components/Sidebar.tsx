@@ -4,8 +4,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, CheckSquare, Code2,
-  TrendingUp, MessageSquare, GraduationCap,
-  ChevronDown, Globe, Plus, Settings2, FolderOpen, LogOut,
+  TrendingUp, GraduationCap,
+  ChevronDown, Globe, Plus, Settings2, FolderOpen, LogOut, BookOpen,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -13,12 +13,12 @@ import { useStore } from "@/lib/store";
 import { createClient } from "@/lib/supabase/client";
 
 const navItems = [
-  { href: "/dashboard",  label: "Dashboard",      icon: LayoutDashboard },
-  { href: "/groups",     label: "Grupos",          icon: FolderOpen      },
-  { href: "/tasks",      label: "Tarefas",         icon: CheckSquare     },
-  { href: "/exercises",  label: "Exercícios",       icon: Code2           },
-  { href: "/evolution",  label: "Evolução",         icon: TrendingUp      },
-  { href: "/tutor",      label: "Tutor IA",         icon: MessageSquare   },
+  { href: "/dashboard",  label: "Dashboard",  icon: LayoutDashboard },
+  { href: "/groups",     label: "Grupos",      icon: FolderOpen      },
+  { href: "/sessions",   label: "Sessões",      icon: BookOpen        },
+  { href: "/tasks",      label: "Tarefas",     icon: CheckSquare     },
+  { href: "/exercises",  label: "Exercícios",   icon: Code2           },
+  { href: "/evolution",  label: "Evolução",     icon: TrendingUp      },
 ];
 
 export default function Sidebar() {
@@ -158,7 +158,7 @@ export default function Sidebar() {
             <p className="text-xs font-semibold truncate" style={{ color: activeGroup.color }}>{activeGroup.name}</p>
             <p className="text-xs text-slate-400">contexto ativo</p>
           </div>
-          <Link href="/groups" className="shrink-0">
+          <Link href={`/groups/${activeGroup.id}`} className="shrink-0">
             <Settings2 className="w-3.5 h-3.5 text-slate-300 hover:text-slate-500 transition-colors" />
           </Link>
         </div>

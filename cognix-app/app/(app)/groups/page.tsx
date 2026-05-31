@@ -1,24 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
-import { Plus, Trash2, Pencil, ArrowRight, FolderOpen, CheckSquare, Code2 } from "lucide-react";
+import { Plus, Trash2, Pencil, ArrowRight, FolderOpen, CheckSquare, Code2, BookOpen, X, Smile } from "lucide-react";
 import { useStore, StudyGroup, GROUP_COLORS, GROUP_EMOJIS } from "@/lib/store";
+import { Field, ModalHeader, ModalFooter, FormBody } from "@/components/ui";
 
 interface FormData { name: string; description: string; color: string; emoji: string; }
 const EMPTY: FormData = { name: "", description: "", color: "#7c3aed", emoji: "📚" };
 
 export default function GroupsPage() {
-  const { groups, tasks, exercises, addGroup, updateGroup, deleteGroup, setActiveGroup } = useStore();
+  const { groups, tasks, exercises, subjects, addGroup, updateGroup, deleteGroup, setActiveGroup, addSubject, deleteSubject } = useStore();
   const [showModal, setShowModal] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<FormData>(EMPTY);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [newSubjectInput, setNewSubjectInput] = useState<Record<string, string>>({});
+  const subjectInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
-  function openNew() { setForm(EMPTY); setEditId(null); setShowModal(true); }
+  function openNew() { setForm(EMPTY); setEditId(null); setShowEmojiPicker(false); setShowModal(true); }
   function openEdit(g: StudyGroup) {
     setForm({ name: g.name, description: g.description ?? "", color: g.color, emoji: g.emoji });
-    setEditId(g.id); setShowModal(true);
+    setEditId(g.id); setShowEmojiPicker(false); setShowModal(true);
   }
   function handleSave() {
     if (!form.name.trim()) return;
@@ -30,12 +34,17 @@ export default function GroupsPage() {
     return {
       tasks: tasks.filter((t) => t.groupId === id).length,
       exercises: exercises.filter((e) => e.groupId === id).length,
-      doneExercises: exercises.filter((e) => e.groupId === id && e.status === "done").length,
     };
   }
 
-  function handleGoToGroup(id: string) {
-    setActiveGroup(id);
+  function handleAddSubject(groupId: string) {
+    const name = (newSubjectInput[groupId] ?? "").trim();
+    if (!name) return;
+    const alreadyExists = subjects.some((s) => s.groupId === groupId && s.name.toLowerCase() === name.toLowerCase());
+    if (alreadyExists) return;
+    addSubject(groupId, name);
+    setNewSubjectInput((prev) => ({ ...prev, [groupId]: "" }));
+    subjectInputRefs.current[groupId]?.focus();
   }
 
   return (
@@ -71,97 +80,124 @@ export default function GroupsPage() {
         <div className="grid grid-cols-2 gap-4">
           {groups.map((g) => {
             const s = groupStats(g.id);
+            const groupSubjects = subjects.filter((sub) => sub.groupId === g.id);
+
             return (
-              <div
-                key={g.id}
-                className="card p-5 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5"
-              >
-                {/* Group header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0"
-                      style={{ background: `${g.color}18` }}
-                    >
-                      {g.emoji}
+              <div key={g.id} className="card" style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
+
+                {/* Colored top bar */}
+                <div style={{ height: 4, background: g.color, opacity: 0.85 }} />
+
+                <div style={{ padding: "18px 18px 16px", flex: 1, display: "flex", flexDirection: "column" }}>
+                  {/* Header */}
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 14 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+                      <div style={{ width: 42, height: 42, borderRadius: 12, background: `${g.color}18`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>
+                        {g.emoji}
+                      </div>
+                      <div style={{ minWidth: 0 }}>
+                        <p style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", letterSpacing: -0.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {g.name}
+                        </p>
+                        {g.description && (
+                          <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {g.description}
+                          </p>
+                        )}
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 5 }}>
+                          <span style={{ fontSize: 11, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
+                            <CheckSquare style={{ width: 11, height: 11 }} />
+                            {s.tasks} tarefa{s.tasks !== 1 ? "s" : ""}
+                          </span>
+                          <span style={{ fontSize: 11, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
+                            <Code2 style={{ width: 11, height: 11 }} />
+                            {s.exercises} exercício{s.exercises !== 1 ? "s" : ""}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <p className="font-semibold text-slate-800 leading-tight">{g.name}</p>
-                      {g.description && (
-                        <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{g.description}</p>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0, marginLeft: 8 }}>
+                      <button onClick={() => openEdit(g)} style={{ padding: 6, borderRadius: 8, background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex" }}>
+                        <Pencil style={{ width: 14, height: 14 }} />
+                      </button>
+                      {deleteConfirm === g.id ? (
+                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                          <button onClick={() => { deleteGroup(g.id); setDeleteConfirm(null); }}
+                            style={{ fontSize: 11, padding: "4px 8px", borderRadius: 7, border: "none", cursor: "pointer", background: "var(--color-danger-bg)", color: "var(--color-danger-text)", fontWeight: 500 }}>
+                            Confirmar
+                          </button>
+                          <button onClick={() => setDeleteConfirm(null)}
+                            style={{ fontSize: 11, padding: "4px 8px", borderRadius: 7, border: "none", cursor: "pointer", background: "var(--surface-subtle)", color: "var(--text-muted)" }}>
+                            Cancelar
+                          </button>
+                        </div>
+                      ) : (
+                        <button onClick={() => setDeleteConfirm(g.id)} style={{ padding: 6, borderRadius: 8, background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex" }}>
+                          <Trash2 style={{ width: 14, height: 14 }} />
+                        </button>
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button
-                      onClick={() => openEdit(g)}
-                      className="p-1.5 rounded-lg text-slate-300 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-                    >
-                      <Pencil className="w-3.5 h-3.5" />
-                    </button>
-                    {deleteConfirm === g.id ? (
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => { deleteGroup(g.id); setDeleteConfirm(null); }}
-                          className="text-xs px-2 py-1 rounded-lg font-medium transition-colors"
-                          style={{ background: "var(--color-danger-bg)", color: "var(--color-danger-text)" }}
-                        >
-                          Confirmar
-                        </button>
-                        <button
-                          onClick={() => setDeleteConfirm(null)}
-                          className="text-xs px-2 py-1 rounded-lg font-medium text-slate-500 hover:bg-slate-100 transition-colors"
-                        >
-                          Cancelar
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => setDeleteConfirm(g.id)}
-                        className="p-1.5 rounded-lg text-slate-300 hover:text-red-400 hover:bg-red-50 transition-colors"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+
+                  {/* Subjects */}
+                  <div style={{ flex: 1, marginBottom: 14 }}>
+                    <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.8, textTransform: "uppercase", color: "var(--text-muted)", marginBottom: 8 }}>
+                      Matérias
+                    </p>
+
+                    {groupSubjects.length === 0 && (
+                      <p style={{ fontSize: 12, color: "var(--text-muted)", fontStyle: "italic", marginBottom: 8 }}>
+                        Nenhuma matéria adicionada
+                      </p>
                     )}
-                  </div>
-                </div>
 
-                {/* Stats */}
-                <div className="grid grid-cols-2 gap-2 mb-4">
-                  {[
-                    { icon: CheckSquare, label: "Tarefas", value: s.tasks },
-                    { icon: Code2, label: "Exercícios", value: s.exercises },
-                  ].map(({ icon: Icon, label, value }) => (
-                    <div key={label} className="rounded-xl p-2.5 text-center" style={{ background: "var(--surface-subtle)" }}>
-                      <Icon className="w-3.5 h-3.5 mx-auto mb-1 text-slate-400" />
-                      <p className="text-base font-bold text-slate-700">{value}</p>
-                      <p className="text-xs text-slate-400">{label}</p>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 2, marginBottom: groupSubjects.length > 0 ? 8 : 0 }}>
+                      {groupSubjects.map((sub) => (
+                        <div key={sub.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 10px", borderRadius: 8, background: "var(--surface-subtle)" }}>
+                          <div style={{ width: 6, height: 6, borderRadius: "50%", background: g.color, flexShrink: 0 }} />
+                          <span style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {sub.name}
+                          </span>
+                          <button onClick={() => deleteSubject(sub.id)}
+                            style={{ padding: 2, background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex", flexShrink: 0, opacity: 0.6 }}>
+                            <X style={{ width: 13, height: 13 }} />
+                          </button>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+
+                    {/* Add subject */}
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <input
+                        ref={(el) => { subjectInputRefs.current[g.id] = el; }}
+                        className="input"
+                        style={{ flex: 1, fontSize: 13, padding: "8px 12px" }}
+                        placeholder="Adicionar matéria..."
+                        value={newSubjectInput[g.id] ?? ""}
+                        onChange={(e) => setNewSubjectInput((prev) => ({ ...prev, [g.id]: e.target.value }))}
+                        onKeyDown={(e) => { if (e.key === "Enter") handleAddSubject(g.id); }}
+                      />
+                      <button
+                        onClick={() => handleAddSubject(g.id)}
+                        disabled={!(newSubjectInput[g.id] ?? "").trim()}
+                        style={{ padding: "8px 12px", borderRadius: 11, border: "none", cursor: "pointer", background: `${g.color}20`, color: g.color, display: "flex", alignItems: "center", opacity: !(newSubjectInput[g.id] ?? "").trim() ? 0.4 : 1 }}
+                      >
+                        <Plus style={{ width: 15, height: 15 }} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Action */}
+                  <Link
+                    href={`/groups/${g.id}`}
+                    onClick={() => setActiveGroup(g.id)}
+                    className="btn"
+                    style={{ background: g.color, color: "white", width: "100%", fontSize: 14 }}
+                  >
+                    Entrar no grupo <ArrowRight style={{ width: 15, height: 15 }} />
+                  </Link>
                 </div>
-
-                {s.doneExercises > 0 && (
-                  <p className="text-xs text-slate-400 mb-3">
-                    ✅ <span className="font-medium text-slate-600">{s.doneExercises}</span> exercício{s.doneExercises > 1 ? "s" : ""} concluído{s.doneExercises > 1 ? "s" : ""}
-                  </p>
-                )}
-
-                {/* Color bar */}
-                <div className="h-1 rounded-full mb-4" style={{ background: `${g.color}30` }}>
-                  <div className="h-full rounded-full" style={{ width: "100%", background: g.color, opacity: 0.6 }} />
-                </div>
-
-                {/* Action */}
-                <Link
-                  href="/dashboard"
-                  onClick={() => handleGoToGroup(g.id)}
-                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-medium transition-all"
-                  style={{ background: `${g.color}15`, color: g.color, border: `1px solid ${g.color}25` }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = `${g.color}25`; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = `${g.color}15`; }}
-                >
-                  Entrar no grupo <ArrowRight className="w-4 h-4" />
-                </Link>
               </div>
             );
           })}
@@ -170,59 +206,104 @@ export default function GroupsPage() {
 
       {/* Modal */}
       {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: "1px solid var(--border)" }}>
-              <h2 className="text-base font-semibold text-slate-900">{editId ? "Editar Grupo" : "Novo Grupo"}</h2>
-              <button onClick={() => setShowModal(false)} className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors text-lg leading-none">×</button>
-            </div>
+        <div className="modal-overlay" onClick={() => { setShowModal(false); setShowEmojiPicker(false); }}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <ModalHeader
+              title={editId ? "Editar grupo" : "Novo grupo"}
+              onClose={() => setShowModal(false)}
+            />
 
-            <div className="p-6 space-y-5">
-              {/* Emoji picker */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Ícone</label>
-                <div className="flex flex-wrap gap-2">
-                  {GROUP_EMOJIS.map((e) => (
-                    <button
-                      key={e}
-                      onClick={() => setForm({ ...form, emoji: e })}
-                      className="w-9 h-9 rounded-xl text-lg flex items-center justify-center transition-all"
-                      style={form.emoji === e
-                        ? { background: `${form.color}20`, border: `2px solid ${form.color}`, transform: "scale(1.1)" }
-                        : { background: "#f8fafc", border: "2px solid transparent" }}
+            <FormBody>
+              {/* Emoji button + Name row */}
+              <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                {/* Emoji trigger button + popover */}
+                <div style={{ position: "relative", flexShrink: 0 }} onClick={e => e.stopPropagation()}>
+                  <button
+                    type="button"
+                    onClick={() => setShowEmojiPicker(p => !p)}
+                    title="Escolher ícone"
+                    style={{
+                      width: 56,
+                      height: 56,
+                      borderRadius: 11,
+                      border: `1.5px solid ${showEmojiPicker ? form.color : "var(--border)"}`,
+                      background: showEmojiPicker ? `${form.color}12` : "var(--surface)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 24,
+                      cursor: "pointer",
+                      transition: "all 0.15s",
+                    }}
+                  >
+                    {form.emoji}
+                  </button>
+
+                  {showEmojiPicker && (
+                    <>
+                      {/* invisible backdrop — closes picker on outside click */}
+                      <div
+                        style={{ position: "fixed", inset: 0, zIndex: 99 }}
+                        onClick={() => setShowEmojiPicker(false)}
+                      />
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 62,
+                        left: 0,
+                        zIndex: 100,
+                        background: "var(--surface)",
+                        border: "1px solid var(--border)",
+                        borderRadius: 12,
+                        padding: 10,
+                        boxShadow: "var(--shadow-lg)",
+                        display: "grid",
+                        gridTemplateColumns: "repeat(5, 36px)",
+                        gap: 4,
+                      }}
+                      onClick={e => e.stopPropagation()}
                     >
-                      {e}
-                    </button>
-                  ))}
+                      {GROUP_EMOJIS.map(e => (
+                        <button
+                          key={e}
+                          onClick={() => { setForm(f => ({ ...f, emoji: e })); setShowEmojiPicker(false); }}
+                          style={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: 8,
+                            border: "none",
+                            background: form.emoji === e ? `${form.color}20` : "transparent",
+                            cursor: "pointer",
+                            fontSize: 20,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            outline: form.emoji === e ? `2px solid ${form.color}` : "none",
+                            transition: "background 0.1s",
+                          }}
+                        >
+                          {e}
+                        </button>
+                      ))}
+                    </div>
+                    </>
+                  )}
+                </div>
+
+                <div style={{ flex: 1 }} onClick={e => { e.stopPropagation(); setShowEmojiPicker(false); }}>
+                  <Field label="Nome do grupo">
+                    <input className="input" type="text" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} autoFocus />
+                  </Field>
                 </div>
               </div>
 
-              {/* Name */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Nome *</label>
-                <input
-                  className="input"
-                  placeholder="Ex: ENEM 2025, Programação, Concurso Banco"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  autoFocus
-                />
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Descrição <span className="font-normal text-slate-400">(opcional)</span></label>
-                <input
-                  className="input"
-                  placeholder="Ex: Preparação para o ENEM 2025"
-                  value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
-                />
-              </div>
+              <Field label="Descrição (opcional)">
+                <input className="input" type="text" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+              </Field>
 
               {/* Color picker */}
               <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Cor</label>
+                <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.6, textTransform: "uppercase", color: "var(--text-muted)", marginBottom: 10 }}>Cor</p>
                 <div className="flex gap-2 flex-wrap">
                   {GROUP_COLORS.map(({ value, label }) => (
                     <button
@@ -250,14 +331,14 @@ export default function GroupsPage() {
                   <p className="text-xs text-slate-400">{form.description || "Descrição do grupo"}</p>
                 </div>
               </div>
-            </div>
+            </FormBody>
 
-            <div className="flex gap-3 px-6 pb-6">
-              <button onClick={() => setShowModal(false)} className="btn btn-ghost flex-1">Cancelar</button>
-              <button onClick={handleSave} disabled={!form.name.trim()} className="btn btn-primary flex-1">
-                {editId ? "Salvar alterações" : "Criar grupo"}
-              </button>
-            </div>
+            <ModalFooter
+              onCancel={() => setShowModal(false)}
+              onConfirm={handleSave}
+              confirmDisabled={!form.name.trim()}
+              confirmLabel={editId ? "Salvar alterações" : "Criar grupo"}
+            />
           </div>
         </div>
       )}

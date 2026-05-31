@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Plus, Trash2, CheckCircle2, Circle, Clock, SlidersHorizontal } from "lucide-react";
 import { useStore, useGroupData, Task, TaskPriority, TaskStatus, TaskType } from "@/lib/store";
 import { cn, formatMinutes } from "@/lib/utils";
+import { Field, SelectField, ModalHeader, ModalFooter, FormBody } from "@/components/ui";
 
 type FilterTab = "all" | "pending" | "in_progress" | "done";
 
@@ -161,57 +162,49 @@ export default function TasksPage() {
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: "1px solid var(--border)" }}>
-              <div>
-                <h2 className="text-base font-semibold text-slate-900">{editId ? "Editar Tarefa" : "Nova Tarefa"}</h2>
-                {activeGroup && !editId && (
-                  <p className="text-xs text-slate-400 mt-0.5">em {activeGroup.emoji} {activeGroup.name}</p>
-                )}
+            <ModalHeader
+              title={editId ? "Editar tarefa" : "Nova tarefa"}
+              subtitle={activeGroup && !editId ? `em ${activeGroup.emoji} ${activeGroup.name}` : undefined}
+              onClose={() => setShowModal(false)}
+            />
+            <FormBody>
+              <Field label="Título">
+                <input className="input" type="text" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} autoFocus />
+              </Field>
+              <Field label="Matéria">
+                <input className="input" type="text" value={form.subject} onChange={e => setForm({ ...form, subject: e.target.value })} />
+              </Field>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                <SelectField label="Prioridade" value={form.priority} onChange={v => setForm({ ...form, priority: v as TaskPriority })}>
+                  <option value="low">Baixa</option>
+                  <option value="medium">Média</option>
+                  <option value="high">Alta</option>
+                </SelectField>
+                <SelectField label="Tipo" value={form.type} onChange={v => setForm({ ...form, type: v as TaskType })}>
+                  <option value="study">Estudo</option>
+                  <option value="review">Revisão</option>
+                  <option value="practice">Prática</option>
+                  <option value="project">Projeto</option>
+                </SelectField>
               </div>
-              <button onClick={() => setShowModal(false)} className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors text-lg leading-none">×</button>
-            </div>
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Título *</label>
-                <input className="input" placeholder="Ex: Estudar álgebra linear" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} autoFocus />
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                <Field label="Prazo">
+                  <input className="input" type="date" value={form.dueDate} onChange={e => setForm({ ...form, dueDate: e.target.value })} />
+                </Field>
+                <Field label="Tempo estimado (min)">
+                  <input className="input" type="number" min={1} value={form.estimatedMin} onChange={e => setForm({ ...form, estimatedMin: Number(e.target.value) })} />
+                </Field>
               </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Matéria *</label>
-                <input className="input" placeholder="Ex: Matemática" value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Prioridade</label>
-                  <select className="select" value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value as TaskPriority })}>
-                    <option value="low">Baixa</option><option value="medium">Média</option><option value="high">Alta</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Tipo</label>
-                  <select className="select" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value as TaskType })}>
-                    <option value="study">Estudo</option><option value="review">Revisão</option><option value="practice">Prática</option><option value="project">Projeto</option>
-                  </select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Data de Entrega</label>
-                  <input type="date" className="input" value={form.dueDate} onChange={(e) => setForm({ ...form, dueDate: e.target.value })} />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Tempo Est. (min)</label>
-                  <input type="number" min={1} className="input" value={form.estimatedMin} onChange={(e) => setForm({ ...form, estimatedMin: Number(e.target.value) })} />
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Descrição</label>
-                <textarea className="input resize-none" rows={3} placeholder="Detalhes da tarefa..." value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-              </div>
-            </div>
-            <div className="flex gap-3 px-6 pb-6">
-              <button onClick={() => setShowModal(false)} className="btn btn-ghost flex-1">Cancelar</button>
-              <button onClick={handleSave} disabled={!form.title.trim() || !form.subject.trim()} className="btn btn-primary flex-1">Salvar</button>
-            </div>
+              <Field label="Descrição (opcional)">
+                <textarea className="input" style={{ resize: "none" }} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+              </Field>
+            </FormBody>
+            <ModalFooter
+              onCancel={() => setShowModal(false)}
+              onConfirm={handleSave}
+              confirmDisabled={!form.title.trim() || !form.subject.trim()}
+              confirmLabel={editId ? "Salvar alterações" : "Criar tarefa"}
+            />
           </div>
         </div>
       )}

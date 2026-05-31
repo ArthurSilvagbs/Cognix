@@ -50,6 +50,51 @@ export interface Exercise {
   createdAt: string;
 }
 
+export interface Subject {
+  id: string;
+  groupId: string;
+  name: string;
+  createdAt: string;
+}
+
+export type SessionType = "content" | "review" | "exercises" | "simulado";
+export const SESSION_TYPE_CONFIG: Record<SessionType, { label: string; emoji: string }> = {
+  content:   { label: "Conteúdo",   emoji: "📖" },
+  review:    { label: "Revisão",    emoji: "🔄" },
+  exercises: { label: "Exercícios", emoji: "📝" },
+  simulado:  { label: "Simulado",   emoji: "🎯" },
+};
+
+export interface StudyPlanDay {
+  id: string;
+  dayOfWeek: number;
+  plannedMin: number;
+  createdAt: string;
+}
+
+export interface StudyPlanItem {
+  id: string;
+  dayOfWeek: number;
+  groupId: string | null;
+  subject: string;
+  sessionType: SessionType;
+  description?: string;
+  position: number;
+  createdAt: string;
+}
+
+export interface Session {
+  id: string;
+  cycleId: string | null;
+  groupId: string | null;
+  subject: string;
+  durationMin: number;
+  actualMin?: number;
+  date: string;
+  notes?: string;
+  createdAt: string;
+}
+
 export interface CodeTraining {
   id: string;
   groupId: string | null;
@@ -110,6 +155,10 @@ interface AppState {
   tasks: Task[];
   exercises: Exercise[];
   trainings: CodeTraining[];
+  subjects: Subject[];
+  planDays: StudyPlanDay[];
+  planItems: StudyPlanItem[];
+  sessions: Session[];
 
   // User
   user: { name: string; xp: number; level: number };
@@ -121,6 +170,10 @@ interface AppState {
     groups: StudyGroup[];
     tasks: Task[];
     exercises: Exercise[];
+    subjects: Subject[];
+    planDays: StudyPlanDay[];
+    planItems: StudyPlanItem[];
+    sessions: Session[];
     profile: { name: string; xp: number; level: number; unlockedAchievements: string[] } | null;
   }) => void;
   clearStore: () => void;
@@ -140,6 +193,19 @@ interface AppState {
   addExercise: (exercise: Omit<Exercise, "id" | "createdAt">) => void;
   updateExercise: (id: string, updates: Partial<Exercise>) => void;
 
+  // Subject actions
+  addSubject: (groupId: string, name: string) => void;
+  deleteSubject: (id: string) => void;
+
+  // Plan actions
+  savePlan: (configs: { dayOfWeek: number; plannedMin: number }[]) => void;
+  savePlanItems: (dayOfWeek: number, items: { groupId: string | null; subject: string; sessionType: SessionType; description?: string }[]) => void;
+
+  // Session actions
+  addSession: (session: Omit<Session, "id" | "createdAt">) => void;
+  updateSession: (id: string, updates: Partial<Omit<Session, "id" | "createdAt">>) => void;
+  deleteSession: (id: string) => void;
+
   // Training actions
   addTraining: (training: Omit<CodeTraining, "id" | "createdAt">) => void;
 
@@ -158,18 +224,26 @@ export const useStore = create<AppState>()(
       tasks: [],
       exercises: [],
       trainings: [],
+      subjects: [],
+      planDays: [],
+      planItems: [],
+      sessions: [],
       user: { name: "Estudante", xp: 0, level: 1 },
       unlockedAchievements: [],
 
       // ── Sync ────────────────────────────────────────────────────────────────
       setUserId: (id) => set({ userId: id }),
 
-      hydrateFromSupabase: ({ groups, tasks, exercises, profile }) => {
+      hydrateFromSupabase: ({ groups, tasks, exercises, subjects, planDays, planItems, sessions, profile }) => {
         set({
           initialized: true,
           groups,
           tasks,
           exercises,
+          subjects,
+          planDays,
+          planItems,
+          sessions,
           user: profile
             ? { name: profile.name, xp: profile.xp, level: profile.level }
             : { name: "Estudante", xp: 0, level: 1 },
@@ -185,6 +259,10 @@ export const useStore = create<AppState>()(
           tasks: [],
           exercises: [],
           trainings: [],
+          subjects: [],
+          planDays: [],
+          planItems: [],
+          sessions: [],
           user: { name: "Estudante", xp: 0, level: 1 },
           unlockedAchievements: [],
         }),
@@ -262,6 +340,74 @@ export const useStore = create<AppState>()(
         set((s) => ({ exercises: s.exercises.map((e) => (e.id === id ? { ...e, ...updates } : e)) }));
         const { userId } = get();
         if (userId) db.patchExercise(id, updates).catch(console.error);
+      },
+
+      // ── Subjects ─────────────────────────────────────────────────────────────
+      addSubject: (groupId, name) => {
+        const newSubject: Subject = { id: generateId(), groupId, name, createdAt: new Date().toISOString() };
+        set((s) => ({ subjects: [...s.subjects, newSubject] }));
+        const { userId } = get();
+        if (userId) db.insertSubject(userId, newSubject).catch(console.error);
+      },
+
+      deleteSubject: (id) => {
+        set((s) => ({ subjects: s.subjects.filter((s) => s.id !== id) }));
+        db.removeSubject(id).catch(console.error);
+      },
+
+      // ── Plan ─────────────────────────────────────────────────────────────────
+      savePlan: (configs) => {
+        const { planDays, userId } = get();
+        const newDayNums = new Set(configs.map((c) => c.dayOfWeek));
+        const toRemove = planDays.filter((d) => !newDayNums.has(d.dayOfWeek));
+        const newPlanDays: StudyPlanDay[] = configs.map((config) => {
+          const existing = planDays.find((d) => d.dayOfWeek === config.dayOfWeek);
+          return existing
+            ? { ...existing, plannedMin: config.plannedMin }
+            : { id: generateId(), dayOfWeek: config.dayOfWeek, plannedMin: config.plannedMin, createdAt: new Date().toISOString() };
+        });
+        set({ planDays: newPlanDays });
+        if (userId) {
+          for (const pd of newPlanDays) db.upsertPlanDay(userId, pd).catch(console.error);
+          for (const pd of toRemove) db.removePlanDay(userId, pd.dayOfWeek).catch(console.error);
+        }
+      },
+
+      savePlanItems: (dayOfWeek, items) => {
+        const { userId } = get();
+        const newItems: StudyPlanItem[] = items.map((item, i) => ({
+          id: generateId(),
+          dayOfWeek,
+          groupId: item.groupId,
+          subject: item.subject,
+          sessionType: item.sessionType,
+          description: item.description || undefined,
+          position: i,
+          createdAt: new Date().toISOString(),
+        }));
+        set((s) => ({
+          planItems: [...s.planItems.filter((pi) => pi.dayOfWeek !== dayOfWeek), ...newItems],
+        }));
+        if (userId) db.replacePlanItems(userId, dayOfWeek, newItems).catch(console.error);
+      },
+
+      // ── Sessions ─────────────────────────────────────────────────────────────
+      addSession: (session) => {
+        const newSession: Session = { ...session, id: generateId(), createdAt: new Date().toISOString() };
+        set((s) => ({ sessions: [newSession, ...s.sessions] }));
+        const { userId } = get();
+        if (userId) db.insertSession(userId, newSession).catch(console.error);
+        get().addXP(8);
+      },
+
+      updateSession: (id, updates) => {
+        set((s) => ({ sessions: s.sessions.map((s) => (s.id === id ? { ...s, ...updates } : s)) }));
+        db.patchSession(id, updates).catch(console.error);
+      },
+
+      deleteSession: (id) => {
+        set((s) => ({ sessions: s.sessions.filter((s) => s.id !== id) }));
+        db.removeSession(id).catch(console.error);
       },
 
       // ── Trainings ────────────────────────────────────────────────────────────

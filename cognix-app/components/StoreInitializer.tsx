@@ -14,15 +14,19 @@ export default function StoreInitializer() {
     async function init(userId: string) {
       setUserId(userId);
       try {
-        const [groups, tasks, exercises, profile] = await Promise.all([
+        const [groups, tasks, exercises, subjects, planDays, planItems, sessions, profile] = await Promise.all([
           db.fetchGroups(userId),
           db.fetchTasks(userId),
           db.fetchExercises(userId),
+          db.fetchSubjects(userId),
+          db.fetchPlanDays(userId),
+          db.fetchPlanItems(userId),
+          db.fetchSessions(userId),
           db.fetchProfile(userId),
         ]);
-        hydrateFromSupabase({ groups, tasks, exercises, profile });
+        hydrateFromSupabase({ groups, tasks, exercises, subjects, planDays, planItems, sessions, profile });
       } catch {
-        hydrateFromSupabase({ groups: [], tasks: [], exercises: [], profile: null });
+        hydrateFromSupabase({ groups: [], tasks: [], exercises: [], subjects: [], planDays: [], planItems: [], sessions: [], profile: null });
       }
     }
 
@@ -32,12 +36,12 @@ export default function StoreInitializer() {
         if (expire && Date.now() > parseInt(expire)) {
           localStorage.removeItem("cognix_expire");
           await supabase.auth.signOut();
-          hydrateFromSupabase({ groups: [], tasks: [], exercises: [], profile: null });
+          hydrateFromSupabase({ groups: [], tasks: [], exercises: [], subjects: [], planDays: [], planItems: [], sessions: [], profile: null });
           return;
         }
         init(data.user.id);
       } else {
-        hydrateFromSupabase({ groups: [], tasks: [], exercises: [], profile: null });
+        hydrateFromSupabase({ groups: [], tasks: [], exercises: [], subjects: [], planDays: [], planItems: [], sessions: [], profile: null });
       }
     });
 

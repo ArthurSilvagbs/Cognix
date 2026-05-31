@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { GraduationCap, Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
+import { GraduationCap, Eye, EyeOff, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { Field, Btn } from "@/components/ui";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -30,10 +31,7 @@ export default function LoginPage() {
     const supabase = createClient();
     const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
-    if (authError) {
-      setError(translateError(authError.message));
-      return;
-    }
+    if (authError) { setError(translateError(authError.message)); return; }
     if (!remember) {
       localStorage.setItem("cognix_expire", String(Date.now() + 24 * 60 * 60 * 1000));
     } else {
@@ -51,141 +49,102 @@ export default function LoginPage() {
       provider: "google",
       options: { redirectTo: `${location.origin}/auth/callback` },
     });
-    if (error) {
-      setError("Erro ao entrar com Google. Tente novamente.");
-      setGoogleLoading(false);
-    }
+    if (error) { setError("Erro ao entrar com Google. Tente novamente."); setGoogleLoading(false); }
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      {/* Glow orbs */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full opacity-20" style={{ background: "radial-gradient(circle, #7c3aed, transparent 70%)" }} />
         <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full opacity-15" style={{ background: "radial-gradient(circle, #4f46e5, transparent 70%)" }} />
       </div>
 
-      <div className="relative w-full max-w-[420px]">
-        {/* Card */}
-        <div className="rounded-2xl p-8" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)" }}>
+      <div className="relative w-full max-w-[400px]">
+        <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)", borderRadius: 20, padding: "36px 32px" }}>
+
           {/* Logo */}
-          <div className="flex flex-col items-center mb-8">
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg, #7c3aed, #4f46e5)" }}>
-              <GraduationCap className="w-6 h-6 text-white" />
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 32 }}>
+            <div style={{ width: 48, height: 48, borderRadius: 14, background: "linear-gradient(135deg, #7c3aed, #4f46e5)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+              <GraduationCap style={{ width: 24, height: 24, color: "white" }} />
             </div>
-            <h1 className="text-2xl font-bold text-white">Cognix</h1>
-            <p className="text-sm mt-1" style={{ color: "#94a3b8" }}>Entre com suas credenciais para acessar</p>
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: "white", letterSpacing: -0.4 }}>Cognix</h1>
+            <p style={{ fontSize: 13, color: "#94a3b8", marginTop: 4 }}>Entre com suas credenciais para acessar</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email */}
-            <div>
-              <label className="block text-xs font-semibold mb-1.5 tracking-wider uppercase" style={{ color: "#94a3b8" }}>E-mail</label>
-              <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "#64748b" }} />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="seu@email.com"
-                  required
-                  className="w-full pl-10 pr-4 py-3 rounded-xl text-sm text-white placeholder-slate-500 outline-none transition-all"
-                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
-                  onFocus={(e) => (e.currentTarget.style.borderColor = "#7c3aed")}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)")}
-                />
-              </div>
-            </div>
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <Field label="E-mail">
+              <input
+                className="input"
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+                style={{ background: "rgba(255,255,255,0.07)", border: "1.5px solid rgba(255,255,255,0.12)", color: "white" }}
+              />
+            </Field>
 
-            {/* Password */}
-            <div>
-              <label className="block text-xs font-semibold mb-1.5 tracking-wider uppercase" style={{ color: "#94a3b8" }}>Senha</label>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "#64748b" }} />
+            <div style={{ position: "relative" }}>
+              <Field label="Senha">
                 <input
+                  className="input"
                   type={showPassword ? "text" : "password"}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  onChange={e => setPassword(e.target.value)}
                   required
-                  className="w-full pl-10 pr-11 py-3 rounded-xl text-sm text-white placeholder-slate-500 outline-none transition-all"
-                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
-                  onFocus={(e) => (e.currentTarget.style.borderColor = "#7c3aed")}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)")}
+                  style={{ background: "rgba(255,255,255,0.07)", border: "1.5px solid rgba(255,255,255,0.12)", color: "white", paddingRight: 44 }}
                 />
-                <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-3.5 top-1/2 -translate-y-1/2 p-0.5" style={{ color: "#64748b" }}>
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
+              </Field>
+              <button
+                type="button"
+                onClick={() => setShowPassword(v => !v)}
+                style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#64748b", padding: 0, display: "flex" }}>
+                {showPassword ? <EyeOff style={{ width: 16, height: 16 }} /> : <Eye style={{ width: 16, height: 16 }} />}
+              </button>
             </div>
 
             {/* Remember + Forgot */}
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 cursor-pointer select-none">
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", userSelect: "none" }}>
                 <div
-                  onClick={() => setRemember((v) => !v)}
-                  className="w-4 h-4 rounded flex items-center justify-center transition-all"
-                  style={{ background: remember ? "#7c3aed" : "rgba(255,255,255,0.08)", border: remember ? "1px solid #7c3aed" : "1px solid rgba(255,255,255,0.15)" }}
-                >
-                  {remember && <svg viewBox="0 0 10 8" className="w-2.5 h-2.5 text-white fill-current"><path d="M1 4l2.5 2.5L9 1" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>}
+                  onClick={() => setRemember(v => !v)}
+                  style={{ width: 16, height: 16, borderRadius: 5, display: "flex", alignItems: "center", justifyContent: "center", background: remember ? "#7c3aed" : "rgba(255,255,255,0.08)", border: remember ? "1px solid #7c3aed" : "1px solid rgba(255,255,255,0.15)", flexShrink: 0 }}>
+                  {remember && <svg viewBox="0 0 10 8" style={{ width: 10, height: 10, color: "white", fill: "none" }}><path d="M1 4l2.5 2.5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>}
                 </div>
-                <span className="text-sm" style={{ color: "#94a3b8" }}>Lembrar-me</span>
+                <span style={{ fontSize: 13, color: "#94a3b8" }}>Lembrar-me</span>
               </label>
-              <Link href="/reset-password" className="text-sm font-medium transition-colors" style={{ color: "#7c3aed" }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#a78bfa")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#7c3aed")}>
-                Esqueceu a senha?
-              </Link>
+              <Link href="/reset-password" style={{ fontSize: 13, fontWeight: 500, color: "#7c3aed", textDecoration: "none" }}>Esqueceu a senha?</Link>
             </div>
 
-            {/* Error */}
             {error && (
-              <div className="rounded-xl px-4 py-3 text-sm" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#fca5a5" }}>
+              <div style={{ borderRadius: 10, padding: "12px 14px", fontSize: 13, background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#fca5a5" }}>
                 {error}
               </div>
             )}
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 rounded-xl text-sm font-semibold text-white flex items-center justify-center gap-2 transition-all mt-2"
-              style={{ background: "linear-gradient(135deg, #7c3aed, #4f46e5)", opacity: loading ? 0.7 : 1 }}
-            >
-              {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Entrando...</> : "Entrar"}
-            </button>
+            <Btn type="submit" loading={loading} fullWidth style={{ background: "linear-gradient(135deg, #7c3aed, #4f46e5)", marginTop: 4 }}>
+              {loading ? "" : "Entrar"}
+            </Btn>
           </form>
 
           {/* Divider */}
-          <div className="flex items-center gap-3 my-5">
-            <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.08)" }} />
-            <span className="text-xs font-medium tracking-wider uppercase" style={{ color: "#475569" }}>ou continue com</span>
-            <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.08)" }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "20px 0" }}>
+            <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
+            <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: 0.8, textTransform: "uppercase", color: "#475569" }}>ou continue com</span>
+            <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
           </div>
 
-          {/* Google */}
           <button
             onClick={handleGoogle}
             disabled={googleLoading}
-            className="w-full py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2.5 transition-all"
-            style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#e2e8f0", opacity: googleLoading ? 0.7 : 1 }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.09)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.05)")}
-          >
-            {googleLoading
-              ? <Loader2 className="w-4 h-4 animate-spin" />
-              : <GoogleIcon />}
+            className="btn btn-ghost"
+            style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1.5px solid rgba(255,255,255,0.12)", color: "#e2e8f0" }}>
+            {googleLoading ? <Loader2 style={{ width: 16, height: 16, animation: "spin 1s linear infinite" }} /> : <GoogleIcon />}
             Continuar com Google
           </button>
 
-          {/* Register link */}
-          <p className="text-center text-sm mt-6" style={{ color: "#64748b" }}>
+          <p style={{ textAlign: "center", fontSize: 13, color: "#64748b", marginTop: 20 }}>
             Não tem conta?{" "}
-            <Link href="/register" className="font-semibold transition-colors" style={{ color: "#7c3aed" }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#a78bfa")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#7c3aed")}>
-              Criar agora
-            </Link>
+            <Link href="/register" style={{ fontWeight: 600, color: "#7c3aed", textDecoration: "none" }}>Criar agora</Link>
           </p>
         </div>
       </div>
@@ -195,7 +154,7 @@ export default function LoginPage() {
 
 function GoogleIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24">
+    <svg width="17" height="17" viewBox="0 0 24 24">
       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
       <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
       <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />

@@ -1,5 +1,5 @@
 import { createClient } from "./client";
-import type { StudyGroup, Task, Exercise } from "../store";
+import type { StudyGroup, Task, Exercise, Subject, StudyPlanDay, StudyPlanItem, Session, SessionType } from "../store";
 
 // ── Profile ───────────────────────────────────────────────────────────────────
 
@@ -164,4 +164,138 @@ export async function patchExercise(id: string, u: Partial<Exercise>) {
   if (u.isStarred !== undefined) row.is_starred = u.isStarred;
   if (u.groupId !== undefined) row.group_id = u.groupId;
   await createClient().from("exercises").update(row).eq("id", id);
+}
+
+// ── Subjects ──────────────────────────────────────────────────────────────────
+
+export async function fetchSubjects(userId: string): Promise<Subject[]> {
+  const { data } = await createClient()
+    .from("subjects")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at");
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    groupId: r.group_id,
+    name: r.name,
+    createdAt: r.created_at,
+  }));
+}
+
+export async function insertSubject(userId: string, s: Subject) {
+  await createClient().from("subjects").insert({
+    id: s.id, user_id: userId, group_id: s.groupId, name: s.name, created_at: s.createdAt,
+  });
+}
+
+export async function removeSubject(id: string) {
+  await createClient().from("subjects").delete().eq("id", id);
+}
+
+// ── Plan days ─────────────────────────────────────────────────────────────────
+
+export async function fetchPlanDays(userId: string): Promise<StudyPlanDay[]> {
+  const { data } = await createClient()
+    .from("study_plan_days")
+    .select("id, user_id, day_of_week, planned_min, created_at")
+    .eq("user_id", userId)
+    .order("day_of_week");
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    dayOfWeek: r.day_of_week,
+    plannedMin: r.planned_min,
+    createdAt: r.created_at,
+  }));
+}
+
+export async function upsertPlanDay(userId: string, d: StudyPlanDay) {
+  await createClient().from("study_plan_days").upsert(
+    { id: d.id, user_id: userId, day_of_week: d.dayOfWeek, planned_min: d.plannedMin, created_at: d.createdAt },
+    { onConflict: "user_id,day_of_week" }
+  );
+}
+
+export async function removePlanDay(userId: string, dayOfWeek: number) {
+  await createClient().from("study_plan_days").delete()
+    .eq("user_id", userId).eq("day_of_week", dayOfWeek);
+}
+
+// ── Plan items ────────────────────────────────────────────────────────────────
+
+export async function fetchPlanItems(userId: string): Promise<StudyPlanItem[]> {
+  const { data } = await createClient()
+    .from("study_plan_items")
+    .select("*")
+    .eq("user_id", userId)
+    .order("day_of_week")
+    .order("position");
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    dayOfWeek: r.day_of_week,
+    groupId: r.group_id ?? null,
+    subject: r.subject,
+    sessionType: r.session_type as SessionType,
+    description: r.description ?? undefined,
+    position: r.position,
+    createdAt: r.created_at,
+  }));
+}
+
+export async function replacePlanItems(userId: string, dayOfWeek: number, items: StudyPlanItem[]) {
+  const client = createClient();
+  await client.from("study_plan_items").delete().eq("user_id", userId).eq("day_of_week", dayOfWeek);
+  if (items.length > 0) {
+    await client.from("study_plan_items").insert(
+      items.map((i) => ({
+        id: i.id, user_id: userId, day_of_week: i.dayOfWeek,
+        group_id: i.groupId ?? null, subject: i.subject,
+        session_type: i.sessionType, description: i.description ?? null,
+        position: i.position, created_at: i.createdAt,
+      }))
+    );
+  }
+}
+
+// ── Sessions ──────────────────────────────────────────────────────────────────
+
+export async function fetchSessions(userId: string): Promise<Session[]> {
+  const { data } = await createClient()
+    .from("sessions")
+    .select("*")
+    .eq("user_id", userId)
+    .order("date", { ascending: false });
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    cycleId: r.cycle_id ?? null,
+    groupId: r.group_id ?? null,
+    subject: r.subject,
+    durationMin: r.duration_min,
+    actualMin: r.actual_min ?? undefined,
+    date: r.date,
+    notes: r.notes ?? undefined,
+    createdAt: r.created_at,
+  }));
+}
+
+export async function insertSession(userId: string, s: Session) {
+  await createClient().from("sessions").insert({
+    id: s.id, user_id: userId,
+    cycle_id: s.cycleId ?? null,
+    group_id: s.groupId ?? null,
+    subject: s.subject, duration_min: s.durationMin,
+    actual_min: s.actualMin ?? null,
+    date: s.date, notes: s.notes ?? null, created_at: s.createdAt,
+  });
+}
+
+export async function patchSession(id: string, u: Partial<Session>) {
+  const row: Record<string, unknown> = {};
+  if (u.actualMin !== undefined) row.actual_min = u.actualMin;
+  if (u.notes !== undefined) row.notes = u.notes;
+  if (u.durationMin !== undefined) row.duration_min = u.durationMin;
+  await createClient().from("sessions").update(row).eq("id", id);
+}
+
+export async function removeSession(id: string) {
+  await createClient().from("sessions").delete().eq("id", id);
 }
