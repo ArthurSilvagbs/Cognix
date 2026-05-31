@@ -9,6 +9,7 @@ import { SESSION_TYPE_CONFIG, StudyPlanItem, useStore } from "@/lib/store";
 import { formatDate, getGreeting } from "@/lib/utils";
 
 const DAY_LABELS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+const MONTHS = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 
 function fmtDuration(min: number) {
   const h = Math.floor(min / 60);
