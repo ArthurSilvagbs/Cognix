@@ -136,6 +136,7 @@ export default function SessionsPage() {
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
   const [scheduleForm, setScheduleForm] = useState<Record<number, DayTimeConfig>>({});
   const [dayModal, setDayModal] = useState<number | null>(null);
+  const [dayModalDate, setDayModalDate] = useState<string>(today);
   const [editItems, setEditItems] = useState<EditItem[]>([]);
   const [addForm, setAddForm] = useState<EditItem>({
     groupId: activeGroupId ?? "",
@@ -231,10 +232,12 @@ export default function SessionsPage() {
     setScheduleModalOpen(false);
   }
 
-  function openDayModal(dayOfWeek: number) {
+  function openDayModal(dayOfWeek: number, date?: string) {
+    const targetDate = date ?? selected;
+    setDayModalDate(targetDate);
     setEditItems(
       planItems
-        .filter((item) => item.date === selected)
+        .filter((item) => item.date === targetDate)
         .sort((a, b) => a.position - b.position)
         .map((item) => ({
           groupId: item.groupId ?? "",
@@ -263,7 +266,7 @@ export default function SessionsPage() {
         sessionType: item.sessionType,
         description: item.description.trim() || undefined,
       })),
-      selected,
+      dayModalDate,
     );
     setDayModal(null);
   }
@@ -472,7 +475,7 @@ export default function SessionsPage() {
                       </p>
                     </div>
                   </div>
-                  <button onClick={() => openDayModal(dow)} className="btn btn-ghost" style={{ fontSize: 12, padding: "5px 10px", gap: 5, flexShrink: 0 }}>
+                  <button onClick={() => openDayModal(dow, dateStr)} className="btn btn-ghost" style={{ fontSize: 12, padding: "5px 10px", gap: 5, flexShrink: 0 }}>
                     <Settings2 style={{ width: 12, height: 12 }} /> {dayItems.length > 0 ? "Editar" : "Planejar"}
                   </button>
                 </div>
