@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { useIsMobile } from "@/lib/useIsMobile";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -59,7 +58,6 @@ export default function GroupDetailPage() {
   }
 
   // â”€â”€ Edit modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  const isMobile = useIsMobile();
   const [editModal, setEditModal] = useState(false);
   const [editForm, setEditForm] = useState({ name: "", description: "", color: "", emoji: "" });
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -126,20 +124,20 @@ export default function GroupDetailPage() {
     <div style={{ overflowX: "hidden", maxWidth: "100vw" }}>
 
       {/* â”€â”€ Hero â”€â”€ */}
-      <div style={{ background: `linear-gradient(135deg, ${group.color}e0 0%, ${group.color}70 100%)`, padding: isMobile ? "18px 16px 16px" : "28px 32px 24px" }}>
+      <div className="px-4 pt-5 pb-4 md:px-8 md:pt-7 md:pb-6" style={{ background: `linear-gradient(135deg, ${group.color}e0 0%, ${group.color}70 100%)` }}>
         <Link href="/groups" style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 13, color: "rgba(255,255,255,0.7)", marginBottom: 14, textDecoration: "none" }}>
           <ArrowLeft style={{ width: 13, height: 13 }} /> Grupos
         </Link>
 
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
-            <div style={{ width: isMobile ? 44 : 56, height: isMobile ? 44 : 56, borderRadius: 14, background: "rgba(255,255,255,0.18)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: isMobile ? 22 : 28, flexShrink: 0 }}>
+            <div className="group-detail-emoji" style={{ width: 56, height: 56, borderRadius: 14, background: "rgba(255,255,255,0.18)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, flexShrink: 0 }}>
               {group.emoji}
             </div>
             <div style={{ minWidth: 0 }}>
-              <h1 style={{ fontSize: isMobile ? 20 : 26, fontWeight: 800, color: "white", letterSpacing: -0.5, lineHeight: 1.1 }}>{group.name}</h1>
+              <h1 className="group-detail-title" style={{ fontSize: 26, fontWeight: 800, color: "white", letterSpacing: -0.5, lineHeight: 1.1 }}>{group.name}</h1>
               {group.description && (
-                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.72)", marginTop: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: isMobile ? "normal" : "nowrap" }}>{group.description}</p>
+                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.72)", marginTop: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "normal" }}>{group.description}</p>
               )}
             </div>
           </div>
@@ -149,8 +147,7 @@ export default function GroupDetailPage() {
           </button>
         </div>
 
-        {/* Stats */}
-        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, auto)", gap: isMobile ? "10px 20px" : "0 28px", marginTop: 18 }}>
+        <div className="grid grid-cols-2 gap-x-5 gap-y-3 mt-5 md:grid-cols-4 md:gap-x-7 md:gap-y-0">
           {[
             { label: "Matérias", value: groupSubjects.length },
             { label: "Tarefas concluídas", value: `${doneTasks.length}/${groupTasks.length}` },
@@ -158,7 +155,7 @@ export default function GroupDetailPage() {
             { label: "Tempo estudado", value: totalMin > 0 ? fmtDur(totalMin) : "-" },
           ].map(stat => (
             <div key={stat.label}>
-              <p style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: "white", lineHeight: 1 }}>{stat.value}</p>
+              <p style={{ fontSize: 22, fontWeight: 700, color: "white", lineHeight: 1 }}>{stat.value}</p>
               <p style={{ fontSize: 11, color: "rgba(255,255,255,0.68)", marginTop: 3 }}>{stat.label}</p>
             </div>
           ))}
@@ -166,7 +163,7 @@ export default function GroupDetailPage() {
       </div>
 
       {/* â”€â”€ Content â”€â”€ */}
-      <div style={{ padding: isMobile ? "16px" : "24px 32px", display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 320px", gap: 18, alignItems: "flex-start" }}>
+      <div className="grid gap-[18px] items-start p-6 md:p-8 grid-cols-1 md:grid-cols-[1fr_320px]">
 
         {/* â”€â”€ LEFT: SessÃµes + Tarefas â”€â”€ */}
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
