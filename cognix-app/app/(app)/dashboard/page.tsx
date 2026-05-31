@@ -134,11 +134,16 @@ export default function DashboardPage() {
   }
 
   const planByDay = orderedWeek
-    .map((dow) => ({
-      dow,
-      planDay: planDays.find((day) => day.dayOfWeek === dow),
-      items: scopedPlanItems.filter((item) => item.dayOfWeek === dow).sort((a, b) => a.position - b.position),
-    }))
+    .map((dow, i) => {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      return {
+        dow,
+        date: d,
+        planDay: planDays.find((day) => day.dayOfWeek === dow),
+        items: scopedPlanItems.filter((item) => item.dayOfWeek === dow).sort((a, b) => a.position - b.position),
+      };
+    })
     .filter((day) => day.items.length > 0);
   const todayPlan = planByDay.find((day) => day.dow === todayDow);
   const nextPlan = planByDay.find((day) => day.dow !== todayDow);
@@ -225,9 +230,10 @@ export default function DashboardPage() {
                         <div key={day.dow} className="dash-session-row" style={{ display: "grid", gridTemplateColumns: "150px minmax(0, 1fr)", gap: 14, padding: 14, borderRadius: 12, background: "var(--surface-subtle)", border: "1px solid var(--border)", overflow: "hidden" }}>
                           <div style={{ borderRight: "1px solid var(--border)", paddingRight: 14 }}>
                             <p style={{ fontSize: 17, fontWeight: 850, color: "var(--text-primary)", lineHeight: 1 }}>{DAY_LABELS[day.dow]}</p>
-                            {day.dow === todayDow && <span style={{ display: "inline-flex", marginTop: 8, fontSize: 11, fontWeight: 750, letterSpacing: 0.5, textTransform: "uppercase", color: accent, padding: "3px 7px", borderRadius: 99, background: `${accent}18` }}>Hoje</span>}
+                            <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 3 }}>{day.date.getDate()} de {MONTHS[day.date.getMonth()]}</p>
+                            {day.dow === todayDow && <span style={{ display: "inline-flex", marginTop: 6, fontSize: 11, fontWeight: 750, letterSpacing: 0.5, textTransform: "uppercase", color: accent, padding: "3px 7px", borderRadius: 99, background: `${accent}18` }}>Hoje</span>}
                             {day.planDay && (
-                              <p style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13, color: "var(--text-muted)", marginTop: 9 }}>
+                              <p style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13, color: "var(--text-muted)", marginTop: 7 }}>
                                 <CalendarDays style={{ width: 13, height: 13 }} /> {fmtDuration(day.planDay.plannedMin)}
                               </p>
                             )}

@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   FileText,
+  Pencil,
   Plus,
   Settings2,
   Trash2,
@@ -367,7 +368,7 @@ export default function SessionsPage() {
                 <button
                   key={dateStr}
                   className="cal-cell"
-                  onClick={() => setSelected(dateStr)}
+                  onClick={() => { setSelected(dateStr); openDayModal(dayOfWeek, dateStr); }}
                   style={{
                     minHeight: 80,
                     display: "flex",
@@ -589,7 +590,7 @@ export default function SessionsPage() {
         <div className="modal-overlay" onClick={() => setDayModal(null)}>
           <div className="modal" style={{ maxWidth: 500 }} onClick={(event) => event.stopPropagation()}>
             <ModalTitle
-              title={DAY_FULL[dayModal]}
+              title={`${DAY_FULL[dayModal]}, ${parseLocal(dayModalDate).getDate()} de ${MONTHS[parseLocal(dayModalDate).getMonth()]}`}
               description={planDays.find((day) => day.dayOfWeek === dayModal) ? `${formatDuration(planDays.find((day) => day.dayOfWeek === dayModal)!.plannedMin)} planejados` : undefined}
               onClose={() => setDayModal(null)}
             />
@@ -611,6 +612,15 @@ export default function SessionsPage() {
                             {item.description ? ` - ${item.description}` : ""}
                           </p>
                         </div>
+                        <button
+                          onClick={() => {
+                            setAddForm({ groupId: item.groupId, subject: item.subject, sessionType: item.sessionType, description: item.description });
+                            setEditItems((items) => items.filter((_, itemIndex) => itemIndex !== index));
+                          }}
+                          style={{ ...styles.iconButton, padding: 5 }} aria-label="Editar matéria"
+                        >
+                          <Pencil style={{ width: 13, height: 13 }} />
+                        </button>
                         <button onClick={() => setEditItems((items) => items.filter((_, itemIndex) => itemIndex !== index))} style={{ ...styles.iconButton, padding: 5 }} aria-label="Remover matéria">
                           <X style={{ width: 14, height: 14 }} />
                         </button>
