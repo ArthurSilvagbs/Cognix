@@ -38,7 +38,7 @@ export default function EvolutionPage() {
   ).map(([name, value]) => ({ name, value }));
 
   return (
-    <div className="p-7 max-w-5xl mx-auto space-y-5">
+    <div className="evolution-wrap p-7 max-w-5xl mx-auto space-y-5">
       <div>
         <div className="flex items-center gap-2">
           <h1 className="text-xl font-bold text-slate-900 tracking-tight">Evolução de Conhecimento</h1>

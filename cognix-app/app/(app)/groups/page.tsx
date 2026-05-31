@@ -75,7 +75,7 @@ export default function GroupsPage() {
   }
 
   return (
-    <div style={{ padding: 32, maxWidth: 1280, margin: "0 auto" }}>
+    <div className="groups-grid" style={{ padding: 32, maxWidth: 1280, margin: "0 auto" }}>
       <SectionHeader
         title="Grupos de Estudo"
         subtitle="Organize seus estudos por áreas, matérias ou objetivos."

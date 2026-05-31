@@ -45,7 +45,7 @@ export default function TutorPage() {
   const showSuggestions = messages.length === 1;
 
   return (
-    <div className="flex flex-col h-full" style={{ background: "var(--bg)" }}>
+    <div className="tutor-wrap flex flex-col h-full" style={{ background: "var(--bg)" }}>
       {/* Header */}
       <div className="px-6 py-4" style={{ background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
         <div className="flex items-center gap-3 max-w-3xl mx-auto">

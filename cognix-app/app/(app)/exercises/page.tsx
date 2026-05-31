@@ -58,9 +58,9 @@ export default function ExercisesPage() {
   }
 
   return (
-    <div className="flex h-full">
+    <div className="exercises-wrap flex h-full">
       {/* Left panel */}
-      <div className="w-72 flex flex-col shrink-0" style={{ background: "var(--surface)", borderRight: "1px solid var(--border)" }}>
+      <div className="exercises-side w-72 flex flex-col shrink-0" style={{ background: "var(--surface)", borderRight: "1px solid var(--border)" }}>
         <div className="flex items-center justify-between p-4" style={{ borderBottom: "1px solid var(--border)" }}>
           <div>
             <p className="text-sm font-semibold text-slate-800">Exercícios</p>

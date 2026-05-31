@@ -303,3 +303,92 @@ body {
 .text-blue-600   { color: var(--color-info-text) !important; }
 
 .border-slate-200 { border-color: var(--border) !important; }
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  html { zoom: 1; }
+
+  /* Layout */
+  .app-sidebar   { display: none !important; }
+  .app-main      { padding-bottom: 68px !important; }
+  .bottom-nav    { display: flex !important; }
+
+  /* Page padding */
+  .page-wrap     { padding: 16px !important; }
+
+  /* Dashboard */
+  .dash-stats    { grid-template-columns: repeat(2, 1fr) !important; }
+  .dash-grid     { grid-template-columns: 1fr !important; }
+
+  /* Sessions calendar cells */
+  .cal-cell      { min-height: 56px !important; }
+  .cal-cell-text { font-size: 10px !important; }
+
+  /* Groups grid */
+  .groups-grid   { grid-template-columns: 1fr !important; max-width: 100% !important; padding: 16px !important; }
+
+  /* Exercises panel */
+  .exercises-wrap { flex-direction: column !important; height: auto !important; }
+  .exercises-side  { width: 100% !important; max-height: 260px; border-right: none !important; border-bottom: 1px solid var(--border) !important; }
+  .exercises-main  { flex: 1; min-height: 0; }
+
+  /* Tutor — reduz padding lateral dos containers internos */
+  .tutor-wrap .px-6 { padding-left: 12px !important; padding-right: 12px !important; }
+
+  /* Tasks */
+  .tasks-wrap { padding: 16px !important; max-width: 100% !important; }
+
+  /* Evolution */
+  .evolution-wrap { padding: 16px !important; max-width: 100% !important; }
+
+  /* Generic heading shrink */
+  .page-title  { font-size: 18px !important; }
+  .page-sub    { font-size: 13px !important; }
+
+  /* Modal full-width on small screens */
+  .modal { border-radius: 16px !important; }
+  .modal-overlay { padding: 12px !important; align-items: flex-end !important; }
+  .modal { border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; max-height: 90dvh !important; }
+}
+
+/* Bottom nav (hidden on desktop) */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  height: 60px;
+  padding: 0 4px;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  flex: 1;
+  height: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.bottom-nav-item.active {
+  color: var(--primary);
+}
+.bottom-nav-item svg {
+  width: 20px;
+  height: 20px;
+}

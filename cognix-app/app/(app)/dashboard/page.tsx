@@ -145,7 +145,7 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div style={{ padding: 32, maxWidth: 1480, margin: "0 auto", display: "flex", flexDirection: "column", gap: 22 }}>
+    <div className="page-wrap" style={{ padding: 32, maxWidth: 1480, margin: "0 auto", display: "flex", flexDirection: "column", gap: 22 }}>
       <div style={{ background: `linear-gradient(135deg, ${accent}e0 0%, ${accent}70 100%)`, borderRadius: 18, padding: "28px 32px", color: "white", overflow: "hidden" }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 20, alignItems: "flex-start", marginBottom: 26 }}>
           <div style={{ display: "flex", gap: 16, alignItems: "center", minWidth: 0 }}>
@@ -172,7 +172,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 12 }}>
+        <div className="dash-stats" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 12 }}>
           {stats.map((stat) => (
             <div key={stat.label} style={{ padding: "14px 16px", borderRadius: 14, background: "rgba(255,255,255,0.13)", border: "1px solid rgba(255,255,255,0.18)" }}>
               <p style={{ fontSize: 24, fontWeight: 820, lineHeight: 1 }}>{stat.value}</p>
@@ -183,7 +183,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 20, alignItems: "flex-start" }}>
+      <div className="dash-grid" style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 20, alignItems: "flex-start" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <Panel>
             {(() => {
@@ -203,7 +203,7 @@ export default function DashboardPage() {
                   {visibleDays.length > 0 ? (
                     <div style={{ padding: 18, display: "flex", flexDirection: "column", gap: 14 }}>
                       {visibleDays.map((day) => (
-                        <div key={day.dow} style={{ display: "grid", gridTemplateColumns: "150px 1fr", gap: 14, padding: 14, borderRadius: 12, background: "var(--surface-subtle)", border: "1px solid var(--border)" }}>
+                        <div key={day.dow} style={{ display: "grid", gridTemplateColumns: "150px minmax(0, 1fr)", gap: 14, padding: 14, borderRadius: 12, background: "var(--surface-subtle)", border: "1px solid var(--border)", overflow: "hidden" }}>
                           <div style={{ borderRight: "1px solid var(--border)", paddingRight: 14 }}>
                             <p style={{ fontSize: 17, fontWeight: 850, color: "var(--text-primary)", lineHeight: 1 }}>{DAY_LABELS[day.dow]}</p>
                             {day.dow === todayDow && <span style={{ display: "inline-flex", marginTop: 8, fontSize: 11, fontWeight: 750, letterSpacing: 0.5, textTransform: "uppercase", color: accent, padding: "3px 7px", borderRadius: 99, background: `${accent}18` }}>Hoje</span>}
@@ -213,7 +213,7 @@ export default function DashboardPage() {
                               </p>
                             )}
                           </div>
-                          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 0 }}>
                             {day.items.map((item) => (
                               <PlannedSessionRow key={item.id} item={item} color={groups.find((group) => group.id === item.groupId)?.color ?? accent} />
                             ))}

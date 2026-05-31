@@ -308,7 +308,7 @@ export default function SessionsPage() {
   }
 
   return (
-    <div style={{ padding: "26px 30px", display: "flex", flexDirection: "column" }}>
+    <div className="page-wrap" style={{ padding: "26px 30px", display: "flex", flexDirection: "column" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 22, flexShrink: 0 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 850, letterSpacing: -0.3, color: "var(--text-primary)" }}>Sessões de Estudo</h1>
@@ -343,7 +343,7 @@ export default function SessionsPage() {
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)" }}>
             {grid.map((dateStr, index) => {
-              if (!dateStr) return <div key={`empty-${index}`} style={{ minHeight: 80, borderRight: (index + 1) % 7 !== 0 ? "1px solid var(--border)" : "none", borderBottom: "1px solid var(--border)", opacity: 0.3, background: "var(--surface-subtle)" }} />;
+              if (!dateStr) return <div key={`empty-${index}`} className="cal-cell" style={{ minHeight: 80, borderRight: (index + 1) % 7 !== 0 ? "1px solid var(--border)" : "none", borderBottom: "1px solid var(--border)", opacity: 0.3, background: "var(--surface-subtle)" }} />;
 
               const dayOfWeek = getDow(dateStr);
               const planDay = planDays.find((day) => day.dayOfWeek === dayOfWeek);
@@ -363,6 +363,7 @@ export default function SessionsPage() {
               return (
                 <button
                   key={dateStr}
+                  className="cal-cell"
                   onClick={() => setSelected(dateStr)}
                   style={{
                     minHeight: 80,

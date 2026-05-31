@@ -65,7 +65,7 @@ export default function TasksPage() {
   }
 
   return (
-    <div className="p-7 max-w-4xl mx-auto">
+    <div className="tasks-wrap p-7 max-w-4xl mx-auto">
       <div className="flex items-end justify-between mb-7">
         <div>
           <div className="flex items-center gap-2 mb-0.5">

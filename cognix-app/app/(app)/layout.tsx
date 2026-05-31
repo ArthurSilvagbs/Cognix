@@ -13,7 +13,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="flex h-full overflow-hidden" style={{ background: "var(--bg)" }}>
       <StoreInitializer />
       <Sidebar />
-      <main className="flex-1 overflow-y-auto">
+      <main className="app-main flex-1 overflow-y-auto">
         {children}
       </main>
     </div>

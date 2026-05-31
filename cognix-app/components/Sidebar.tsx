@@ -56,7 +56,8 @@ export default function Sidebar() {
   }
 
   return (
-    <aside style={{ width: 248, borderRight: "1px solid var(--border)", background: "var(--surface)" }} className="h-full flex flex-col shrink-0">
+    <>
+    <aside style={{ width: 248, borderRight: "1px solid var(--border)", background: "var(--surface)" }} className="app-sidebar h-full flex flex-col shrink-0">
       {/* Logo */}
       <div className="px-4 pt-4 pb-3">
         <div className="flex items-center gap-2.5">
@@ -224,5 +225,19 @@ export default function Sidebar() {
         </button>
       </div>
     </aside>
+
+    {/* Bottom nav — visible only on mobile via CSS */}
+    <nav className="bottom-nav">
+      {navItems.map(({ href, label, icon: Icon }) => {
+        const active = pathname === href || (href !== "/" && pathname.startsWith(href + "/"));
+        return (
+          <Link key={href} href={href} className={cn("bottom-nav-item", active && "active")}>
+            <Icon />
+            <span>{label}</span>
+          </Link>
+        );
+      })}
+    </nav>
+    </>
   );
 }
