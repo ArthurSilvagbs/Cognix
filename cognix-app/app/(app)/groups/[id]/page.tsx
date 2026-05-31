@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { useIsMobile } from "@/lib/useIsMobile";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -58,6 +59,7 @@ export default function GroupDetailPage() {
   }
 
   // â”€â”€ Edit modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  const isMobile = useIsMobile();
   const [editModal, setEditModal] = useState(false);
   const [editForm, setEditForm] = useState({ name: "", description: "", color: "", emoji: "" });
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -121,34 +123,34 @@ export default function GroupDetailPage() {
 
   // â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
-    <div>
+    <div style={{ overflowX: "hidden", maxWidth: "100vw" }}>
 
       {/* â”€â”€ Hero â”€â”€ */}
-      <div style={{ background: `linear-gradient(135deg, ${group.color}e0 0%, ${group.color}70 100%)`, padding: "28px 32px 24px" }}>
-        <Link href="/groups" style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 13, color: "rgba(255,255,255,0.7)", marginBottom: 18, textDecoration: "none" }}>
+      <div style={{ background: `linear-gradient(135deg, ${group.color}e0 0%, ${group.color}70 100%)`, padding: isMobile ? "18px 16px 16px" : "28px 32px 24px" }}>
+        <Link href="/groups" style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 13, color: "rgba(255,255,255,0.7)", marginBottom: 14, textDecoration: "none" }}>
           <ArrowLeft style={{ width: 13, height: 13 }} /> Grupos
         </Link>
 
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(255,255,255,0.18)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+            <div style={{ width: isMobile ? 44 : 56, height: isMobile ? 44 : 56, borderRadius: 14, background: "rgba(255,255,255,0.18)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: isMobile ? 22 : 28, flexShrink: 0 }}>
               {group.emoji}
             </div>
-            <div>
-              <h1 style={{ fontSize: 26, fontWeight: 800, color: "white", letterSpacing: -0.5, lineHeight: 1.1 }}>{group.name}</h1>
+            <div style={{ minWidth: 0 }}>
+              <h1 style={{ fontSize: isMobile ? 20 : 26, fontWeight: 800, color: "white", letterSpacing: -0.5, lineHeight: 1.1 }}>{group.name}</h1>
               {group.description && (
-                <p style={{ fontSize: 14, color: "rgba(255,255,255,0.72)", marginTop: 4 }}>{group.description}</p>
+                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.72)", marginTop: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: isMobile ? "normal" : "nowrap" }}>{group.description}</p>
               )}
             </div>
           </div>
           <button onClick={openEdit}
-            style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 15px", borderRadius: 99, background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.2)", color: "white", fontSize: 14, fontWeight: 500, cursor: "pointer", flexShrink: 0 }}>
-            <Pencil style={{ width: 13, height: 13 }} /> Editar
+            style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 13px", borderRadius: 99, background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.2)", color: "white", fontSize: 13, fontWeight: 500, cursor: "pointer", flexShrink: 0 }}>
+            <Pencil style={{ width: 12, height: 12 }} /> Editar
           </button>
         </div>
 
         {/* Stats */}
-        <div style={{ display: "flex", gap: 28, marginTop: 22 }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, auto)", gap: isMobile ? "10px 20px" : "0 28px", marginTop: 18 }}>
           {[
             { label: "Matérias", value: groupSubjects.length },
             { label: "Tarefas concluídas", value: `${doneTasks.length}/${groupTasks.length}` },
@@ -156,51 +158,51 @@ export default function GroupDetailPage() {
             { label: "Tempo estudado", value: totalMin > 0 ? fmtDur(totalMin) : "-" },
           ].map(stat => (
             <div key={stat.label}>
-              <p style={{ fontSize: 22, fontWeight: 700, color: "white", lineHeight: 1 }}>{stat.value}</p>
-              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.68)", marginTop: 3 }}>{stat.label}</p>
+              <p style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: "white", lineHeight: 1 }}>{stat.value}</p>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.68)", marginTop: 3 }}>{stat.label}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* â”€â”€ Content â”€â”€ */}
-      <div style={{ padding: "24px 32px", display: "grid", gridTemplateColumns: "1fr 320px", gap: 18, alignItems: "flex-start" }}>
+      <div style={{ padding: isMobile ? "16px" : "24px 32px", display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 320px", gap: 18, alignItems: "flex-start" }}>
 
         {/* â”€â”€ LEFT: SessÃµes + Tarefas â”€â”€ */}
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
 
           {/* SessÃµes */}
           <div style={{ background: "var(--surface)", border: "1px solid var(--border-strong)", borderRadius: 12, overflow: "hidden" }}>
-            <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
               <h2 style={{ fontSize: 14, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: "var(--text-primary)" }}>Sessões</h2>
-              <Link href="/sessions" style={{ fontSize: 13, color: "var(--primary)", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
-                Calendário <ChevronRight style={{ width: 12, height: 12 }} />
+              <Link href="/sessions" style={{ fontSize: 12, color: "var(--primary)", textDecoration: "none", display: "flex", alignItems: "center", gap: 3, flexShrink: 0, whiteSpace: "nowrap" }}>
+                Ver <ChevronRight style={{ width: 11, height: 11 }} />
               </Link>
             </div>
 
             {upcomingDays.length > 0 && (
               <div style={{ padding: "18px", borderBottom: recentSessions.length > 0 ? "1px solid var(--border)" : "none" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 14 }}>
-                  <div>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10, marginBottom: 14 }}>
+                  <div style={{ minWidth: 0 }}>
                     <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.7, textTransform: "uppercase", color: "var(--text-muted)" }}>Planejadas por semana</p>
                     <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 3 }}>Começando por hoje e seguindo os próximos dias</p>
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: group.color, padding: "5px 10px", borderRadius: 99, background: `${group.color}18`, border: `1px solid ${group.color}35`, flexShrink: 0 }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: group.color, padding: "4px 9px", borderRadius: 99, background: `${group.color}18`, border: `1px solid ${group.color}35`, flexShrink: 0, whiteSpace: "nowrap" }}>
                     {groupPlanItems.length} {groupPlanItems.length === 1 ? "sessão" : "sessões"}
                   </span>
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {upcomingDays.map(({ dow, planDay, items }) => (
-                    <div key={dow} style={{ display: "grid", gridTemplateColumns: "132px 1fr", gap: 14, padding: 14, borderRadius: 12, background: "var(--surface-subtle)", border: "1px solid var(--border)" }}>
-                      <div style={{ borderRight: "1px solid var(--border)", paddingRight: 14 }}>
-                        <p style={{ fontSize: 16, fontWeight: 800, color: "var(--text-primary)", lineHeight: 1 }}>{DAY_LABELS[dow]}</p>
+                    <div key={dow} style={{ padding: 14, borderRadius: 12, background: "var(--surface-subtle)", border: "1px solid var(--border)" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid var(--border)", overflow: "hidden" }}>
+                        <p style={{ fontSize: 14, fontWeight: 800, color: "var(--text-primary)", flexShrink: 0 }}>{DAY_LABELS[dow]}</p>
                         {dow === todayDow && (
-                          <span style={{ display: "inline-flex", marginTop: 7, fontSize: 11, fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase", color: group.color, padding: "3px 7px", borderRadius: 99, background: `${group.color}18` }}>Hoje</span>
+                          <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase", color: group.color, padding: "2px 6px", borderRadius: 99, background: `${group.color}18`, flexShrink: 0 }}>Hoje</span>
                         )}
                         {planDay && (
-                          <p style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13, color: "var(--text-muted)", marginTop: 8 }}>
-                            <Clock style={{ width: 13, height: 13 }} /> {fmtDur(planDay.plannedMin)}
+                          <p style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: "var(--text-muted)", marginLeft: "auto", flexShrink: 0 }}>
+                            <Clock style={{ width: 11, height: 11 }} /> {fmtDur(planDay.plannedMin)}
                           </p>
                         )}
                       </div>
@@ -209,7 +211,7 @@ export default function GroupDetailPage() {
                         {items.map(item => {
                           const tc = SESSION_TYPE_CONFIG[item.sessionType];
                           return (
-                            <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, background: "var(--surface)", border: "1px solid var(--border)" }}>
+                            <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, background: "var(--surface)", border: "1px solid var(--border)", overflow: "hidden" }}>
                               <span style={{ width: 4, height: 28, borderRadius: 99, background: group.color, flexShrink: 0 }} />
                               <span style={{ width: 28, height: 28, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", background: `${group.color}18`, fontSize: 15, flexShrink: 0 }}>{tc.emoji}</span>
                               <p style={{ fontSize: 15, fontWeight: 650, color: "var(--text-primary)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.subject}</p>
@@ -251,7 +253,7 @@ export default function GroupDetailPage() {
 
           {/* Tarefas */}
           <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
-            <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, overflow: "hidden" }}>
               <h2 style={{ fontSize: 13, fontWeight: 700, letterSpacing: 0.6, textTransform: "uppercase", color: "var(--text-muted)" }}>Tarefas pendentes</h2>
               <Link href="/tasks" style={{ fontSize: 13, color: "var(--primary)", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
                 Ver todas <ChevronRight style={{ width: 12, height: 12 }} />
