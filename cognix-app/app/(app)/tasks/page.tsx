@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Plus, Trash2, CheckCircle2, Circle, Clock, SlidersHorizontal } from "lucide-react";
 import { useStore, useGroupData, Task, TaskPriority, TaskStatus, TaskType } from "@/lib/store";
 import { cn, formatMinutes } from "@/lib/utils";
-import { Field, SelectField, ModalHeader, ModalFooter, FormBody } from "@/components/ui";
+import { Field, SelectField, StaticField, ModalHeader, ModalFooter, FormBody } from "@/components/ui";
 
 type FilterTab = "all" | "pending" | "in_progress" | "done";
 
@@ -43,8 +43,11 @@ export default function TasksPage() {
   const [form, setForm] = useState<FormData>(EMPTY);
   const [editId, setEditId] = useState<string | null>(null);
 
-  const { groups } = useStore();
+  const { groups, subjects } = useStore();
   const activeGroup = groups.find((g) => g.id === activeGroupId);
+
+  const formGroupId = activeGroupId ?? (editId ? groups.find((g) => tasks.find((t) => t.id === editId)?.groupId === g.id)?.id ?? "" : "");
+  const formSubjects = subjects.filter((s) => s.groupId === (activeGroupId ?? formGroupId));
 
   const filtered = tab === "all" ? tasks : tasks.filter((t) => t.status === tab);
   const done = tasks.filter((t) => t.status === "done").length;
@@ -171,9 +174,22 @@ export default function TasksPage() {
               <Field label="Título">
                 <input className="input" type="text" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} autoFocus />
               </Field>
-              <Field label="Matéria">
-                <input className="input" type="text" value={form.subject} onChange={e => setForm({ ...form, subject: e.target.value })} />
-              </Field>
+              {!activeGroupId && !editId && (
+                <SelectField label="Grupo" value={formGroupId} onChange={v => setForm({ ...form, subject: "" })}>
+                  <option value="">Selecione um grupo</option>
+                  {groups.map((g) => <option key={g.id} value={g.id}>{g.emoji} {g.name}</option>)}
+                </SelectField>
+              )}
+              {formSubjects.length > 0 ? (
+                <SelectField label="Matéria" value={form.subject} onChange={v => setForm({ ...form, subject: v })}>
+                  <option value="">Selecione a matéria</option>
+                  {formSubjects.map((s) => <option key={s.id} value={s.name}>{s.name}</option>)}
+                </SelectField>
+              ) : (
+                <Field label="Matéria">
+                  <input className="input" type="text" placeholder="Ex: Matemática" value={form.subject} onChange={e => setForm({ ...form, subject: e.target.value })} />
+                </Field>
+              )}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                 <SelectField label="Prioridade" value={form.priority} onChange={v => setForm({ ...form, priority: v as TaskPriority })}>
                   <option value="low">Baixa</option>
@@ -188,12 +204,12 @@ export default function TasksPage() {
                 </SelectField>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-                <Field label="Prazo">
+                <StaticField label="Prazo">
                   <input className="input" type="date" value={form.dueDate} onChange={e => setForm({ ...form, dueDate: e.target.value })} />
-                </Field>
-                <Field label="Tempo estimado (min)">
+                </StaticField>
+                <StaticField label="Tempo estimado (min)">
                   <input className="input" type="number" min={1} value={form.estimatedMin} onChange={e => setForm({ ...form, estimatedMin: Number(e.target.value) })} />
-                </Field>
+                </StaticField>
               </div>
               <Field label="Descrição (opcional)">
                 <textarea className="input" style={{ resize: "none" }} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />

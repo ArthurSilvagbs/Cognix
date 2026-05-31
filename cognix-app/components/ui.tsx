@@ -109,6 +109,18 @@ export function SelectField({ label, value, onChange, children, disabled }: Sele
   );
 }
 
+// ── StaticField — label acima (para date, number, etc) ───────────────────────
+export function StaticField({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <label style={{ fontSize: 12, fontWeight: 600, letterSpacing: 0.6, textTransform: "uppercase", color: "var(--text-muted)" }}>
+        {label}
+      </label>
+      {children}
+    </div>
+  );
+}
+
 // ── Btn — button with variants ────────────────────────────────────────────────
 // Usage: <Btn>Salvar</Btn>  <Btn variant="ghost">Cancelar</Btn>
 

@@ -1,30 +1,35 @@
 "use client";
 
-import { TrendingUp, Trophy, Code2, CheckCircle } from "lucide-react";
+import { TrendingUp, Trophy, CheckCircle, Clock, Flame } from "lucide-react";
 import { useStore, useGroupData, ACHIEVEMENTS } from "@/lib/store";
 import { cn } from "@/lib/utils";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
+import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from "recharts";
 
 const PIE_COLORS = ["#3a3934", "#56606a", "#5f7568", "#8a7658", "#766866", "#6f6b61", "#475569"];
 
 export default function EvolutionPage() {
-  const { user, unlockedAchievements, groups } = useStore();
-  const { tasks, exercises, activeGroupId } = useGroupData();
+  const { user, unlockedAchievements, groups, sessions: allSessions } = useStore();
+  const { tasks, activeGroupId } = useGroupData();
   const activeGroup = groups.find((g) => g.id === activeGroupId);
 
+  const sessions = activeGroupId ? allSessions.filter((s) => s.groupId === activeGroupId) : allSessions;
+
   const doneTasks = tasks.filter((t) => t.status === "done").length;
-  const doneExercises = exercises.filter((e) => e.status === "done").length;
-  const pendingExercises = exercises.filter((e) => e.status !== "done").length;
+  const pendingTasks = tasks.filter((t) => t.status !== "done").length;
   const xpInLevel = user.xp % 100;
 
-  const today = new Date();
-  const last14 = Array.from({ length: 14 }, (_, i) => {
-    const d = new Date(today);
-    d.setDate(today.getDate() - (13 - i));
-    const dateStr = d.toISOString().split("T")[0];
-    const count = exercises.filter((e) => e.status === "done" && e.createdAt.startsWith(dateStr)).length;
-    return { day: d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }), count };
-  });
+  const totalStudiedMin = sessions.reduce((acc, s) => acc + (s.actualMin ?? 0), 0);
+  const totalStudiedH = totalStudiedMin >= 60
+    ? `${Math.floor(totalStudiedMin / 60)}h${totalStudiedMin % 60 > 0 ? ` ${totalStudiedMin % 60}min` : ""}`
+    : totalStudiedMin > 0 ? `${totalStudiedMin}min` : "-";
+
+  let streak = 0;
+  for (let i = 0; i <= 365; i++) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const key = d.toISOString().split("T")[0];
+    if (sessions.some((s) => s.date === key)) streak++;
+    else if (i > 0) break;
+  }
 
   const subjectMap = tasks.reduce<Record<string, { done: number; total: number }>>((acc, t) => {
     if (!acc[t.subject]) acc[t.subject] = { done: 0, total: 0 };
@@ -33,9 +38,7 @@ export default function EvolutionPage() {
     return acc;
   }, {});
 
-  const languageData = Object.entries(
-    exercises.reduce<Record<string, number>>((acc, e) => { acc[e.language] = (acc[e.language] ?? 0) + 1; return acc; }, {})
-  ).map(([name, value]) => ({ name, value }));
+  const subjectData = Object.entries(subjectMap).map(([name, { total }]) => ({ name, value: total }));
 
   return (
     <div className="evolution-wrap p-7 max-w-5xl mx-auto space-y-5">
@@ -79,11 +82,12 @@ export default function EvolutionPage() {
           <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgb(255 255 255 / 0.2)" }}>
             <div className="h-full rounded-full transition-all" style={{ width: `${xpInLevel}%`, background: "white" }} />
           </div>
-          <div className="grid grid-cols-3 gap-3 mt-5">
+          <div className="grid grid-cols-4 gap-3 mt-5">
             {[
-              { icon: TrendingUp, label: "Tarefas",    value: doneTasks      },
-              { icon: Code2,      label: "Feitos",      value: doneExercises  },
-              { icon: CheckCircle, label: "Pendentes",  value: pendingExercises },
+              { icon: TrendingUp,  label: "Tarefas feitas",  value: doneTasks          },
+              { icon: CheckCircle, label: "Pendentes",        value: pendingTasks       },
+              { icon: Clock,       label: "Tempo estudado",   value: totalStudiedH      },
+              { icon: Flame,       label: "Sequência",        value: streak > 0 ? `${streak}d` : "-" },
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className="rounded-xl p-3 text-center" style={{ background: "rgb(255 255 255 / 0.12)" }}>
                 <Icon className="w-4 h-4 text-white/65 mx-auto mb-1" />
@@ -97,69 +101,42 @@ export default function EvolutionPage() {
 
       {/* Charts */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="card p-5">
-          <p className="text-sm font-semibold text-slate-800 mb-4">Exercícios Concluídos — 14 dias</p>
-          {doneExercises === 0 ? (
-            <div className="flex flex-col items-center py-8 text-slate-400">
-              <Code2 className="w-8 h-8 text-slate-200 mb-2" />
-              <p className="text-sm">Nenhum exercício ainda</p>
+        {/* Subject progress */}
+        {Object.keys(subjectMap).length > 0 && (
+          <div className="card p-5">
+            <p className="text-sm font-semibold text-slate-800 mb-4">Progresso por Matéria</p>
+            <div className="space-y-4">
+              {Object.entries(subjectMap).slice(0, 6).map(([subject, { done, total }], i) => (
+                <div key={subject}>
+                  <div className="flex justify-between text-sm mb-1.5">
+                    <span className="font-medium text-slate-700">{subject}</span>
+                    <span className="text-slate-400 text-xs font-medium">{done}/{total} tarefas</span>
+                  </div>
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--surface-subtle)" }}>
+                    <div className="h-full rounded-full transition-all" style={{ width: `${total > 0 ? (done / total) * 100 : 0}%`, background: PIE_COLORS[i % PIE_COLORS.length] }} />
+                  </div>
+                </div>
+              ))}
             </div>
-          ) : (
-            <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={last14} margin={{ top: 0, right: 0, left: -25, bottom: 0 }}>
-                <XAxis dataKey="day" tick={{ fontSize: 10, fill: "var(--text-muted)" }} tickLine={false} axisLine={false} interval={2} />
-                <YAxis tick={{ fontSize: 10, fill: "var(--text-muted)" }} tickLine={false} axisLine={false} allowDecimals={false} />
-                <Tooltip
-                  formatter={(v) => [v, "Exercícios"]}
-                  contentStyle={{ borderRadius: "10px", border: "1px solid var(--border)", fontSize: "12px", background: "var(--surface)", color: "var(--text-primary)" }}
-                  cursor={{ fill: "var(--surface-subtle)" }}
-                />
-                <Bar dataKey="count" fill="var(--primary-subtle-text)" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </div>
+          </div>
+        )}
 
-        <div className="card p-5">
-          <p className="text-sm font-semibold text-slate-800 mb-4">Exercícios por Linguagem</p>
-          {languageData.length === 0 ? (
-            <div className="flex flex-col items-center py-8 text-slate-400">
-              <Code2 className="w-8 h-8 text-slate-200 mb-2" />
-              <p className="text-sm">Nenhum exercício ainda</p>
-            </div>
-          ) : (
+        {/* Tarefas por matéria — pizza */}
+        {subjectData.length > 0 && (
+          <div className="card p-5">
+            <p className="text-sm font-semibold text-slate-800 mb-4">Tarefas por Matéria</p>
             <ResponsiveContainer width="100%" height={180}>
               <PieChart>
-                <Pie data={languageData} cx="50%" cy="45%" innerRadius={50} outerRadius={72} dataKey="value" paddingAngle={3}>
-                  {languageData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+                <Pie data={subjectData} cx="50%" cy="45%" innerRadius={50} outerRadius={72} dataKey="value" paddingAngle={3}>
+                  {subjectData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
                 </Pie>
                 <Tooltip contentStyle={{ borderRadius: "10px", border: "1px solid var(--border)", fontSize: "12px", background: "var(--surface)", color: "var(--text-primary)" }} />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: "11px", color: "var(--text-muted)" }} />
               </PieChart>
             </ResponsiveContainer>
-          )}
-        </div>
-      </div>
-
-      {/* Subject progress */}
-      {Object.keys(subjectMap).length > 0 && (
-        <div className="card p-5">
-          <p className="text-sm font-semibold text-slate-800 mb-4">Progresso por Matéria</p>
-          <div className="space-y-4">
-            {Object.entries(subjectMap).slice(0, 6).map(([subject, { done, total }], i) => (
-              <div key={subject}>
-                <div className="flex justify-between text-sm mb-1.5">
-                  <span className="font-medium text-slate-700">{subject}</span>
-                  <span className="text-slate-400 text-xs font-medium">{done}/{total} tarefas</span>
-                </div>
-                <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--surface-subtle)" }}>
-                  <div className="h-full rounded-full transition-all" style={{ width: `${total > 0 ? (done / total) * 100 : 0}%`, background: PIE_COLORS[i % PIE_COLORS.length] }} />
-                </div>
-              </div>
-            ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Achievements */}
       <div className="card p-5">

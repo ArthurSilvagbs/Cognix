@@ -1,9 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useIsMobile } from "@/lib/useIsMobile";
 import Link from "next/link";
 import {
-  ArrowRight, CheckSquare, Code2, FolderOpen, Pencil, Plus, Trash2, X,
+  ArrowRight, CheckSquare, FolderOpen, Pencil, Plus, Trash2, X,
 } from "lucide-react";
 import { Field, FormBody, ModalFooter, ModalHeader } from "@/components/ui";
 import { GROUP_COLORS, GROUP_EMOJIS, StudyGroup, useStore } from "@/lib/store";
@@ -31,9 +32,10 @@ function SectionHeader({ title, subtitle, action }: { title: string; subtitle?: 
 
 export default function GroupsPage() {
   const {
-    groups, tasks, exercises, subjects,
+    groups, tasks, subjects,
     addGroup, updateGroup, deleteGroup, setActiveGroup, addSubject, deleteSubject,
   } = useStore();
+  const isMobile = useIsMobile();
   const [showModal, setShowModal] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
@@ -98,11 +100,10 @@ export default function GroupsPage() {
           </button>
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 18 }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2, minmax(0, 1fr))", gap: 18 }}>
           {groups.map((group) => {
             const groupSubjects = subjects.filter((subject) => subject.groupId === group.id);
             const groupTasks = tasks.filter((task) => task.groupId === group.id);
-            const groupExercises = exercises.filter((exercise) => exercise.groupId === group.id);
             const doneTasks = groupTasks.filter((task) => task.status === "done").length;
 
             return (
@@ -143,11 +144,10 @@ export default function GroupsPage() {
                     </div>
                   </div>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 9 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 9 }}>
                     {[
                       { label: "Matérias", value: groupSubjects.length, icon: FolderOpen },
                       { label: "Tarefas", value: `${doneTasks}/${groupTasks.length}`, icon: CheckSquare },
-                      { label: "Exercícios", value: groupExercises.length, icon: Code2 },
                     ].map(({ label, value, icon: Icon }) => (
                       <div key={label} style={{ padding: "10px 11px", borderRadius: 12, background: "var(--surface-subtle)", border: "1px solid var(--border)" }}>
                         <Icon style={{ width: 15, height: 15, color: "var(--text-muted)", marginBottom: 8 }} />

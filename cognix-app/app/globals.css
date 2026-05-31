@@ -309,12 +309,31 @@ body {
   html { zoom: 1; }
 
   /* Layout */
-  .app-sidebar   { display: none !important; }
-  .app-main      { padding-bottom: 68px !important; }
-  .bottom-nav    { display: flex !important; }
+  .app-sidebar    { display: none !important; }
+  .app-main       { padding-bottom: 68px !important; }
+  .bottom-nav     { display: flex !important; }
+  .mobile-topbar  { display: flex !important; }
 
   /* Page padding */
   .page-wrap     { padding: 16px !important; }
+
+  /* Dashboard hero */
+  .dash-hero-inner   { flex-direction: column !important; align-items: stretch !important; gap: 14px !important; margin-bottom: 16px !important; }
+  .dash-hero-buttons { display: flex !important; gap: 8px !important; }
+  .dash-hero-buttons a { flex: 1 !important; justify-content: center !important; font-size: 13px !important; padding: 8px 10px !important; }
+  .dash-hero-title   { font-size: 22px !important; }
+  .dash-hero-date    { font-size: 11px !important; margin-bottom: 3px !important; }
+  .dash-hero-desc    { font-size: 13px !important; }
+
+  /* Dashboard hero padding */
+  .dash-hero { padding: 18px 16px !important; border-radius: 14px !important; }
+
+  /* Dashboard session grid (150px → 80px) */
+  .dash-session-row  { grid-template-columns: 80px minmax(0,1fr) !important; gap: 10px !important; }
+
+  /* Groups stats chips */
+  .group-stats       { flex-wrap: wrap !important; gap: 6px !important; }
+  .group-stats > div { min-width: 70px; }
 
   /* Dashboard */
   .dash-stats    { grid-template-columns: repeat(2, 1fr) !important; }
@@ -325,12 +344,8 @@ body {
   .cal-cell-text { font-size: 10px !important; }
 
   /* Groups grid */
-  .groups-grid   { grid-template-columns: 1fr !important; max-width: 100% !important; padding: 16px !important; }
-
-  /* Exercises panel */
-  .exercises-wrap { flex-direction: column !important; height: auto !important; }
-  .exercises-side  { width: 100% !important; max-height: 260px; border-right: none !important; border-bottom: 1px solid var(--border) !important; }
-  .exercises-main  { flex: 1; min-height: 0; }
+  .groups-grid   { max-width: 100% !important; padding: 16px !important; }
+  .groups-cards  { grid-template-columns: 1fr !important; }
 
   /* Tutor — reduz padding lateral dos containers internos */
   .tutor-wrap .px-6 { padding-left: 12px !important; padding-right: 12px !important; }

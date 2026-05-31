@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import {
-  ArrowRight, BookOpen, CalendarDays, CheckCircle2, CheckSquare, Code2,
+  ArrowRight, BookOpen, CalendarDays, CheckCircle2, CheckSquare,
   FolderOpen, MessageSquare, Plus, TrendingUp,
 } from "lucide-react";
 import { SESSION_TYPE_CONFIG, StudyPlanItem, useStore } from "@/lib/store";
@@ -89,13 +89,12 @@ function PlannedSessionRow({ item, color }: { item: StudyPlanItem; color: string
 
 export default function DashboardPage() {
   const {
-    groups, activeGroupId, tasks, exercises, subjects, sessions, planDays, planItems, user,
+    groups, activeGroupId, tasks, subjects, sessions, planDays, planItems, user,
   } = useStore();
 
   const activeGroup = groups.find((g) => g.id === activeGroupId) ?? null;
   const isAllGroups = activeGroupId === null;
   const scopedTasks = isAllGroups ? tasks : tasks.filter((task) => task.groupId === activeGroupId);
-  const scopedExercises = isAllGroups ? exercises : exercises.filter((exercise) => exercise.groupId === activeGroupId);
   const scopedSubjects = isAllGroups ? subjects : subjects.filter((subject) => subject.groupId === activeGroupId);
   const scopedSessions = isAllGroups ? sessions : sessions.filter((session) => session.groupId === activeGroupId);
   const scopedPlanItems = isAllGroups ? planItems : planItems.filter((item) => item.groupId === activeGroupId);
@@ -104,17 +103,35 @@ export default function DashboardPage() {
   const todayKey = today.toISOString().split("T")[0];
   const todayDow = today.getDay();
   const orderedWeek = Array.from({ length: 7 }, (_, i) => (todayDow + i) % 7);
-  const accent = activeGroup?.color ?? "#65a30d";
+  const accent = activeGroup?.color ?? "#64748b";
 
   const pendingTasks = scopedTasks
     .filter((task) => task.status !== "done")
     .sort((a, b) => priorityWeight(a.priority) - priorityWeight(b.priority))
     .slice(0, 5);
   const doneTasks = scopedTasks.filter((task) => task.status === "done").length;
-  const doneExercises = scopedExercises.filter((exercise) => exercise.status === "done").length;
   const todaySessions = scopedSessions.filter((session) => session.date === todayKey);
-  const studiedToday = todaySessions.reduce((acc, session) => acc + (session.actualMin ?? session.durationMin ?? 0), 0);
+  const studiedToday = todaySessions.reduce((acc, session) => acc + (session.actualMin ?? 0), 0);
   const totalStudied = scopedSessions.reduce((acc, session) => acc + (session.actualMin ?? 0), 0);
+
+  const weekStart = new Date(today);
+  weekStart.setDate(today.getDate() - today.getDay());
+  const weekDates = new Set(Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(weekStart); d.setDate(weekStart.getDate() + i);
+    return d.toISOString().split("T")[0];
+  }));
+  const studiedThisWeek = scopedSessions
+    .filter((s) => weekDates.has(s.date))
+    .reduce((acc, s) => acc + (s.actualMin ?? 0), 0);
+
+  // Streak: dias consecutivos com sessão registrada (até hoje)
+  let streak = 0;
+  for (let i = 0; i <= 365; i++) {
+    const d = new Date(today); d.setDate(today.getDate() - i);
+    const key = d.toISOString().split("T")[0];
+    if (scopedSessions.some((s) => s.date === key)) streak++;
+    else if (i > 0) break;
+  }
 
   const planByDay = orderedWeek
     .map((dow) => ({
@@ -137,32 +154,34 @@ export default function DashboardPage() {
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, 4);
 
+  const completedSessions = scopedSessions.filter((s) => s.actualMin && s.actualMin > 0).length;
+
   const stats = [
-    { label: "Tarefas pendentes", value: pendingTasks.length, sub: `${doneTasks}/${scopedTasks.length} concluídas` },
-    { label: "Hoje", value: studiedToday > 0 ? fmtDuration(studiedToday) : "-", sub: `${todayPlan?.items.length ?? 0} sessões planejadas` },
-    { label: "Exercícios", value: `${doneExercises}/${scopedExercises.length}`, sub: "concluídos" },
-    { label: "Tempo total", value: totalStudied > 0 ? fmtDuration(totalStudied) : "-", sub: "registrado" },
+    { label: "Sessões", value: completedSessions, sub: `${scopedSessions.length > 0 ? completedSessions : 0} registradas no total` },
+    { label: "Hoje", value: studiedToday > 0 ? fmtDuration(studiedToday) : todayPlan ? fmtDuration(todayPlan.planDay?.plannedMin ?? 0) : "-", sub: studiedToday > 0 ? "estudado hoje" : todayPlan ? "planejado, não iniciado" : "sem sessão planejada" },
+    { label: "Esta semana", value: studiedThisWeek > 0 ? fmtDuration(studiedThisWeek) : "-", sub: `${scopedSessions.filter((s) => weekDates.has(s.date)).length} sessões registradas` },
+    { label: "Sequência", value: streak > 0 ? `${streak}d` : "-", sub: streak > 0 ? "dias consecutivos" : "nenhum dia ainda" },
   ];
 
   return (
     <div className="page-wrap" style={{ padding: 32, maxWidth: 1480, margin: "0 auto", display: "flex", flexDirection: "column", gap: 22 }}>
-      <div style={{ background: `linear-gradient(135deg, ${accent}e0 0%, ${accent}70 100%)`, borderRadius: 18, padding: "28px 32px", color: "white", overflow: "hidden" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 20, alignItems: "flex-start", marginBottom: 26 }}>
+      <div className="dash-hero" style={{ background: `linear-gradient(135deg, ${accent}e0 0%, ${accent}70 100%)`, borderRadius: 18, padding: "28px 32px", color: "white", overflow: "hidden" }}>
+        <div className="dash-hero-inner" style={{ display: "flex", justifyContent: "space-between", gap: 20, alignItems: "flex-start", marginBottom: 26 }}>
           <div style={{ display: "flex", gap: 16, alignItems: "center", minWidth: 0 }}>
             <div style={{ width: 58, height: 58, borderRadius: 17, background: "rgba(255,255,255,0.18)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, flexShrink: 0 }}>
               {activeGroup?.emoji ?? "📚"}
             </div>
             <div style={{ minWidth: 0 }}>
-              <p style={{ fontSize: 13, fontWeight: 750, letterSpacing: 0.7, textTransform: "uppercase", color: "rgba(255,255,255,0.72)", marginBottom: 5 }}>{formatDate(today)}</p>
-              <h1 style={{ fontSize: 28, fontWeight: 850, lineHeight: 1.1 }}>
+              <p className="dash-hero-date" style={{ fontSize: 13, fontWeight: 750, letterSpacing: 0.7, textTransform: "uppercase", color: "rgba(255,255,255,0.72)", marginBottom: 5 }}>{formatDate(today)}</p>
+              <h1 className="dash-hero-title" style={{ fontSize: 28, fontWeight: 850, lineHeight: 1.1 }}>
                 {getGreeting()}!{activeGroup ? ` ${activeGroup.name}` : ""}
               </h1>
-              <p style={{ fontSize: 15, color: "rgba(255,255,255,0.78)", marginTop: 6 }}>
+              <p className="dash-hero-desc" style={{ fontSize: 15, color: "rgba(255,255,255,0.78)", marginTop: 6 }}>
                 {activeGroup ? activeGroup.description || "Resumo do grupo ativo" : "Resumo geral dos seus estudos"}
               </p>
             </div>
           </div>
-          <div style={{ display: "flex", gap: 10, flexShrink: 0 }}>
+          <div className="dash-hero-buttons" style={{ display: "flex", gap: 10, flexShrink: 0 }}>
             <Link href="/tasks" className="btn" style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.24)", color: "white", padding: "10px 16px" }}>
               <Plus style={{ width: 16, height: 16 }} /> Nova tarefa
             </Link>
@@ -203,7 +222,7 @@ export default function DashboardPage() {
                   {visibleDays.length > 0 ? (
                     <div style={{ padding: 18, display: "flex", flexDirection: "column", gap: 14 }}>
                       {visibleDays.map((day) => (
-                        <div key={day.dow} style={{ display: "grid", gridTemplateColumns: "150px minmax(0, 1fr)", gap: 14, padding: 14, borderRadius: 12, background: "var(--surface-subtle)", border: "1px solid var(--border)", overflow: "hidden" }}>
+                        <div key={day.dow} className="dash-session-row" style={{ display: "grid", gridTemplateColumns: "150px minmax(0, 1fr)", gap: 14, padding: 14, borderRadius: 12, background: "var(--surface-subtle)", border: "1px solid var(--border)", overflow: "hidden" }}>
                           <div style={{ borderRight: "1px solid var(--border)", paddingRight: 14 }}>
                             <p style={{ fontSize: 17, fontWeight: 850, color: "var(--text-primary)", lineHeight: 1 }}>{DAY_LABELS[day.dow]}</p>
                             {day.dow === todayDow && <span style={{ display: "inline-flex", marginTop: 8, fontSize: 11, fontWeight: 750, letterSpacing: 0.5, textTransform: "uppercase", color: accent, padding: "3px 7px", borderRadius: 99, background: `${accent}18` }}>Hoje</span>}
@@ -312,7 +331,6 @@ export default function DashboardPage() {
               {[
                 { href: "/groups", label: "Grupos", icon: FolderOpen },
                 { href: "/sessions", label: "Sessões", icon: CalendarDays },
-                { href: "/exercises", label: "Exercícios", icon: Code2 },
                 { href: "/tutor", label: "Tutor", icon: MessageSquare },
               ].map(({ href, label, icon: Icon }) => (
                 <Link key={href} href={href} style={{ minHeight: 78, padding: 12, borderRadius: 12, background: "var(--surface-subtle)", border: "1px solid var(--border)", textDecoration: "none", color: "var(--text-primary)", display: "flex", flexDirection: "column", gap: 9, justifyContent: "center" }}>

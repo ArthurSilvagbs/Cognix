@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Sidebar from "@/components/Sidebar";
+import MobileTopBar from "@/components/MobileTopBar";
 import StoreInitializer from "@/components/StoreInitializer";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -14,6 +15,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <StoreInitializer />
       <Sidebar />
       <main className="app-main flex-1 overflow-y-auto">
+        <MobileTopBar />
         {children}
       </main>
     </div>
