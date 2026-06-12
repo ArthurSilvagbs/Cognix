@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hoje — Cognix v2 · wireframe T1</title>
+<link rel="stylesheet" href="css/wireframe.css">
+<style>
+  /* ---- específicos da T1 ---- */
+  .hero-top { display: flex; align-items: center; gap: var(--s2); margin-bottom: var(--s3); }
+  .hero-actions { display: flex; align-items: center; gap: var(--s3); margin-top: var(--s5); flex-wrap: wrap; }
+  .hero-reason { font-size: var(--t-meta); color: var(--ink-400); margin-top: var(--s2); }
+
+  .timer-wrap { text-align: center; padding: var(--s4) 0 var(--s2); }
+  .timer-display { font-size: var(--t-timer); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+  .timer-display.paused { color: var(--ink-400); }
+  .timer-state { font-size: var(--t-kicker); font-weight: 700; letter-spacing: 0.1em;
+                 text-transform: uppercase; color: var(--ink-400); margin-bottom: var(--s2); }
+
+  .session-form .field { margin-top: var(--s4); }
+  .session-form .actions { display: flex; gap: var(--s3); margin-top: var(--s5); flex-wrap: wrap; }
+
+  .done-line { display: flex; align-items: center; gap: var(--s2);
+               font-size: var(--t-meta); color: var(--ink-500); }
+
+  .fim-resumo { display: flex; gap: var(--s5); margin-top: var(--s4); flex-wrap: wrap; }
+  .fim-resumo .kpi .n { font-size: var(--t-xl); font-weight: 700; }
+  .fim-resumo .kpi .l { font-size: var(--t-caption); color: var(--ink-400); }
+
+  /* painel de demo — não faz parte do produto */
+  .demo-panel {
+    position: fixed; top: var(--s3); right: var(--s3); z-index: 60;
+    background: var(--ink-900); color: #a1a1aa; border-radius: var(--radius);
+    padding: var(--s2) var(--s3); font-size: 11px; display: flex; gap: var(--s2); align-items: center;
+    opacity: 0.92;
+  }
+  .demo-panel button {
+    background: none; border: 1px solid #52525b; color: #d4d4d8; border-radius: 5px;
+    font-size: 11px; padding: 2px var(--s2); cursor: pointer;
+  }
+  .demo-panel button.on { background: #fff; color: var(--ink-900); border-color: #fff; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- ícones compartilhados -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="i-hoje"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5" fill="currentColor" stroke="none"/></g>
+    <g id="i-cal"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4"/></g>
+    <g id="i-planos"><path d="M5 5h14M5 12h14M5 19h9"/></g>
+    <g id="i-prog"><path d="M5 19V10M12 19V5M19 19v-6"/></g>
+    <g id="i-config"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M21 12h-2.5M5.5 12H3M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8M18.4 18.4l-1.8-1.8M7.4 7.4 5.6 5.6"/></g>
+    <g id="i-play"><path d="M8 6.5v11l9-5.5z" fill="currentColor" stroke="none"/></g>
+    <g id="i-pause"><path d="M9 6.5v11M15 6.5v11" stroke-width="2.5"/></g>
+    <g id="i-check"><path d="M5 12.5l4.5 4.5L19 7.5"/></g>
+    <g id="i-redo"><path d="M4 11a8 8 0 0 1 14-4.5L20 9M20 4v5h-5"/><path d="M20 13a8 8 0 0 1-14 4.5L4 15M4 20v-5h5"/></g>
+    <g id="i-clock"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></g>
+    <g id="i-plus"><path d="M12 5v14M5 12h14" stroke-width="2.25"/></g>
+  </defs>
+</svg>
+
+<!-- DEMO: alterna estados da tela para revisão do protótipo. Não existe no produto. -->
+<div class="demo-panel" role="group" aria-label="Cenários de demonstração">
+  DEMO
+  <button data-cenario="caos" class="on">caos</button>
+  <button data-cenario="padrao">padrão</button>
+  <button data-cenario="fim">fim do dia</button>
+  <button data-cenario="vazio">vazio</button>
+</div>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="logo">COGNIX&nbsp;V2</div>
+    <button class="btn-novo" data-nav="T6 — Novo plano">
+      <svg class="icon sm"><use href="#i-plus"/></svg> Novo
+    </button>
+    <a class="nav-item active" href="t1-hoje.html"><svg class="icon"><use href="#i-hoje"/></svg> Hoje</a>
+    <a class="nav-item" href="#" data-nav="T2 — Calendário"><svg class="icon"><use href="#i-cal"/></svg> Calendário</a>
+    <a class="nav-item" href="#" data-nav="T3 — Planos"><svg class="icon"><use href="#i-planos"/></svg> Planos</a>
+    <a class="nav-item" href="#" data-nav="T7 — Progresso"><svg class="icon"><use href="#i-prog"/></svg> Progresso</a>
+    <div class="spacer"></div>
+    <a class="nav-item" href="#" data-nav="T8 — Configurações"><svg class="icon"><use href="#i-config"/></svg> Configurações</a>
+  </aside>
+
+  <main><div class="page">
+
+    <div class="page-kicker">Quinta-feira, 11 de junho</div>
+    <h1>Hoje</h1>
+    <div class="day-summary" id="daySummary">
+      <b>1 estudo</b> (~40 min) · <b>2 revisões</b> · BB 2026 em dia
+    </div>
+
+    <!-- F3: banner do caos. Neutro de propósito — sem vermelho, sem "você falhou". -->
+    <div class="banner" id="banner">
+      <div>
+        <div class="title-md">Ontem ficou pendente.</div>
+        <div class="meta-dim">Sem problema — dá pra reorganizar em um clique.</div>
+      </div>
+      <div style="display:flex; gap:var(--s2); flex-shrink:0;">
+        <button class="btn primary sm" id="btnReplanejar">
+          <svg class="icon sm"><use href="#i-redo"/></svg> Replanejar
+        </button>
+        <button class="btn ghost sm" id="btnEstudarOntem">Estudar o de ontem</button>
+      </div>
+    </div>
+
+    <!-- ===================== HERO: a resposta dos 10 segundos ===================== -->
+    <section class="card hero" id="hero" aria-live="polite">
+
+      <!-- estado: parado (idle) -->
+      <div id="hero-idle">
+        <div class="hero-top">
+          <span class="badge">Estude agora</span>
+          <span class="chip tnum"><svg class="icon sm"><use href="#i-clock"/></svg> ~40 min</span>
+        </div>
+        <div class="title-xl" id="heroTitulo">Juros Compostos</div>
+        <div class="crumb" id="heroCrumb">BB 2026 <span class="sep">›</span> Matemática Financeira</div>
+        <div class="hero-reason" id="heroReason">Próximo na sua ordem — nada vencido antes dele.</div>
+        <div class="hero-actions">
+          <button class="btn primary" id="btnIniciar">
+            <svg class="icon sm"><use href="#i-play"/></svg> Iniciar
+          </button>
+          <button class="btn ghost" id="btnJaEstudei">Estudei fora do app</button>
+        </div>
+      </div>
+
+      <!-- estado: timer rodando / pausado -->
+      <div id="hero-timer" class="hidden">
+        <div class="timer-wrap">
+          <div class="timer-state" id="timerState">Estudando</div>
+          <div class="timer-display tnum" id="timerDisplay">00:00</div>
+          <div class="meta" id="timerTopico" style="margin-top:var(--s2);">Juros Compostos</div>
+        </div>
+        <div class="hero-actions" style="justify-content:center;">
+          <button class="btn" id="btnPausar"><svg class="icon sm"><use href="#i-pause"/></svg> <span>Pausar</span></button>
+          <button class="btn primary" id="btnEncerrar">Encerrar sessão</button>
+          <button class="btn ghost" id="btnCancelar">Descartar</button>
+        </div>
+      </div>
+
+      <!-- estado: registrar sessão -->
+      <div id="hero-form" class="hidden session-form">
+        <div class="hero-top">
+          <span class="badge soft">Registrar sessão</span>
+        </div>
+        <div class="title-md" id="formTopico">Juros Compostos</div>
+        <div class="field" style="max-width:160px;">
+          <label for="duracao">Duração (min)</label>
+          <input type="number" id="duracao" min="1" value="40" class="tnum">
+        </div>
+        <div class="field">
+          <label for="anotacoes">Anotações <span style="font-weight:400; text-transform:none;">(opcional)</span></label>
+          <textarea id="anotacoes" rows="2" placeholder="O que valeu registrar?"></textarea>
+        </div>
+        <div class="field">
+          <label>Concluiu este tópico?</label>
+          <div class="actions">
+            <button class="btn primary" id="btnConclui"><svg class="icon sm"><use href="#i-check"/></svg> Concluí</button>
+            <button class="btn" id="btnAindaEstudando">Ainda estudando</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- estado: tópico concluído → promove o próximo da fila -->
+      <div id="hero-done" class="hidden">
+        <div class="done-line" id="doneNote">
+          <svg class="icon sm"><use href="#i-check"/></svg>
+          Juros Compostos concluído · 1ª revisão amanhã (12/06)
+        </div>
+        <div class="hero-top" style="margin-top:var(--s4);">
+          <span class="badge soft">Próximo</span>
+          <span class="chip tnum"><svg class="icon sm"><use href="#i-clock"/></svg> ~30 min</span>
+        </div>
+        <div class="title-xl" id="nextTitulo">Porcentagem</div>
+        <div class="crumb">BB 2026 <span class="sep">›</span> Matemática Financeira</div>
+        <div class="hero-actions">
+          <button class="btn primary" id="btnIniciarProximo">
+            <svg class="icon sm"><use href="#i-play"/></svg> Iniciar
+          </button>
+          <button class="btn ghost" id="btnEncerrarDia">Encerrar por hoje</button>
+        </div>
+      </div>
+
+      <!-- estado: fim do dia (tudo feito) -->
+      <div id="hero-fim" class="hidden">
+        <div class="hero-top"><span class="badge soft">Por hoje é isso</span></div>
+        <div class="title-xl">Tudo feito. ✓</div>
+        <div class="fim-resumo tnum">
+          <div class="kpi"><div class="n">2</div><div class="l">sessões</div></div>
+          <div class="kpi"><div class="n">1h05</div><div class="l">estudadas</div></div>
+          <div class="kpi"><div class="n">2/2</div><div class="l">revisões</div></div>
+        </div>
+        <div class="hero-actions">
+          <button class="btn ghost" id="btnMaisUma">Estudar mais uma (Porcentagem)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== Revisões vencendo (R1) ===================== -->
+    <h2 class="section" id="secRevisoes">Revisões de hoje <span class="count tnum" id="revCount">2</span></h2>
+    <div class="card" id="revCard">
+      <div id="revList">
+        <div class="item" data-topico="Regra de Três" data-prox="+7 dias (18/06)">
+          <div>
+            <div class="title-md">Regra de Três</div>
+            <div class="meta-dim">2ª de 3 · Matemática · concluído há 7 dias</div>
+          </div>
+          <div class="actions">
+            <button class="btn sm" data-acao="revisar">Revisar</button>
+            <button class="btn ghost sm" data-acao="adiar">Adiar</button>
+          </div>
+        </div>
+        <div class="item" data-topico="Crase" data-prox="+7 dias (18/06)">
+          <div>
+            <div class="title-md">Crase</div>
+            <div class="meta-dim">1ª de 3 · Português · concluído ontem</div>
+          </div>
+          <div class="actions">
+            <button class="btn sm" data-acao="revisar">Revisar</button>
+            <button class="btn ghost sm" data-acao="adiar">Adiar</button>
+          </div>
+        </div>
+      </div>
+      <div class="meta-dim hidden" id="revEmpty" style="padding:var(--s2);">
+        Nenhuma revisão pendente — em dia. ✓
+      </div>
+    </div>
+
+    <!-- ===================== Alternativas (recomendar ≠ ditar) ===================== -->
+    <h2 class="section" id="secAlt">Alternativas válidas</h2>
+    <div class="card" id="altCard">
+      <div class="item" data-titulo="Porcentagem" data-crumb="BB 2026 › Matemática Financeira" data-min="~30 min">
+        <div>
+          <div class="title-md">Porcentagem</div>
+          <div class="meta-dim">Matemática Financeira · ~30 min</div>
+        </div>
+        <button class="btn sm" data-acao="trocar">Estudar esta</button>
+      </div>
+      <div class="item" data-titulo="Interpretação de Texto" data-crumb="BB 2026 › Português" data-min="~25 min">
+        <div>
+          <div class="title-md">Interpretação de Texto</div>
+          <div class="meta-dim">Português · ~25 min</div>
+        </div>
+        <button class="btn sm" data-acao="trocar">Estudar esta</button>
+      </div>
+      <div class="meta-dim" style="padding-top:var(--s3);">
+        Trocar não bagunça o plano — a ordem é recomendação, não obrigação.
+      </div>
+    </div>
+
+    <!-- ===================== Estado vazio (PRD §8) ===================== -->
+    <div class="empty hidden fade-in" id="emptyState">
+      <div class="title-xl" style="margin-bottom:var(--s2);">Nada por hoje.</div>
+      <div class="meta" style="margin-bottom:var(--s5);">Sem estudos agendados e sem revisões vencendo.</div>
+      <div style="display:flex; gap:var(--s3); justify-content:center; flex-wrap:wrap;">
+        <button class="btn primary" data-nav="T6 — Novo plano">Criar um plano</button>
+        <button class="btn" data-nav="Novo tópico avulso">Tópico avulso</button>
+      </div>
+    </div>
+
+  </div></main>
+</div>
+
+<!-- Mobile (A4): 4 destinos + Novo central -->
+<nav class="bottombar" aria-label="Navegação principal">
+  <a href="t1-hoje.html" class="active"><svg class="icon"><use href="#i-hoje"/></svg>Hoje</a>
+  <a href="#" data-nav="T2 — Calendário"><svg class="icon"><use href="#i-cal"/></svg>Calendário</a>
+  <div class="fab"><button aria-label="Novo" data-nav="T6 — Novo plano"><svg class="icon"><use href="#i-plus"/></svg></button></div>
+  <a href="#" data-nav="T3 — Planos"><svg class="icon"><use href="#i-planos"/></svg>Planos</a>
+  <a href="#" data-nav="T7 — Progresso"><svg class="icon"><use href="#i-prog"/></svg>Progresso</a>
+</nav>
+
+<!-- Toast com Desfazer (A2) -->
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <span id="toastMsg"></span>
+  <button id="toastUndo" class="hidden">Desfazer</button>
+</div>
+
+<script>
+/* ============================================================
+   T1 Hoje — coreografia do wireframe (não é código de produção).
+   Valida fluxo, estados e microcopy antes do design (Fase 5).
+   ============================================================ */
+const $ = (id) => document.getElementById(id);
+
+/* ---------- Toast: aplicar direto + desfazer (decisão A2) ---------- */
+let toastTimer = null, undoFn = null;
+function toast(msg, undo) {
+  $('toastMsg').textContent = msg;
+  undoFn = undo || null;
+  $('toastUndo').classList.toggle('hidden', !undo);
+  $('toast').classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $('toast').classList.remove('show'), 5000);
+}
+$('toastUndo').addEventListener('click', () => {
+  if (undoFn) undoFn();
+  $('toast').classList.remove('show');
+});
+
+/* telas ainda não construídas */
+document.querySelectorAll('[data-nav]').forEach(el => {
+  el.addEventListener('click', (e) => {
+    e.preventDefault();
+    toast(`${el.dataset.nav}: ainda não construída neste protótipo.`);
+  });
+});
+
+/* ---------- Hero: máquina de estados ---------- */
+const PAINEIS = ['hero-idle', 'hero-timer', 'hero-form', 'hero-done', 'hero-fim'];
+function heroEstado(qual) {
+  PAINEIS.forEach(p => $(p).classList.toggle('hidden', p !== qual));
+  $(qual).classList.add('fade-in');
+}
+
+/* ---------- Timer (com pausa) ---------- */
+let segundos = 0, cronometro = null, pausado = false;
+const fmt = s => `${String(Math.floor(s / 60)).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}`;
+
+function ligaCronometro() {
+  cronometro = setInterval(() => {
+    segundos++;
+    $('timerDisplay').textContent = fmt(segundos);
+  }, 1000);
+}
+
+$('btnIniciar').addEventListener('click', () => {
+  segundos = 0; pausado = false;
+  $('timerDisplay').textContent = '00:00';
+  $('timerDisplay').classList.remove('paused');
+  $('timerState').textContent = 'Estudando';
+  $('btnPausar').querySelector('span').textContent = 'Pausar';
+  $('timerTopico').textContent = $('heroTitulo').textContent;
+  heroEstado('hero-timer');
+  ligaCronometro();
+});
+
+$('btnPausar').addEventListener('click', () => {
+  pausado = !pausado;
+  if (pausado) { clearInterval(cronometro); }
+  else { ligaCronometro(); }
+  $('timerState').textContent = pausado ? 'Pausado' : 'Estudando';
+  $('timerDisplay').classList.toggle('paused', pausado);
+  $('btnPausar').querySelector('span').textContent = pausado ? 'Retomar' : 'Pausar';
+});
+
+$('btnEncerrar').addEventListener('click', () => {
+  clearInterval(cronometro);
+  $('formTopico').textContent = $('heroTitulo').textContent;
+  /* pré-preenche com o cronometrado; editável (entrada manual é 1ª classe) */
+  $('duracao').value = Math.max(1, Math.round(segundos / 60));
+  heroEstado('hero-form');
+});
+
+$('btnCancelar').addEventListener('click', () => {
+  clearInterval(cronometro);
+  heroEstado('hero-idle');
+  toast('Sessão descartada — nada foi registrado.');
+});
+
+/* "Estudei fora do app": registro manual sem timer (P1 cronometra no celular hoje) */
+$('btnJaEstudei').addEventListener('click', () => {
+  segundos = 0;
+  $('formTopico').textContent = $('heroTitulo').textContent;
+  $('duracao').value = 40;
+  heroEstado('hero-form');
+});
+
+$('btnAindaEstudando').addEventListener('click', () => {
+  heroEstado('hero-idle');
+  toast(`Sessão de ${$('duracao').value} min registrada. O tópico segue em estudo.`);
+});
+
+$('btnConclui').addEventListener('click', () => {
+  $('doneNote').lastChild.textContent =
+    ` ${$('heroTitulo').textContent} concluído · 1ª revisão amanhã (12/06)`;
+  heroEstado('hero-done');
+  /* R1 encadeamento: só a 1ª é firme; as seguintes são projeção */
+  toast('Revisões agendadas: amanhã (12/06) · depois +7d e +21d.');
+});
+
+$('btnIniciarProximo').addEventListener('click', () => {
+  $('heroTitulo').textContent = $('nextTitulo').textContent;
+  $('heroCrumb').innerHTML = 'BB 2026 <span class="sep">›</span> Matemática Financeira';
+  $('heroReason').textContent = 'Próximo na sua ordem — nada vencido antes dele.';
+  heroEstado('hero-idle');
+  $('btnIniciar').click();
+});
+
+$('btnEncerrarDia').addEventListener('click', () => heroEstado('hero-fim'));
+$('btnMaisUma').addEventListener('click', () => {
+  $('heroTitulo').textContent = 'Porcentagem';
+  heroEstado('hero-idle');
+});
+
+/* ---------- Revisões: revisar conclui e encadeia (R1); adiar = A3 ---------- */
+function atualizaContagem() {
+  const ativas = [...document.querySelectorAll('#revList .item')]
+    .filter(i => !i.classList.contains('hidden') && !i.classList.contains('done'));
+  $('revCount').textContent = ativas.length;
+  $('revEmpty').classList.toggle('hidden', ativas.length > 0);
+}
+
+function ligaRevisao(item) {
+  const topico = item.dataset.topico;
+  item.querySelector('[data-acao="revisar"]').addEventListener('click', () => {
+    item.classList.add('done');
+    item.querySelector('.actions').innerHTML = '<span class="meta-dim">✓ revisada</span>';
+    toast(`Próxima revisão de ${topico}: ${item.dataset.prox}.`);
+    atualizaContagem();
+  });
+  item.querySelector('[data-acao="adiar"]').addEventListener('click', () => {
+    item.classList.add('hidden');
+    atualizaContagem();
+    toast(`Revisão de ${topico} adiada para amanhã.`, () => {
+      item.classList.remove('hidden');
+      atualizaContagem();
+    });
+  });
+}
+document.querySelectorAll('#revList .item').forEach(ligaRevisao);
+
+/* ---------- Alternativas: trocar a recomendação ---------- */
+document.querySelectorAll('[data-acao="trocar"]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const alt = btn.closest('.item');
+    const anterior = $('heroTitulo').textContent;
+    $('heroTitulo').textContent = alt.dataset.titulo;
+    $('heroCrumb').innerHTML = alt.dataset.crumb.replace('›', '<span class="sep">›</span>');
+    $('heroReason').textContent = 'Escolha sua — o plano se ajusta, não reclama.';
+    heroEstado('hero-idle');
+    toast(`Trocado para ${alt.dataset.titulo}. ${anterior} continua na fila.`);
+  });
+});
+
+/* ---------- F3: replanejar aplica direto + desfazer (A2 + R3) ---------- */
+$('btnReplanejar').addEventListener('click', () => {
+  $('banner').classList.add('hidden');
+  /* R3 passo B: revisão atrasada reancorada em hoje */
+  const nova = document.createElement('div');
+  nova.className = 'item fade-in';
+  nova.dataset.topico = 'Juros Simples';
+  nova.dataset.prox = '+7 dias (18/06)';
+  nova.innerHTML = `
+    <div>
+      <div class="title-md">Juros Simples</div>
+      <div class="meta-dim">3ª de 3 · Matemática · reancorada de ontem</div>
+    </div>
+    <div class="actions">
+      <button class="btn sm" data-acao="revisar">Revisar</button>
+      <button class="btn ghost sm" data-acao="adiar">Adiar</button>
+    </div>`;
+  $('revList').prepend(nova);
+  ligaRevisao(nova);
+  atualizaContagem();
+  $('daySummary').innerHTML = '<b>2 estudos</b> (~1h15) · <b>3 revisões</b> · replanejado agora';
+  toast('Replanejado: 2 estudos deslizados · 1 revisão trazida para hoje.', () => {
+    $('banner').classList.remove('hidden');
+    nova.remove();
+    atualizaContagem();
+    $('daySummary').innerHTML = '<b>1 estudo</b> (~40 min) · <b>2 revisões</b> · BB 2026 em dia';
+  });
+});
+
+$('btnEstudarOntem').addEventListener('click', () => {
+  $('banner').classList.add('hidden');
+  $('heroTitulo').textContent = 'Razão e Proporção';
+  $('heroCrumb').innerHTML = 'BB 2026 <span class="sep">›</span> Matemática';
+  $('heroReason').textContent = 'Era o estudo de ontem — retomado por sua escolha.';
+  heroEstado('hero-idle');
+  toast('Recomendação trocada para o estudo de ontem.');
+});
+
+/* ---------- DEMO: cenários (não existe no produto) ---------- */
+const SECOES = () => document.querySelectorAll('#hero, #secRevisoes, #revCard, #secAlt, #altCard, .day-summary');
+document.querySelectorAll('.demo-panel button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.demo-panel button').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    const c = btn.dataset.cenario;
+    const vazio = c === 'vazio';
+    SECOES().forEach(el => el.classList.toggle('hidden', vazio));
+    $('emptyState').classList.toggle('hidden', !vazio);
+    $('banner').classList.toggle('hidden', c !== 'caos');
+    if (c === 'fim') heroEstado('hero-fim');
+    if (c === 'padrao' || c === 'caos') heroEstado('hero-idle');
+  });
+});
+</script>
+</body>
+</html>

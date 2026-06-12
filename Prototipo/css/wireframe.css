@@ -1,0 +1,268 @@
+/* ============================================================
+   Cognix v2 — Wireframe base (Fase 4)
+   Regras do protótipo:
+   · só cinzas — cor com significado entra na Fase 5
+   · grid 4/8px em todos os espaçamentos
+   · microinterações 150–250ms (PRD §8)
+   · componentes daqui são compartilhados pelas telas T1–T8
+   ============================================================ */
+
+:root {
+  /* Cinzas — na Fase 5 viram tokens semânticos de verdade */
+  --ink-900: #18181b;   /* texto principal */
+  --ink-700: #3f3f46;   /* texto forte secundário */
+  --ink-500: #71717a;   /* texto secundário */
+  --ink-400: #a1a1aa;   /* terciário / placeholder */
+  --line:    #e4e4e7;   /* bordas */
+  --line-strong: #d4d4d8;
+  --bg-app:  #fafafa;   /* fundo do app */
+  --bg-card: #ffffff;   /* superfícies */
+  --bg-soft: #f4f4f5;   /* superfícies rebaixadas */
+  --bg-hover:#f4f4f5;
+  --accent:  #18181b;   /* "primária" do wireframe = cinza-quase-preto */
+
+  /* Grid 4/8px */
+  --s1: 4px;  --s2: 8px;  --s3: 12px; --s4: 16px;
+  --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
+
+  /* Tipografia — escala fixa, nada fora dela */
+  --t-kicker: 11px;
+  --t-caption: 12px;
+  --t-meta: 13px;
+  --t-body: 14px;
+  --t-md: 15px;
+  --t-lg: 17px;
+  --t-xl: 22px;
+  --t-h1: 28px;
+  --t-timer: 56px;
+
+  --radius: 10px;
+  --radius-sm: 6px;
+  --sidebar-w: 220px;
+  --bottombar-h: 60px;
+  --speed: 180ms;        /* dentro da janela 150–250ms */
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: Inter, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg-app);
+  color: var(--ink-900);
+  font-size: var(--t-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.tnum { font-variant-numeric: tabular-nums; }
+
+/* ---------- Ícones (SVG inline, stroke herda a cor do texto) ---------- */
+.icon { width: 18px; height: 18px; stroke: currentColor; fill: none;
+        stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.icon.sm { width: 15px; height: 15px; }
+
+/* ---------- Layout: sidebar (desktop) + main ---------- */
+.app { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--bg-card);
+  border-right: 1px solid var(--line);
+  padding: var(--s5) var(--s3);
+  display: flex; flex-direction: column; gap: 2px;
+  position: sticky; top: 0; height: 100vh;
+}
+.sidebar .logo {
+  font-weight: 700; letter-spacing: 0.10em; font-size: var(--t-caption);
+  color: var(--ink-500); padding: 0 var(--s3) var(--s5);
+}
+.nav-item {
+  display: flex; align-items: center; gap: var(--s3);
+  padding: var(--s2) var(--s3); border-radius: var(--radius-sm);
+  color: var(--ink-500); text-decoration: none; font-size: var(--t-body); font-weight: 500;
+  transition: background var(--speed), color var(--speed);
+}
+.nav-item:hover { background: var(--bg-hover); color: var(--ink-700); }
+.nav-item.active { background: var(--bg-soft); color: var(--ink-900); font-weight: 600; }
+.sidebar .spacer { flex: 1; }
+
+.btn-novo {
+  display: flex; align-items: center; justify-content: center; gap: var(--s2);
+  margin: 0 0 var(--s4); padding: var(--s2) var(--s3);
+  border-radius: var(--radius-sm); background: var(--accent); color: #fff;
+  font-size: var(--t-body); font-weight: 600; border: none; cursor: pointer; width: 100%;
+  transition: opacity var(--speed);
+}
+.btn-novo:hover { opacity: 0.85; }
+
+main { flex: 1; padding: var(--s7) var(--s6); }
+.page { max-width: 680px; margin: 0 auto; }
+
+/* ---------- Tipografia de página ---------- */
+.page-kicker {
+  font-size: var(--t-kicker); color: var(--ink-400);
+  text-transform: uppercase; letter-spacing: 0.10em; font-weight: 600;
+}
+h1 { font-size: var(--t-h1); font-weight: 700; letter-spacing: -0.02em; margin: var(--s1) 0 var(--s2); }
+.day-summary { font-size: var(--t-meta); color: var(--ink-500); margin-bottom: var(--s6); }
+.day-summary b { color: var(--ink-700); font-weight: 600; }
+
+h2.section {
+  font-size: var(--t-caption); color: var(--ink-500); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin: var(--s6) 0 var(--s3);
+  display: flex; align-items: center; gap: var(--s2);
+}
+h2.section .count {
+  background: var(--bg-soft); border-radius: 99px; padding: 0 var(--s2);
+  font-size: var(--t-kicker); color: var(--ink-500);
+}
+
+/* ---------- Superfícies ---------- */
+.card {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: var(--s4) var(--s4);
+}
+.card.hero {
+  padding: var(--s5);
+  border: 1px solid var(--line-strong);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px -16px rgba(0,0,0,0.12);
+}
+
+/* ---------- Texto utilitário ---------- */
+.meta { font-size: var(--t-meta); color: var(--ink-500); }
+.meta b { color: var(--ink-700); font-weight: 600; }
+.meta-dim { font-size: var(--t-meta); color: var(--ink-400); }
+.title-xl { font-size: var(--t-xl); font-weight: 700; letter-spacing: -0.01em; }
+.title-md { font-size: var(--t-md); font-weight: 600; }
+.crumb { font-size: var(--t-meta); color: var(--ink-500); }
+.crumb .sep { color: var(--ink-400); padding: 0 2px; }
+
+/* ---------- Badges e chips ---------- */
+.badge {
+  display: inline-flex; align-items: center; gap: var(--s1);
+  font-size: var(--t-kicker); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 3px var(--s2); border-radius: var(--radius-sm);
+  background: var(--ink-900); color: #fff;
+}
+.badge.soft { background: var(--bg-soft); color: var(--ink-500); }
+.chip {
+  display: inline-flex; align-items: center; gap: var(--s1);
+  font-size: var(--t-caption); font-weight: 500; color: var(--ink-500);
+  border: 1px solid var(--line); border-radius: 99px; padding: 2px var(--s2);
+}
+
+/* ---------- Botões ---------- */
+.btn {
+  display: inline-flex; align-items: center; gap: var(--s2);
+  font-size: var(--t-body); font-weight: 600; cursor: pointer;
+  padding: var(--s2) var(--s4); border-radius: var(--radius-sm);
+  border: 1px solid var(--line-strong); background: var(--bg-card); color: var(--ink-900);
+  transition: background var(--speed), border-color var(--speed), opacity var(--speed);
+}
+.btn:hover { background: var(--bg-soft); }
+.btn:active { transform: translateY(0.5px); }
+.btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn.primary:hover { background: var(--accent); opacity: 0.85; }
+.btn.ghost { border-color: transparent; background: transparent; color: var(--ink-500); }
+.btn.ghost:hover { background: var(--bg-soft); color: var(--ink-700); }
+.btn.sm { font-size: var(--t-meta); padding: var(--s1) var(--s3); }
+
+/* ---------- Banner do caos (F3) — neutro: sem vermelho, sem culpa ---------- */
+.banner {
+  background: var(--bg-soft); border: 1px dashed var(--line-strong);
+  border-radius: var(--radius); padding: var(--s3) var(--s4);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s4); flex-wrap: wrap; margin-bottom: var(--s4);
+}
+
+/* ---------- Listas de itens ---------- */
+.item {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s4);
+  padding: var(--s3) var(--s2); border-bottom: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  transition: background var(--speed), opacity var(--speed);
+}
+.item:hover { background: var(--bg-hover); }
+.item:last-of-type { border-bottom: none; }
+.item .actions { display: flex; gap: var(--s2); flex-shrink: 0; }
+.item.done { opacity: 0.45; }
+.item.done .title-md { text-decoration: line-through; }
+
+/* ---------- Toast com Desfazer (A2) ---------- */
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%) translateY(8px);
+  bottom: var(--s5);
+  background: var(--ink-900); color: #fff; font-size: var(--t-body);
+  padding: var(--s3) var(--s4); border-radius: var(--radius);
+  display: flex; align-items: center; gap: var(--s4);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--speed), transform var(--speed);
+  z-index: 50; max-width: min(560px, 92vw);
+}
+.toast.show { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+.toast button {
+  background: none; border: none; color: #fff; font-weight: 700;
+  cursor: pointer; text-decoration: underline; font-size: var(--t-body); flex-shrink: 0;
+}
+
+/* ---------- Estado vazio (PRD §8: desenhado, nunca em branco) ---------- */
+.empty {
+  text-align: center; padding: var(--s8) var(--s5);
+  border: 1px dashed var(--line-strong); border-radius: var(--radius); color: var(--ink-500);
+}
+
+/* ---------- Formulários ---------- */
+input[type="text"], input[type="number"], textarea {
+  font: inherit; padding: var(--s2) var(--s3);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-sm); width: 100%;
+  background: var(--bg-card); color: var(--ink-900);
+  transition: border-color var(--speed);
+}
+input:focus, textarea:focus { border-color: var(--ink-500); outline: none; }
+label { font-size: var(--t-caption); font-weight: 600; color: var(--ink-500);
+        display: block; margin-bottom: var(--s1); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.hidden { display: none !important; }
+
+/* ---------- Acessibilidade e movimento ---------- */
+:focus-visible { outline: 2px solid var(--ink-500); outline-offset: 2px; border-radius: var(--radius-sm); }
+
+.fade-in { animation: fade var(--speed) ease-out; }
+@keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* ---------- Mobile (A4): sidebar some, barra inferior entra ---------- */
+.bottombar { display: none; }
+
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  main { padding: var(--s5) var(--s4) calc(var(--bottombar-h) + var(--s7)); }
+  h1 { font-size: 24px; }
+
+  .bottombar {
+    display: flex; position: fixed; bottom: 0; left: 0; right: 0;
+    height: var(--bottombar-h); background: var(--bg-card);
+    border-top: 1px solid var(--line); z-index: 40;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .bottombar a {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 2px; font-size: 10px; font-weight: 500; color: var(--ink-400); text-decoration: none;
+  }
+  .bottombar a.active { color: var(--ink-900); font-weight: 700; }
+  .bottombar .fab { flex: 0 0 72px; display: flex; align-items: center; justify-content: center; }
+  .bottombar .fab button {
+    width: 48px; height: 48px; border-radius: 50%; border: none;
+    background: var(--accent); color: #fff; cursor: pointer;
+    margin-top: -24px; box-shadow: 0 4px 12px rgba(0,0,0,0.22);
+    display: flex; align-items: center; justify-content: center;
+  }
+}

@@ -6,9 +6,11 @@ Wireframes HTML navegáveis das telas definidas na Arquitetura de Informação v
 
 ## Telas (T1–T8)
 
+Cada tela tem um par: `tN-nome.html` (wireframe navegável) + `tN-nome.md` (descritivo de design e desenvolvimento).
+
 | # | Tela | Status |
 |---|---|---|
-| T1 | Hoje (home — métrica dos 10s) | ⬜ |
+| T1 | Hoje (home — métrica dos 10s) | 🟡 em revisão |
 | T2 | Calendário | ⬜ |
 | T3 | Planos (lista) | ⬜ |
 | T4 | Plano (detalhe: árvore ⇄ kanban) | ⬜ |
