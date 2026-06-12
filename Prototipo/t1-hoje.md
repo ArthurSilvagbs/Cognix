@@ -89,9 +89,12 @@ parado ──Iniciar──▶ rodando ⇄ pausado
 
 **Tom do microcopy:** afirmativo, curto, nunca culpado. Proibido: vermelho, "atrasado", contagem de dias perdidos, exclamações de alarme. O banner do caos diz "Sem problema — dá pra reorganizar em um clique."
 
-## 6. Design (para a Fase 5 herdar)
+## 6. Design (para a Fase 5 formalizar)
 
-- **Cinzas:** 4 níveis de texto (`ink-900/700/500/400`) + 2 superfícies (`bg-card`, `bg-soft`) + 2 bordas. A futura cor primária entra **só** em: badge "Estude agora", botões primary e FAB mobile — exatamente os pontos que hoje usam `--accent` (cinza-quase-preto). Se na Fase 5 a cor aparecer em mais lugar que isso, está errado.
+> **Decisão de processo (2026-06-11):** o protótipo é de **alta fidelidade** — wireframe cinza não permite avaliar o diferencial (design impecável) e o custo de hi-fi com IA é baixo. A Fase 5 não "pinta" o protótipo: ela **formaliza em tokens** o que sobreviver à revisão aqui.
+
+- **Cor primária: índigo `#4f46e5` — PROVISÓRIA 🔶** (validar na Fase 5). Aparece **somente com significado**: ação primária (botões primary, FAB, "Novo"), estado ativo (nav, kicker "Estudando" do timer), foco (anéis de foco/input) e o badge "Estude agora". Se a cor aparecer fora dessa lista, está errado (PRD §8: 1 primária + neutros).
+- **Neutros:** 4 níveis de texto (`ink-900/700/500/400`) + 2 superfícies (`bg-card`, `bg-soft`) + 2 bordas.
 - **Tipografia:** escala fixa 11/12/13/14/15/17/22/28 + 56 (timer). Números sempre tabulares (`tnum`) — timer, contagens, KPIs.
 - **Espaçamento:** grid 4/8px estrito (tokens `--s1..--s8`). Card hero tem o dobro de padding dos cards comuns (24 vs 16) — destaque por respiro, não por cor.
 - **Destaque do hero:** borda mais forte + sombra dupla suave. É o único card com sombra na tela.
@@ -106,7 +109,7 @@ parado ──Iniciar──▶ rodando ⇄ pausado
 - **Toast com Desfazer:** o undo no produto real é transação reversível (replanejamento guarda o estado anterior), não um "redo visual". Janela de 5s.
 - **"Estudei fora do app"** abre o mesmo formulário de registro com duração manual — é o caminho do P1 hoje (cronometra no celular). Não é caso de borda, é fluxo principal.
 - **Acessibilidade:** hero com `aria-live="polite"` (mudanças de estado anunciadas), toast `role="status"`, foco visível em tudo, ícones SVG `aria-hidden` com texto sempre ao lado.
-- **Painel DEMO** (canto superior direito) não existe no produto — só alterna cenários para revisão: caos / padrão / fim do dia / vazio.
+- **Barra de cenários** (canto inferior esquerdo) não existe no produto. Cada cenário é um link com `?cenario=` que **recarrega a página** num estado coerente — sem misturar estados de interação: com pendência / dia normal / tudo feito / sem plano.
 
 ## 8. O que ficou de fora de propósito
 

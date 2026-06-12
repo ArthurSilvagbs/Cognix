@@ -19,4 +19,4 @@ Cada tela tem um par: `tN-nome.html` (wireframe navegável) + `tN-nome.md` (desc
 | T7 | Progresso | ⬜ |
 | T8 | Configurações | ⬜ |
 
-Regras: wireframe sem cor (cinzas apenas — estética é Fase 5), dados fictícios realistas (plano "BB 2026" e "ENEM 2026"), mobile testável (barra inferior, decisão A4).
+Regras: **alta fidelidade** — cor primária provisória índigo 🔶 + neutros, cor só com significado (a Fase 5 formaliza os tokens do que sobreviver à revisão); dados fictícios realistas (planos "BB 2026" e "ENEM 2026"); mobile testável (barra inferior, decisão A4); cenários de demonstração via `?cenario=` na URL.

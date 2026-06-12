@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Hoje — Cognix v2 · wireframe T1</title>
+<title>Hoje — Cognix v2 · protótipo T1</title>
 <link rel="stylesheet" href="css/wireframe.css">
 <style>
   /* ---- específicos da T1 ---- */
@@ -15,30 +15,19 @@
   .timer-display { font-size: var(--t-timer); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
   .timer-display.paused { color: var(--ink-400); }
   .timer-state { font-size: var(--t-kicker); font-weight: 700; letter-spacing: 0.1em;
-                 text-transform: uppercase; color: var(--ink-400); margin-bottom: var(--s2); }
+                 text-transform: uppercase; color: var(--primary); margin-bottom: var(--s2); }
+  .timer-state.paused { color: var(--ink-400); }
 
   .session-form .field { margin-top: var(--s4); }
   .session-form .actions { display: flex; gap: var(--s3); margin-top: var(--s5); flex-wrap: wrap; }
 
   .done-line { display: flex; align-items: center; gap: var(--s2);
                font-size: var(--t-meta); color: var(--ink-500); }
+  .done-line .icon { color: var(--primary); }
 
-  .fim-resumo { display: flex; gap: var(--s5); margin-top: var(--s4); flex-wrap: wrap; }
+  .fim-resumo { display: flex; gap: var(--s6); margin-top: var(--s4); flex-wrap: wrap; }
   .fim-resumo .kpi .n { font-size: var(--t-xl); font-weight: 700; }
   .fim-resumo .kpi .l { font-size: var(--t-caption); color: var(--ink-400); }
-
-  /* painel de demo — não faz parte do produto */
-  .demo-panel {
-    position: fixed; top: var(--s3); right: var(--s3); z-index: 60;
-    background: var(--ink-900); color: #a1a1aa; border-radius: var(--radius);
-    padding: var(--s2) var(--s3); font-size: 11px; display: flex; gap: var(--s2); align-items: center;
-    opacity: 0.92;
-  }
-  .demo-panel button {
-    background: none; border: 1px solid #52525b; color: #d4d4d8; border-radius: 5px;
-    font-size: 11px; padding: 2px var(--s2); cursor: pointer;
-  }
-  .demo-panel button.on { background: #fff; color: var(--ink-900); border-color: #fff; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -60,19 +49,10 @@
   </defs>
 </svg>
 
-<!-- DEMO: alterna estados da tela para revisão do protótipo. Não existe no produto. -->
-<div class="demo-panel" role="group" aria-label="Cenários de demonstração">
-  DEMO
-  <button data-cenario="caos" class="on">caos</button>
-  <button data-cenario="padrao">padrão</button>
-  <button data-cenario="fim">fim do dia</button>
-  <button data-cenario="vazio">vazio</button>
-</div>
-
 <div class="app">
 
   <aside class="sidebar">
-    <div class="logo">COGNIX&nbsp;V2</div>
+    <div class="logo">Cognix <span class="v">v2</span></div>
     <button class="btn-novo" data-nav="T6 — Novo plano">
       <svg class="icon sm"><use href="#i-plus"/></svg> Novo
     </button>
@@ -109,7 +89,7 @@
     <!-- ===================== HERO: a resposta dos 10 segundos ===================== -->
     <section class="card hero" id="hero" aria-live="polite">
 
-      <!-- estado: parado (idle) -->
+      <!-- estado: parado -->
       <div id="hero-idle">
         <div class="hero-top">
           <span class="badge">Estude agora</span>
@@ -122,7 +102,7 @@
           <button class="btn primary" id="btnIniciar">
             <svg class="icon sm"><use href="#i-play"/></svg> Iniciar
           </button>
-          <button class="btn ghost" id="btnJaEstudei">Estudei fora do app</button>
+          <button class="btn ghost" id="btnJaEstudei">Registrar sem timer</button>
         </div>
       </div>
 
@@ -165,9 +145,9 @@
 
       <!-- estado: tópico concluído → promove o próximo da fila -->
       <div id="hero-done" class="hidden">
-        <div class="done-line" id="doneNote">
+        <div class="done-line">
           <svg class="icon sm"><use href="#i-check"/></svg>
-          Juros Compostos concluído · 1ª revisão amanhã (12/06)
+          <span id="doneNote">Juros Compostos concluído · 1ª revisão amanhã (12/06)</span>
         </div>
         <div class="hero-top" style="margin-top:var(--s4);">
           <span class="badge soft">Próximo</span>
@@ -183,7 +163,7 @@
         </div>
       </div>
 
-      <!-- estado: fim do dia (tudo feito) -->
+      <!-- estado: fim do dia -->
       <div id="hero-fim" class="hidden">
         <div class="hero-top"><span class="badge soft">Por hoje é isso</span></div>
         <div class="title-xl">Tudo feito. ✓</div>
@@ -272,6 +252,16 @@
   <a href="#" data-nav="T7 — Progresso"><svg class="icon"><use href="#i-prog"/></svg>Progresso</a>
 </nav>
 
+<!-- Cenários de demonstração: cada um recarrega a página num estado coerente.
+     Só existe no protótipo. -->
+<nav class="demo-bar" aria-label="Cenários de demonstração">
+  <span class="lbl">CENÁRIO</span>
+  <a href="?cenario=caos" data-cenario="caos">com pendência</a>
+  <a href="?cenario=padrao" data-cenario="padrao">dia normal</a>
+  <a href="?cenario=fim" data-cenario="fim">tudo feito</a>
+  <a href="?cenario=vazio" data-cenario="vazio">sem plano</a>
+</nav>
+
 <!-- Toast com Desfazer (A2) -->
 <div class="toast" id="toast" role="status" aria-live="polite">
   <span id="toastMsg"></span>
@@ -280,8 +270,10 @@
 
 <script>
 /* ============================================================
-   T1 Hoje — coreografia do wireframe (não é código de produção).
-   Valida fluxo, estados e microcopy antes do design (Fase 5).
+   T1 Hoje — coreografia do protótipo (não é código de produção).
+   Valida fluxo, estados e microcopy antes da implementação.
+   Cenário vem da URL (?cenario=...) — cada modo é uma página
+   coerente; trocar de cenário recarrega do zero.
    ============================================================ */
 const $ = (id) => document.getElementById(id);
 
@@ -331,6 +323,7 @@ $('btnIniciar').addEventListener('click', () => {
   $('timerDisplay').textContent = '00:00';
   $('timerDisplay').classList.remove('paused');
   $('timerState').textContent = 'Estudando';
+  $('timerState').classList.remove('paused');
   $('btnPausar').querySelector('span').textContent = 'Pausar';
   $('timerTopico').textContent = $('heroTitulo').textContent;
   heroEstado('hero-timer');
@@ -339,9 +332,9 @@ $('btnIniciar').addEventListener('click', () => {
 
 $('btnPausar').addEventListener('click', () => {
   pausado = !pausado;
-  if (pausado) { clearInterval(cronometro); }
-  else { ligaCronometro(); }
+  if (pausado) { clearInterval(cronometro); } else { ligaCronometro(); }
   $('timerState').textContent = pausado ? 'Pausado' : 'Estudando';
+  $('timerState').classList.toggle('paused', pausado);
   $('timerDisplay').classList.toggle('paused', pausado);
   $('btnPausar').querySelector('span').textContent = pausado ? 'Retomar' : 'Pausar';
 });
@@ -360,7 +353,7 @@ $('btnCancelar').addEventListener('click', () => {
   toast('Sessão descartada — nada foi registrado.');
 });
 
-/* "Estudei fora do app": registro manual sem timer (P1 cronometra no celular hoje) */
+/* registro manual sem timer (P1 cronometra no celular hoje) */
 $('btnJaEstudei').addEventListener('click', () => {
   segundos = 0;
   $('formTopico').textContent = $('heroTitulo').textContent;
@@ -374,8 +367,7 @@ $('btnAindaEstudando').addEventListener('click', () => {
 });
 
 $('btnConclui').addEventListener('click', () => {
-  $('doneNote').lastChild.textContent =
-    ` ${$('heroTitulo').textContent} concluído · 1ª revisão amanhã (12/06)`;
+  $('doneNote').textContent = `${$('heroTitulo').textContent} concluído · 1ª revisão amanhã (12/06)`;
   heroEstado('hero-done');
   /* R1 encadeamento: só a 1ª é firme; as seguintes são projeção */
   toast('Revisões agendadas: amanhã (12/06) · depois +7d e +21d.');
@@ -473,21 +465,37 @@ $('btnEstudarOntem').addEventListener('click', () => {
   toast('Recomendação trocada para o estudo de ontem.');
 });
 
-/* ---------- DEMO: cenários (não existe no produto) ---------- */
-const SECOES = () => document.querySelectorAll('#hero, #secRevisoes, #revCard, #secAlt, #altCard, .day-summary');
-document.querySelectorAll('.demo-panel button').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.demo-panel button').forEach(b => b.classList.remove('on'));
-    btn.classList.add('on');
-    const c = btn.dataset.cenario;
-    const vazio = c === 'vazio';
-    SECOES().forEach(el => el.classList.toggle('hidden', vazio));
-    $('emptyState').classList.toggle('hidden', !vazio);
-    $('banner').classList.toggle('hidden', c !== 'caos');
-    if (c === 'fim') heroEstado('hero-fim');
-    if (c === 'padrao' || c === 'caos') heroEstado('hero-idle');
-  });
-});
+/* ---------- Cenário inicial via URL (?cenario=caos|padrao|fim|vazio) ---------- */
+(function initCenario() {
+  const c = new URLSearchParams(location.search).get('cenario') || 'caos';
+  document.querySelectorAll('.demo-bar a').forEach(a =>
+    a.classList.toggle('on', a.dataset.cenario === c));
+
+  const SECOES = ['hero', 'secRevisoes', 'revCard', 'secAlt', 'altCard', 'daySummary'];
+
+  if (c === 'padrao') {
+    $('banner').classList.add('hidden');
+  }
+  if (c === 'fim') {
+    $('banner').classList.add('hidden');
+    heroEstado('hero-fim');
+    document.querySelectorAll('#revList .item').forEach(i => {
+      i.classList.add('done');
+      i.querySelector('.actions').innerHTML = '<span class="meta-dim">✓ revisada</span>';
+    });
+    atualizaContagem();
+    $('daySummary').innerHTML = '<b>2 sessões</b> · <b>1h05</b> estudadas · revisões em dia ✓';
+  }
+  if (c === 'vazio') {
+    $('banner').classList.add('hidden');
+    SECOES.forEach(id => {
+      const el = $(id) || document.querySelector('.' + id);
+      if (el) el.classList.add('hidden');
+    });
+    document.querySelector('.day-summary').classList.add('hidden');
+    $('emptyState').classList.remove('hidden');
+  }
+})();
 </script>
 </body>
 </html>
