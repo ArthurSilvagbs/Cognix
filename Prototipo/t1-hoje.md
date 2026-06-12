@@ -88,7 +88,7 @@ parado ──Iniciar──▶ rodando ⇄ pausado
 | Ação | Comportamento | Microcopy exata |
 |---|---|---|
 | Replanejar (banner) | **Aplica direto** (A2), banner some, revisão reancorada entra no topo da lista, resumo do dia atualiza | toast: "Replanejado: 2 estudos deslizados · 1 revisão trazida para hoje." + **Desfazer** |
-| Detalhes (banner) | Sanfona expande **dentro do banner** listando o que ficou pendente (item + tipo + plano › matéria + duração), em tom neutro — informação para decidir entre Replanejar e Estudar o de ontem, nunca lista de culpa (sem vermelho, sem "atrasado há X dias") | botão "Detalhes ▾" alterna para ▴ · `aria-expanded` |
+| Detalhes (banner) | Sanfona expande **dentro do banner** listando o que ficou pendente. Cada item abre com selo factual do que **não aconteceu** — "estudo não feito" / "revisão não feita" — seguido do tópico, duração e `plano › matéria`. Informação para decidir entre Replanejar e Estudar o de ontem, nunca lista de culpa (sem vermelho, sem "atrasado há X dias") | botão "Detalhes ▾" alterna para ▴ · `aria-expanded` |
 | Adiar revisão | Item sai da lista (A3: pular = adiar, nunca morre) | toast: "Revisão de X adiada para amanhã." + **Desfazer** |
 | Revisar | Item marca ✓, mostra encadeamento (R1) | toast: "Próxima revisão de X: +7 dias (18/06)." |
 | Concluí | Hero promove próximo da fila | toast: "Revisões agendadas: amanhã (12/06) · depois +7d e +21d." — *só a 1ª tem data firme; seguintes são projeção (R1)* |
@@ -103,6 +103,7 @@ parado ──Iniciar──▶ rodando ⇄ pausado
 
 - **Modo escuro é o PADRÃO** ✅ (decisão de 2026-06-11, pedido do Arthur — conforto visual em sessões longas de estudo). Tema claro mantido via `data-theme="light"` (alternador na barra de cenários; no produto, mora na T8 Configurações, persistido por usuário). A Fase 5 valida as **duas** paletas. O tema aplica antes do primeiro paint (sem flash) e `color-scheme` ajusta scrollbars/controles nativos.
 - **Cor primária: índigo — PROVISÓRIA 🔶** (`#6366f1` no escuro / `#4f46e5` no claro; validar na Fase 5). Aparece **somente com significado**: ação primária (botões primary, FAB, "Novo"), estado ativo (nav, kicker "Estudando" do timer), foco (anéis de foco/input) e o badge "Estude agora". Se a cor aparecer fora dessa lista, está errado (PRD §8: 1 primária + neutros).
+- **Âmbar = token semântico de ATENÇÃO** ✅ (decisão de 2026-06-11, proposta do Arthur). É a única cor além da primária, amparada pelo PRD §8 ("cor adicional só com significado"). Usos permitidos: ícone do banner de pendência e selos "estudo não feito"/"revisão não feita" — e, nas próximas telas, marcadores de item vencido (T2 Calendário). **Âmbar nunca em botões** (ação é território da primária) e **vermelho continua proibido** (pendência é fato, não falha).
 - **Neutros:** 4 níveis de texto (`ink-900/700/500/400` — os nomes mantêm a semântica nos dois temas: 900 = mais forte) + 2 superfícies (`bg-card`, `bg-soft`) + 2 bordas. **Toast é invertido** em relação ao fundo (claro no escuro, escuro no claro) — contraste máximo para feedback efêmero.
 - **Tipografia:** escala fixa 11/12/13/14/15/17/22/28 + 56 (timer). Números sempre tabulares (`tnum`) — timer, contagens, KPIs.
 - **Espaçamento:** grid 4/8px estrito (tokens `--s1..--s8`). Card hero tem o dobro de padding dos cards comuns (24 vs 16) — destaque por respiro, não por cor.
