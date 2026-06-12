@@ -254,17 +254,17 @@
               <div class="title-md">Porcentagem</div>
               <div class="meta-dim">Matemática Financeira · ~30 min</div>
             </div>
-            <button class="btn sm" data-acao="trocar">Estudar esta</button>
+            <button class="btn sm" data-acao="trocar">Antecipar</button>
           </div>
           <div class="item" data-titulo="Interpretação de Texto" data-crumb="BB 2026 › Português" data-min="~25 min">
             <div>
               <div class="title-md">Interpretação de Texto</div>
               <div class="meta-dim">Português · ~25 min</div>
             </div>
-            <button class="btn sm" data-acao="trocar">Estudar esta</button>
+            <button class="btn sm" data-acao="trocar">Antecipar</button>
           </div>
           <div class="meta-dim" style="padding-top:var(--s3);">
-            Trocar não bagunça o plano — a ordem é recomendação, não obrigação.
+            Antecipar não bagunça o plano — o item vem pro seu foco agora e a data original só é cumprida mais cedo.
           </div>
         </div>
 
@@ -567,7 +567,7 @@ document.querySelectorAll('[data-acao="trocar"]').forEach(btn => {
     alt.remove();
 
     filaAtualiza();
-    toast(`${alt.dataset.titulo} em foco. ${anteriorTitulo} segue na fila de hoje — nenhuma data mudou.`);
+    toast(`${alt.dataset.titulo} antecipado, em foco agora. ${anteriorTitulo} segue na fila de hoje — nenhuma data mudou.`);
   });
 });
 
