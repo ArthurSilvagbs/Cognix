@@ -51,6 +51,7 @@
     <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
     <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-width="2.25"/></symbol>
     <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15.5H6.5A2.5 2.5 0 0 0 4 21z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"/></symbol>
   </defs>
 </svg>
 
@@ -84,17 +85,28 @@
       <!-- ==================== COLUNA PRINCIPAL: execução ==================== -->
       <div class="col-main">
 
-        <!-- F3: banner do caos. Neutro de propósito — sem vermelho, sem "você falhou". -->
+        <!-- F3: banner do caos. Neutro de propósito — sem vermelho, sem "você falhou".
+             Detalhes em sanfona: informação sob demanda, nunca lista de culpa permanente. -->
         <div class="banner" id="banner">
-          <div>
-            <div class="title-md">Ontem ficou pendente.</div>
-            <div class="meta-dim">Sem problema — dá pra reorganizar em um clique.</div>
+          <div class="banner-head">
+            <div>
+              <div class="title-md">Ontem ficou pendente.</div>
+              <div class="meta-dim">Sem problema — dá pra reorganizar em um clique.</div>
+            </div>
+            <div style="display:flex; gap:var(--s2); flex-shrink:0; align-items:center;">
+              <button class="btn primary sm" id="btnReplanejar">
+                <svg class="icon sm"><use href="#i-redo"/></svg> Replanejar
+              </button>
+              <button class="btn ghost sm" id="btnEstudarOntem">Estudar o de ontem</button>
+              <button class="btn ghost sm" id="btnDetalhes" aria-expanded="false" aria-controls="bannerDetalhes">
+                Detalhes <svg class="icon sm chev" id="chevDetalhes"><use href="#i-chev"/></svg>
+              </button>
+            </div>
           </div>
-          <div style="display:flex; gap:var(--s2); flex-shrink:0;">
-            <button class="btn primary sm" id="btnReplanejar">
-              <svg class="icon sm"><use href="#i-redo"/></svg> Replanejar
-            </button>
-            <button class="btn ghost sm" id="btnEstudarOntem">Estudar o de ontem</button>
+          <div class="banner-details hidden fade-in" id="bannerDetalhes">
+            <div class="pend-item"><span class="t">Razão e Proporção</span><span class="m">estudo de ontem · BB 2026 › Matemática · ~35 min</span></div>
+            <div class="pend-item"><span class="t">Funções</span><span class="m">estudo de ontem · BB 2026 › Matemática · ~30 min</span></div>
+            <div class="pend-item"><span class="t">Juros Simples</span><span class="m">3ª revisão prevista para ontem · BB 2026 › Matemática</span></div>
           </div>
         </div>
 
@@ -370,6 +382,13 @@ $('themeToggle').addEventListener('click', () => {
   const r = document.documentElement;
   r.dataset.theme = r.dataset.theme === 'light' ? 'dark' : 'light';
   localStorage.setItem('cognix-tema', r.dataset.theme);
+});
+
+/* sanfona de detalhes do banner: informação sob demanda */
+$('btnDetalhes').addEventListener('click', () => {
+  const aberto = $('bannerDetalhes').classList.toggle('hidden') === false;
+  $('btnDetalhes').setAttribute('aria-expanded', aberto);
+  $('chevDetalhes').classList.toggle('aberto', aberto);
 });
 
 /* telas ainda não construídas */

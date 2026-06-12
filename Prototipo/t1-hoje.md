@@ -18,7 +18,7 @@ Nenhuma tabela própria. Tudo deriva do modelo:
 | Bloco | Consulta |
 |---|---|
 | Resumo do dia | Agendamentos de hoje (count + Σ estimativaMin) + revisões vencendo (count) |
-| Banner do caos | Existe Agendamento `pendente` com `data < hoje` OU Revisão `agendada` com `dataPrevista < hoje` |
+| Banner do caos | Existe Agendamento `pendente` com `data < hoje` OU Revisão `agendada` com `dataPrevista < hoje` — a sanfona "Detalhes" lista exatamente esses registros |
 | Recomendação principal | 1º Agendamento `pendente` de hoje, na `ordem` do plano |
 | Fila de hoje | Agendamentos de hoje ∪ Revisões `agendada` com `dataPrevista ≤ hoje`, ordenados (estudo primeiro, revisões por antiguidade) |
 | Alternativas | Próximos N=2 tópicos da fila (mesma query da recomendação, offset 1) |
@@ -88,6 +88,7 @@ parado ──Iniciar──▶ rodando ⇄ pausado
 | Ação | Comportamento | Microcopy exata |
 |---|---|---|
 | Replanejar (banner) | **Aplica direto** (A2), banner some, revisão reancorada entra no topo da lista, resumo do dia atualiza | toast: "Replanejado: 2 estudos deslizados · 1 revisão trazida para hoje." + **Desfazer** |
+| Detalhes (banner) | Sanfona expande **dentro do banner** listando o que ficou pendente (item + tipo + plano › matéria + duração), em tom neutro — informação para decidir entre Replanejar e Estudar o de ontem, nunca lista de culpa (sem vermelho, sem "atrasado há X dias") | botão "Detalhes ▾" alterna para ▴ · `aria-expanded` |
 | Adiar revisão | Item sai da lista (A3: pular = adiar, nunca morre) | toast: "Revisão de X adiada para amanhã." + **Desfazer** |
 | Revisar | Item marca ✓, mostra encadeamento (R1) | toast: "Próxima revisão de X: +7 dias (18/06)." |
 | Concluí | Hero promove próximo da fila | toast: "Revisões agendadas: amanhã (12/06) · depois +7d e +21d." — *só a 1ª tem data firme; seguintes são projeção (R1)* |
