@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BB 2026 — Cognix v2 · protótipo T4+T5</title>
+<script>
+  document.documentElement.dataset.theme = localStorage.getItem('cognix-tema') || 'dark';
+</script>
+<link rel="stylesheet" href="css/wireframe.css">
+<style>
+  /* ---- T4: cabeçalho do plano ---- */
+  .plan-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s4); flex-wrap: wrap; }
+  .plan-stats { display: flex; gap: var(--s5); margin: var(--s3) 0 var(--s5); flex-wrap: wrap; }
+  .plan-stats .kpi .n { font-size: var(--t-lg); font-weight: 700; }
+  .plan-stats .kpi .l { font-size: var(--t-caption); color: var(--ink-400); }
+  .toolbar { display: flex; align-items: center; gap: var(--s2); margin-bottom: var(--s4); flex-wrap: wrap; }
+  .toolbar .grow { flex: 1; }
+  .seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); overflow: hidden; }
+  .seg button { border: none; background: var(--bg-card); color: var(--ink-500); font: inherit; font-weight: 600;
+                padding: var(--s1) var(--s4); cursor: pointer; }
+  .seg button.on { background: var(--primary-soft); color: var(--primary-strong); }
+
+  /* ---- árvore ---- */
+  .materia { border-bottom: 1px solid var(--line); }
+  .materia:last-of-type { border-bottom: none; }
+  .materia-head { display: flex; align-items: center; gap: var(--s3); padding: var(--s3) var(--s2); cursor: pointer; }
+  .materia-head:hover { background: var(--bg-soft); border-radius: var(--radius-sm); }
+  .materia-head .chev { color: var(--ink-400); }
+  .materia-head .pct { font-size: var(--t-meta); color: var(--ink-500); margin-left: auto; }
+  .materia-head .mini-bar { width: 72px; height: 4px; background: var(--bg-soft); border-radius: 99px; overflow: hidden; }
+  .materia-head .mini-bar i { display: block; height: 100%; background: var(--primary); }
+  .materia.fechada .topicos { display: none; }
+  .materia.fechada .chev { transform: rotate(-90deg); }
+
+  .topico { display: flex; align-items: center; gap: var(--s3); padding: var(--s2) var(--s2) var(--s2) var(--s6);
+            cursor: pointer; border-radius: var(--radius-sm); transition: background var(--speed); }
+  .topico:hover { background: var(--bg-soft); }
+  .topico .estado-ico { color: var(--ink-400); }
+  .topico[data-estado="dominado"] .estado-ico { color: var(--primary-strong); }
+  .topico[data-estado="em_revisao"] .estado-ico { color: var(--warn); }
+  .topico .t { font-size: var(--t-body); font-weight: 500; }
+  .topico .m { font-size: var(--t-caption); color: var(--ink-400); margin-left: auto; }
+
+  /* ---- kanban ---- */
+  .kanban { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s3); align-items: start; }
+  .kb-col { background: var(--bg-soft); border-radius: var(--radius); padding: var(--s2); }
+  .kb-col h4 { font-size: var(--t-kicker); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+               color: var(--ink-500); padding: var(--s1) var(--s2) var(--s2); display: flex; justify-content: space-between; }
+  .kb-card { background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius-sm);
+             padding: var(--s2) var(--s3); margin-bottom: var(--s2); cursor: pointer; font-size: var(--t-meta); font-weight: 500; }
+  .kb-card:hover { border-color: var(--line-strong); }
+  .kb-card .m { font-size: var(--t-kicker); color: var(--ink-400); font-weight: 400; margin-top: 2px; }
+  @media (max-width: 900px) { .kanban { grid-template-columns: repeat(2, 1fr); } }
+
+  /* ---- T5: painel lateral do tópico ---- */
+  .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.45); opacity: 0;
+              pointer-events: none; transition: opacity var(--speed); z-index: 45; }
+  .backdrop.aberto { opacity: 1; pointer-events: auto; }
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(420px, 100vw);
+            background: var(--bg-card); border-left: 1px solid var(--line);
+            box-shadow: -16px 0 48px rgba(0,0,0,0.3); z-index: 46;
+            transform: translateX(102%); transition: transform var(--speed);
+            display: flex; flex-direction: column; }
+  .drawer.aberto { transform: none; }
+  .drawer-head { padding: var(--s4) var(--s5); border-bottom: 1px solid var(--line); }
+  .drawer-body { padding: var(--s4) var(--s5); overflow-y: auto; flex: 1; }
+  .drawer-body h4 { font-size: var(--t-caption); font-weight: 600; text-transform: uppercase;
+                    letter-spacing: 0.08em; color: var(--ink-500); margin: var(--s5) 0 var(--s2); }
+  .drawer-body h4:first-child { margin-top: 0; }
+  .drawer .fechar { position: absolute; top: var(--s3); right: var(--s3); }
+  .acao-row { display: flex; gap: var(--s2); flex-wrap: wrap; margin-top: var(--s3); }
+  .hist-item { display: flex; justify-content: space-between; gap: var(--s3); padding: var(--s2) 0;
+               border-bottom: 1px solid var(--line); font-size: var(--t-meta); }
+  .hist-item:last-child { border-bottom: none; }
+  .hist-item .d { color: var(--ink-400); }
+  .link-row { display: flex; align-items: center; gap: var(--s2); font-size: var(--t-meta); padding: var(--s1) 0; }
+  .link-row a { color: var(--primary-strong); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-hoje" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-planos" viewBox="0 0 24 24"><path d="M5 5h14M5 12h14M5 19h9"/></symbol>
+    <symbol id="i-prog" viewBox="0 0 24 24"><path d="M5 19V10M12 19V5M19 19v-6"/></symbol>
+    <symbol id="i-config" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M21 12h-2.5M5.5 12H3M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8M18.4 18.4l-1.8-1.8M7.4 7.4 5.6 5.6"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-width="2.25"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-redo" viewBox="0 0 24 24"><path d="M4 11a8 8 0 0 1 14-4.5L20 9M20 4v5h-5"/><path d="M20 13a8 8 0 0 1-14 4.5L4 15M4 20v-5h5"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-circ" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></symbol>
+    <symbol id="i-meio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 4l2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4L4.2 9.7l5.4-.8z"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 6 .4l3-3a4 4 0 0 0-5.6-5.6l-1.7 1.7"/><path d="M14 10a4 4 0 0 0-6-.4l-3 3a4 4 0 0 0 5.6 5.6l1.7-1.7"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15.5H6.5A2.5 2.5 0 0 0 4 21z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/></symbol>
+  </defs>
+</svg>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">Cognix <span class="v">v2</span></div>
+    <button class="btn-novo" data-nav="T6 — Novo plano"><svg class="icon sm"><use href="#i-plus"/></svg> Novo</button>
+    <a class="nav-item" href="t1-hoje.html"><svg class="icon"><use href="#i-hoje"/></svg> Hoje</a>
+    <a class="nav-item" href="#" data-nav="T2 — Calendário"><svg class="icon"><use href="#i-cal"/></svg> Calendário</a>
+    <a class="nav-item active" href="t4-plano.html"><svg class="icon"><use href="#i-planos"/></svg> Planos</a>
+    <a class="nav-item" href="#" data-nav="T7 — Progresso"><svg class="icon"><use href="#i-prog"/></svg> Progresso</a>
+    <div class="spacer"></div>
+    <a class="nav-item" href="#" data-nav="T8 — Configurações"><svg class="icon"><use href="#i-config"/></svg> Configurações</a>
+  </aside>
+
+  <main><div class="page" style="max-width:760px;">
+
+    <div class="page-kicker"><a href="#" data-nav="T3 — Planos (lista)" style="color:inherit; text-decoration:none;">Planos</a> › BB 2026</div>
+    <div class="plan-head">
+      <h1>BB 2026</h1>
+      <div style="display:flex; gap:var(--s2); padding-top:var(--s2);">
+        <button class="btn sm" data-nav="Adicionar matéria">+ Matéria</button>
+        <button class="btn sm" data-nav="Adicionar tópico">+ Tópico</button>
+        <button class="btn ghost sm" data-nav="Menu do plano (editar intervalos, pausar, arquivar — D5)">⋯</button>
+      </div>
+    </div>
+
+    <div class="plan-stats tnum">
+      <div class="kpi"><div class="n">47 <span class="meta-dim" style="font-weight:400;">/ 138</span></div><div class="l">tópicos concluídos</div></div>
+      <div class="kpi"><div class="n">34%</div><div class="l">progresso</div></div>
+      <div class="kpi"><div class="n">92%</div><div class="l">revisões em dia</div></div>
+      <div class="kpi"><div class="n">08/11</div><div class="l">prova · em 150 dias</div></div>
+    </div>
+
+    <div class="toolbar">
+      <div class="seg" role="tablist">
+        <button class="on" id="tabLista">Lista</button>
+        <button id="tabKanban">Kanban</button>
+      </div>
+      <span class="grow"></span>
+      <span class="meta-dim">Arraste para reordenar — a ordem é a recomendação do Hoje</span>
+    </div>
+
+    <!-- ===================== LISTA (árvore Matéria → Tópico) ===================== -->
+    <div class="card" id="viewLista" style="padding-top:var(--s2); padding-bottom:var(--s2);">
+
+      <div class="materia">
+        <div class="materia-head" data-toggle>
+          <svg class="icon sm chev"><use href="#i-chev"/></svg>
+          <span class="title-md">Matemática Financeira</span>
+          <span class="pct tnum">2/5</span>
+          <span class="mini-bar"><i style="width:40%"></i></span>
+        </div>
+        <div class="topicos">
+          <div class="topico" data-estado="em_revisao" data-titulo="Juros Simples" data-materia="Matemática Financeira" data-elabel="Em revisão (3ª de 3 · 18/06)">
+            <svg class="icon sm estado-ico"><use href="#i-redo"/></svg><span class="t">Juros Simples</span><span class="m tnum">concluído 28/05 · próx. revisão 18/06</span>
+          </div>
+          <div class="topico" data-estado="em_estudo" data-titulo="Juros Compostos" data-materia="Matemática Financeira" data-elabel="Em estudo">
+            <svg class="icon sm estado-ico"><use href="#i-meio"/></svg><span class="t">Juros Compostos</span><span class="m tnum">2 sessões · 1h10</span>
+          </div>
+          <div class="topico" data-estado="nao_iniciado" data-titulo="Porcentagem" data-materia="Matemática Financeira" data-elabel="Não iniciado">
+            <svg class="icon sm estado-ico"><use href="#i-circ"/></svg><span class="t">Porcentagem</span><span class="m tnum">~30 min · agendado sex 12/06</span>
+          </div>
+          <div class="topico" data-estado="nao_iniciado" data-titulo="Desconto Simples" data-materia="Matemática Financeira" data-elabel="Não iniciado">
+            <svg class="icon sm estado-ico"><use href="#i-circ"/></svg><span class="t">Desconto Simples</span><span class="m tnum">~35 min</span>
+          </div>
+          <div class="topico" data-estado="dominado" data-titulo="MDC e MMC" data-materia="Matemática Financeira" data-elabel="Dominado (manutenção a cada 60d)">
+            <svg class="icon sm estado-ico"><use href="#i-star"/></svg><span class="t">MDC e MMC</span><span class="m tnum">manutenção 02/08</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="materia">
+        <div class="materia-head" data-toggle>
+          <svg class="icon sm chev"><use href="#i-chev"/></svg>
+          <span class="title-md">Português</span>
+          <span class="pct tnum">1/3</span>
+          <span class="mini-bar"><i style="width:33%"></i></span>
+        </div>
+        <div class="topicos">
+          <div class="topico" data-estado="em_revisao" data-titulo="Crase" data-materia="Português" data-elabel="Em revisão (1ª de 3 · hoje)">
+            <svg class="icon sm estado-ico"><use href="#i-redo"/></svg><span class="t">Crase</span><span class="m tnum">concluído ontem · 1ª revisão hoje</span>
+          </div>
+          <div class="topico" data-estado="nao_iniciado" data-titulo="Interpretação de Texto" data-materia="Português" data-elabel="Não iniciado">
+            <svg class="icon sm estado-ico"><use href="#i-circ"/></svg><span class="t">Interpretação de Texto</span><span class="m tnum">~25 min</span>
+          </div>
+          <div class="topico" data-estado="dominado" data-titulo="Concordância Verbal" data-materia="Português" data-elabel="Dominado (manutenção a cada 60d)">
+            <svg class="icon sm estado-ico"><use href="#i-star"/></svg><span class="t">Concordância Verbal</span><span class="m tnum">manutenção 20/07</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="materia fechada">
+        <div class="materia-head" data-toggle>
+          <svg class="icon sm chev"><use href="#i-chev"/></svg>
+          <span class="title-md">Informática</span>
+          <span class="pct tnum">3/12</span>
+          <span class="mini-bar"><i style="width:25%"></i></span>
+        </div>
+        <div class="topicos">
+          <div class="topico" data-estado="nao_iniciado" data-titulo="Segurança da Informação" data-materia="Informática" data-elabel="Não iniciado">
+            <svg class="icon sm estado-ico"><use href="#i-circ"/></svg><span class="t">Segurança da Informação</span><span class="m tnum">~45 min</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== KANBAN (projeção por estado — "em revisão" é derivada) ===================== -->
+    <div class="kanban hidden" id="viewKanban">
+      <div class="kb-col"><h4>Não iniciado <span class="tnum">4</span></h4>
+        <div class="kb-card" data-estado="nao_iniciado" data-titulo="Porcentagem" data-materia="Matemática Financeira" data-elabel="Não iniciado">Porcentagem<div class="m">Mat. Financeira</div></div>
+        <div class="kb-card" data-estado="nao_iniciado" data-titulo="Desconto Simples" data-materia="Matemática Financeira" data-elabel="Não iniciado">Desconto Simples<div class="m">Mat. Financeira</div></div>
+        <div class="kb-card" data-estado="nao_iniciado" data-titulo="Interpretação de Texto" data-materia="Português" data-elabel="Não iniciado">Interpretação de Texto<div class="m">Português</div></div>
+        <div class="kb-card" data-estado="nao_iniciado" data-titulo="Segurança da Informação" data-materia="Informática" data-elabel="Não iniciado">Segurança da Informação<div class="m">Informática</div></div>
+      </div>
+      <div class="kb-col"><h4>Em estudo <span class="tnum">1</span></h4>
+        <div class="kb-card" data-estado="em_estudo" data-titulo="Juros Compostos" data-materia="Matemática Financeira" data-elabel="Em estudo">Juros Compostos<div class="m">Mat. Financeira · 2 sessões</div></div>
+      </div>
+      <div class="kb-col"><h4>Em revisão <span class="tnum">2</span></h4>
+        <div class="kb-card" data-estado="em_revisao" data-titulo="Juros Simples" data-materia="Matemática Financeira" data-elabel="Em revisão (3ª de 3 · 18/06)">Juros Simples<div class="m">próx. 18/06</div></div>
+        <div class="kb-card" data-estado="em_revisao" data-titulo="Crase" data-materia="Português" data-elabel="Em revisão (1ª de 3 · hoje)">Crase<div class="m">1ª revisão hoje</div></div>
+      </div>
+      <div class="kb-col"><h4>Dominado <span class="tnum">2</span></h4>
+        <div class="kb-card" data-estado="dominado" data-titulo="MDC e MMC" data-materia="Matemática Financeira" data-elabel="Dominado">MDC e MMC<div class="m">manutenção 02/08</div></div>
+        <div class="kb-card" data-estado="dominado" data-titulo="Concordância Verbal" data-materia="Português" data-elabel="Dominado">Concordância Verbal<div class="m">manutenção 20/07</div></div>
+      </div>
+    </div>
+
+  </div></main>
+</div>
+
+<!-- ===================== T5: painel lateral do tópico ===================== -->
+<div class="backdrop" id="backdrop"></div>
+<aside class="drawer" id="drawer" aria-label="Detalhe do tópico">
+  <button class="btn ghost sm fechar" id="btnFechar" aria-label="Fechar"><svg class="icon sm"><use href="#i-x"/></svg></button>
+  <div class="drawer-head">
+    <div class="page-kicker" id="dCrumb">BB 2026 › Matemática Financeira</div>
+    <div class="title-xl" id="dTitulo" style="margin:var(--s1) 0;">Juros Compostos</div>
+    <span class="badge soft" id="dEstado">Em estudo</span>
+    <div class="acao-row">
+      <button class="btn primary sm" data-acao="concluir"><svg class="icon sm"><use href="#i-check"/></svg> Concluí</button>
+      <button class="btn sm" data-acao="domino">Já domino</button>
+      <button class="btn ghost sm" data-acao="reabrir">Reabrir</button>
+    </div>
+  </div>
+  <div class="drawer-body">
+    <h4>Notas</h4>
+    <textarea rows="3" placeholder="Anotações do tópico (markdown) — diferente das anotações de cada sessão">Fórmula M = C(1+i)^n. Atenção: taxa e período na MESMA unidade.</textarea>
+
+    <h4>Links <span style="font-weight:400; text-transform:none;">(sem upload de arquivo — D6)</span></h4>
+    <div class="link-row"><svg class="icon sm"><use href="#i-link"/></svg><a href="#" data-nav="Abrir link externo">Vídeo — Juros compostos em 15min (YouTube)</a></div>
+    <button class="btn ghost sm" data-nav="Adicionar link">+ adicionar link</button>
+
+    <h4>Sessões de estudo</h4>
+    <div class="hist-item"><span>Sessão · 45 min · "resolvi 12 exercícios"</span><span class="d tnum">10/06</span></div>
+    <div class="hist-item"><span>Sessão · 25 min</span><span class="d tnum">08/06</span></div>
+
+    <h4>Revisões</h4>
+    <div class="hist-item"><span>Ciclo previsto: 1ª +1d · 2ª +7d · 3ª +21d</span><span class="d">após concluir</span></div>
+    <div class="hist-item"><span class="meta-dim">Nenhuma agendada — revisões nascem ao concluir o tópico (R1)</span><span></span></div>
+  </div>
+</aside>
+
+<nav class="bottombar" aria-label="Navegação principal">
+  <a href="t1-hoje.html"><svg class="icon"><use href="#i-hoje"/></svg>Hoje</a>
+  <a href="#" data-nav="T2 — Calendário"><svg class="icon"><use href="#i-cal"/></svg>Calendário</a>
+  <div class="fab"><button aria-label="Novo" data-nav="T6 — Novo plano"><svg class="icon"><use href="#i-plus"/></svg></button></div>
+  <a href="t4-plano.html" class="active"><svg class="icon"><use href="#i-planos"/></svg>Planos</a>
+  <a href="#" data-nav="T7 — Progresso"><svg class="icon"><use href="#i-prog"/></svg>Progresso</a>
+</nav>
+
+<nav class="demo-bar" aria-label="Demo">
+  <span class="lbl">T4+T5</span>
+  <a href="t1-hoje.html">← T1 Hoje</a>
+  <span class="sep"></span>
+  <button class="theme" id="themeToggle" title="Alternar tema">tema</button>
+</nav>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toastMsg"></span></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let toastTimer = null;
+function toast(msg) {
+  $('toastMsg').textContent = msg;
+  $('toast').classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $('toast').classList.remove('show'), 4000);
+}
+document.querySelectorAll('[data-nav]').forEach(el => el.addEventListener('click', (e) => {
+  e.preventDefault(); e.stopPropagation();
+  toast(`${el.dataset.nav}: ainda não construída neste protótipo.`);
+}));
+$('themeToggle').addEventListener('click', () => {
+  const r = document.documentElement;
+  r.dataset.theme = r.dataset.theme === 'light' ? 'dark' : 'light';
+  localStorage.setItem('cognix-tema', r.dataset.theme);
+});
+
+/* toggle lista ⇄ kanban: mesmos dados, outra projeção (anti-ilha) */
+$('tabLista').addEventListener('click', () => troca(true));
+$('tabKanban').addEventListener('click', () => troca(false));
+function troca(lista) {
+  $('viewLista').classList.toggle('hidden', !lista);
+  $('viewKanban').classList.toggle('hidden', lista);
+  $('tabLista').classList.toggle('on', lista);
+  $('tabKanban').classList.toggle('on', !lista);
+}
+
+/* colapsar matéria */
+document.querySelectorAll('[data-toggle]').forEach(h =>
+  h.addEventListener('click', () => h.closest('.materia').classList.toggle('fechada')));
+
+/* T5: abrir painel do tópico de qualquer item (lista ou kanban) */
+const ESTADO_LABEL = { nao_iniciado: 'Não iniciado', em_estudo: 'Em estudo', em_revisao: 'Em revisão', dominado: 'Dominado' };
+function abrePainel(el) {
+  $('dTitulo').textContent = el.dataset.titulo;
+  $('dCrumb').textContent = `BB 2026 › ${el.dataset.materia}`;
+  $('dEstado').textContent = el.dataset.elabel || ESTADO_LABEL[el.dataset.estado];
+  $('drawer').classList.add('aberto');
+  $('backdrop').classList.add('aberto');
+}
+document.querySelectorAll('.topico, .kb-card').forEach(el =>
+  el.addEventListener('click', () => abrePainel(el)));
+
+function fechaPainel() {
+  $('drawer').classList.remove('aberto');
+  $('backdrop').classList.remove('aberto');
+}
+$('btnFechar').addEventListener('click', fechaPainel);
+$('backdrop').addEventListener('click', fechaPainel);
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fechaPainel(); });
+
+/* ações do tópico — toasts citam a regra do modelo */
+document.querySelector('[data-acao="concluir"]').addEventListener('click', () => {
+  $('dEstado').textContent = 'Em revisão (1ª amanhã)';
+  toast('Concluído. Revisões agendadas: amanhã · +7d · +21d (R1).');
+});
+document.querySelector('[data-acao="domino"]').addEventListener('click', () => {
+  $('dEstado').textContent = 'Dominado (manutenção a cada 60d)';
+  toast('Dominado. Revisões do ciclo canceladas; manutenção a cada 60 dias (D1/R2).');
+});
+document.querySelector('[data-acao="reabrir"]').addEventListener('click', () => {
+  $('dEstado').textContent = 'Em estudo';
+  toast('Reaberto: revisões pendentes removidas; o ciclo recomeça ao concluir (D4).');
+});
+</script>
+</body>
+</html>
