@@ -59,6 +59,8 @@ Nenhuma tabela própria. Tudo deriva do modelo:
 
 **A fila de hoje** é o dia inteiro como sequência numerada (estudo + revisões na ordem recomendada). O item em foco espelha o hero; concluir/revisar marca ✓ na fila — sensação de jornada, contador "N de M".
 
+**Foco móvel:** qualquer estudo da fila tem o botão **"Focar"** — clicar move o marcador "em foco" pra ele e atualiza o hero. **Não reordena e não muda datas:** os números ficam (a ordem segue sendo a recomendação), só o "onde estou agora" se move. Mesma família de palavra do badge "EM FOCO" — um conceito, uma palavra. Revisões não têm "Focar": o caminho delas é o próprio "Revisar" (fluxo F4).
+
 **Tipo de item sempre visível:** cada item da fila carrega um ícone de tipo antes do meta — **livro = estudo novo**, **setas circulares = revisão** — além do prefixo textual ("Estudo ·" / "Revisão 2 de 3 ·"). Diferenciação em dois canais (ícone + texto), nunca só por cor.
 
 **Antecipação explícita:** item puxado das alternativas mostra `· antecipado de amanhã` no meta. Regra do modelo: escolher **não muda a data** do agendamento — o item só "sai" do dia original quando for **concluído** (cumprido antecipado, o dia original ganha folga). A fila de hoje = agenda de hoje + o que o usuário puxou por escolha, com origem declarada.
@@ -99,6 +101,7 @@ parado ──Iniciar──▶ rodando ⇄ pausado
 | Concluí | Hero promove próximo da fila | toast: "Revisões agendadas: amanhã (12/06) · depois +7d e +21d." — *só a 1ª tem data firme; seguintes são projeção (R1)* |
 | Antecipar (alternativa) | **Troca o foco, nunca as datas** — o verbo do botão é "Antecipar" justamente para dizer o que acontece com o plano (rename de "Estudar esta", revisão de 2026-06-11). A alternativa assume o hero e o item 1 da fila com `· antecipado de amanhã` no meta; o anterior é rebaixado para "na fila" logo abaixo — **continua sendo de hoje**. Nada desliza de dia: datas só se movem pelo fluxo de pendência/replanejar (fim do dia sem fazer → banner amanhã) ou naturalmente (concluir cedo o item de amanhã libera folga). A alternativa escolhida sai da lista; a fila renumera | toast: "X antecipado, em foco agora. Y segue na fila de hoje — nenhuma data mudou." + motivo vira "Escolha sua — o plano se ajusta, não reclama." |
 | Descartar sessão | Nada é gravado | toast: "Sessão descartada — nada foi registrado." |
+| Focar (estudo da fila) | Move o marcador "em foco" para o item clicado e atualiza o hero. Sem reordenação, sem mudança de data — "recomendar, não ditar" dentro do próprio dia. O item que perdeu o foco volta a mostrar "Focar" | toast: "X em foco. A ordem e as datas continuam as mesmas." |
 
 **Tom do microcopy:** afirmativo, curto, nunca culpado. Proibido: vermelho, "atrasado", contagem de dias perdidos, exclamações de alarme. O banner do caos diz "Sem problema — dá pra reorganizar em um clique."
 

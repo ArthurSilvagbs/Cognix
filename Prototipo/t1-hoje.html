@@ -202,21 +202,21 @@
         <h2 class="section">Fila de hoje <span class="count tnum" id="filaFeitos">0 de 3</span></h2>
         <div class="card" id="filaCard">
           <div id="filaList">
-            <div class="fila-item atual" id="filaEstudo">
+            <div class="fila-item atual" id="filaEstudo" data-titulo="Juros Compostos" data-crumb="BB 2026 › Matemática Financeira">
               <span class="num">1</span>
               <div class="grow">
-                <div class="title-md" id="filaEstudoTitulo">Juros Compostos</div>
-                <div class="meta-dim"><svg class="icon tipo-ico"><use href="#i-book"/></svg><span id="filaEstudoMeta">Estudo · Matemática Financeira · ~40 min</span></div>
+                <div class="title-md">Juros Compostos</div>
+                <div class="meta-dim"><svg class="icon tipo-ico"><use href="#i-book"/></svg>Estudo · Matemática Financeira · ~40 min</div>
               </div>
-              <span class="badge soft" id="filaEstudoBadge">em foco</span>
+              <span class="actions lado"><span class="badge soft">em foco</span></span>
             </div>
-            <div class="fila-item" id="filaEstudo2">
+            <div class="fila-item" id="filaEstudo2" data-titulo="Beans e Injeção de Dependência" data-crumb="Spring Boot › Fundamentos">
               <span class="num">2</span>
               <div class="grow">
                 <div class="title-md">Beans e Injeção de Dependência</div>
                 <div class="meta-dim"><svg class="icon tipo-ico"><use href="#i-book"/></svg>Estudo · Spring Boot › Fundamentos · ~30 min</div>
               </div>
-              <span class="meta-dim">na fila</span>
+              <span class="actions lado"><button class="btn ghost sm" data-acao="focar">Focar</button></span>
             </div>
             <div class="fila-item" data-topico="Regra de Três" data-prox="+7 dias (18/06)">
               <span class="num">3</span>
@@ -419,12 +419,44 @@ function filaAtualiza() {
   });
 }
 
-function filaEstudoConcluido() {
-  const it = $('filaEstudo');
-  it.classList.add('done');
-  it.classList.remove('atual');
-  it.querySelector('.num').innerHTML = '✓';
-  $('filaEstudoBadge').classList.add('hidden');
+/* ---------- Foco móvel: qualquer estudo da fila pode virar o foco.
+   Focar NÃO reordena nem muda datas — o marcador "em foco" se move,
+   os números ficam (a ordem segue sendo a recomendação). ---------- */
+let itemEmFoco = null;
+
+function focaItem(item, motivo) {
+  if (itemEmFoco && itemEmFoco !== item && !itemEmFoco.classList.contains('done')) {
+    itemEmFoco.classList.remove('atual');
+    itemEmFoco.querySelector('.lado').innerHTML =
+      '<button class="btn ghost sm" data-acao="focar">Focar</button>';
+    ligaFocar(itemEmFoco);
+  }
+  itemEmFoco = item;
+  item.classList.add('atual');
+  item.querySelector('.lado').innerHTML = '<span class="badge soft">em foco</span>';
+  $('heroTitulo').textContent = item.dataset.titulo;
+  $('heroCrumb').innerHTML = item.dataset.crumb.replace('›', '<span class="sep">›</span>');
+  if (motivo) $('heroReason').textContent = motivo;
+  heroEstado('hero-idle');
+}
+
+function ligaFocar(item) {
+  const b = item.querySelector('[data-acao="focar"]');
+  if (b) b.addEventListener('click', () => {
+    focaItem(item, 'Escolha sua — a ordem é recomendação, não obrigação.');
+    toast(`${item.dataset.titulo} em foco. A ordem e as datas continuam as mesmas.`);
+  });
+}
+document.querySelectorAll('#filaList .fila-item[data-titulo]').forEach(ligaFocar);
+itemEmFoco = $('filaEstudo');
+
+function concluiFoco() {
+  if (!itemEmFoco) return;
+  itemEmFoco.classList.add('done');
+  itemEmFoco.classList.remove('atual');
+  itemEmFoco.querySelector('.num').innerHTML = '✓';
+  itemEmFoco.querySelector('.lado').innerHTML = '<span class="meta-dim">✓ feito</span>';
+  itemEmFoco = null;
   filaAtualiza();
 }
 
@@ -490,7 +522,7 @@ $('btnAindaEstudando').addEventListener('click', () => {
 $('btnConclui').addEventListener('click', () => {
   $('doneNote').textContent = `${$('heroTitulo').textContent} concluído · 1ª revisão amanhã (12/06)`;
   heroEstado('hero-done');
-  filaEstudoConcluido();
+  concluiFoco();
   /* R1 encadeamento: só a 1ª é firme; as seguintes são projeção */
   toast('Revisões agendadas: amanhã (12/06) · depois +7d e +21d.');
 });
@@ -538,36 +570,29 @@ document.querySelectorAll('#filaList .fila-item[data-topico]').forEach(ligaRevis
 document.querySelectorAll('[data-acao="trocar"]').forEach(btn => {
   btn.addEventListener('click', () => {
     const alt = btn.closest('.item');
-    const anteriorTitulo = $('filaEstudoTitulo').textContent;
-    const anteriorMeta = $('filaEstudoMeta').textContent;
+    const anterior = itemEmFoco ? itemEmFoco.dataset.titulo : null;
+    const materia = alt.dataset.crumb.split('›')[1].trim();
 
-    /* alternativa assume o foco (hero + item 1 da fila) */
-    $('heroTitulo').textContent = alt.dataset.titulo;
-    $('heroCrumb').innerHTML = alt.dataset.crumb.replace('›', '<span class="sep">›</span>');
-    $('heroReason').textContent = 'Escolha sua — o plano se ajusta, não reclama.';
-    $('filaEstudoTitulo').textContent = alt.dataset.titulo;
-    /* origem explícita: o item era de amanhã e foi puxado por escolha */
-    $('filaEstudoMeta').textContent =
-      `Estudo · ${alt.dataset.crumb.split('›')[1].trim()} · ${alt.dataset.min} · antecipado de amanhã`;
-    heroEstado('hero-idle');
-
-    /* o anterior continua HOJE: entra logo abaixo, como "na fila" */
-    const demovido = document.createElement('div');
-    demovido.className = 'fila-item fade-in';
-    demovido.innerHTML = `
+    /* o antecipado entra na fila como item novo, em foco; origem explícita */
+    const it = document.createElement('div');
+    it.className = 'fila-item fade-in';
+    it.dataset.titulo = alt.dataset.titulo;
+    it.dataset.crumb = alt.dataset.crumb;
+    it.innerHTML = `
       <span class="num"></span>
       <div class="grow">
-        <div class="title-md">${anteriorTitulo}</div>
-        <div class="meta-dim"><svg class="icon tipo-ico"><use href="#i-book"/></svg>${anteriorMeta}</div>
+        <div class="title-md">${alt.dataset.titulo}</div>
+        <div class="meta-dim"><svg class="icon tipo-ico"><use href="#i-book"/></svg>Estudo · ${materia} · ${alt.dataset.min} · antecipado de amanhã</div>
       </div>
-      <span class="meta-dim">na fila</span>`;
-    $('filaEstudo').after(demovido);
+      <span class="actions lado"></span>`;
+    $('filaList').prepend(it);
+    focaItem(it, 'Escolha sua — o plano se ajusta, não reclama.');
 
     /* a alternativa escolhida sai da lista de alternativas */
     alt.remove();
 
     filaAtualiza();
-    toast(`${alt.dataset.titulo} antecipado, em foco agora. ${anteriorTitulo} segue na fila de hoje — nenhuma data mudou.`);
+    toast(`${alt.dataset.titulo} antecipado, em foco agora.${anterior ? ` ${anterior} segue na fila de hoje —` : ''} nenhuma data mudou.`);
   });
 });
 
@@ -613,12 +638,21 @@ $('btnEstudarOntem').addEventListener('click', () => {
   const prox = pendEstudos.shift();
   if (!prox) return;
 
-  $('heroTitulo').textContent = prox.titulo;
-  $('heroCrumb').innerHTML = 'BB 2026 <span class="sep">›</span> Matemática';
-  $('heroReason').textContent = 'Era o estudo de ontem — retomado por sua escolha.';
-  $('filaEstudoTitulo').textContent = prox.titulo;
-  $('filaEstudoMeta').textContent = prox.meta;
-  heroEstado('hero-idle');
+  /* o estudo de ontem entra na fila de hoje como item novo, em foco */
+  const it = document.createElement('div');
+  it.className = 'fila-item fade-in';
+  it.dataset.titulo = prox.titulo;
+  it.dataset.crumb = 'BB 2026 › Matemática';
+  it.innerHTML = `
+    <span class="num"></span>
+    <div class="grow">
+      <div class="title-md">${prox.titulo}</div>
+      <div class="meta-dim"><svg class="icon tipo-ico"><use href="#i-book"/></svg>${prox.meta}</div>
+    </div>
+    <span class="actions lado"></span>`;
+  $('filaList').prepend(it);
+  focaItem(it, 'Era o estudo de ontem — retomado por sua escolha.');
+  filaAtualiza();
 
   /* marca o item na sanfona como em foco e abre pra mostrar */
   const chip = document.querySelector(`#${prox.id} .chip`);
@@ -650,14 +684,14 @@ $('btnEstudarOntem').addEventListener('click', () => {
   if (c === 'fim') {
     $('banner').classList.add('hidden');
     heroEstado('hero-fim');
-    filaEstudoConcluido();
     document.querySelectorAll('#filaList .fila-item').forEach(i => {
       i.classList.add('done');
       i.classList.remove('atual');
       i.querySelector('.num').innerHTML = '✓';
-      const acoes = i.querySelector('.actions');
-      if (acoes) acoes.innerHTML = '<span class="meta-dim">✓ revisada</span>';
+      const lado = i.querySelector('.actions');
+      if (lado) lado.innerHTML = '<span class="meta-dim">✓ feito</span>';
     });
+    itemEmFoco = null;
     filaAtualiza();
     $('daySummary').innerHTML = '<b>3 sessões</b> · <b>1h35</b> estudadas · revisões em dia ✓';
   }
