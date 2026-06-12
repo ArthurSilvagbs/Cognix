@@ -13,7 +13,7 @@ Ver e **editar a estrutura** de um plano: matérias, tópicos, ordem, estados. �
 |---|---|
 | Cabeçalho/KPIs | Agregações do plano: tópicos `concluido`+`dominado` ÷ total, % revisões em dia, `dataAlvo` |
 | Lista (árvore) | Matérias por `ordem` → Tópicos por `ordem`, com estado + mini-barra por matéria |
-| Kanban | **Mesmos tópicos** agrupados por estado derivado — "Em revisão" não existe no banco (= `concluido` + revisão pendente, R4) |
+| Kanban | **Mesmos tópicos** agrupados por estado derivado — "Em revisão" não existe no banco (= `concluido` + revisão pendente, R4). **Estilo Jira** (revisão 2026-06-12): cabeçalho de coluna com ícone de estado + contador em pílula; card em camadas — etiqueta da matéria (estilo epic), título, rodapé com ícone do evento + data à direita; hover com elevação; cursor `grab` (drag real fica pra fase 7) |
 | Toggle Lista⇄Kanban | Zero query nova — só outra projeção. Teste vivo do anti-ilha |
 
 ## 3. Anatomia e interações (revisão 2026-06-12: tela encorpada — mesma receita da T1)

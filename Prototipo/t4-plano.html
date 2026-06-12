@@ -51,16 +51,37 @@
   .topico .m2 { font-size: var(--t-caption); color: var(--ink-400); }
   .topico .data { flex-shrink: 0; }
 
-  /* ---- kanban ---- */
+  /* ---- kanban (estilo Jira: colunas rebaixadas, cards em camadas, hover com elevação) ---- */
   .kanban { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s3); align-items: start; }
   .kb-col { background: var(--bg-soft); border-radius: var(--radius); padding: var(--s2); }
   .kb-col h4 { font-size: var(--t-kicker); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
-               color: var(--ink-500); padding: var(--s1) var(--s2) var(--s2); display: flex; justify-content: space-between; }
+               color: var(--ink-500); padding: var(--s2) var(--s2) var(--s3);
+               display: flex; align-items: center; gap: var(--s2); }
+  .kb-col h4 .icon { width: 13px; height: 13px; }
+  .kb-col h4 .cnt { margin-left: auto; background: var(--bg-card); border: 1px solid var(--line);
+                    border-radius: 99px; padding: 0 var(--s2); font-size: 10px; color: var(--ink-500); }
+  .kb-col[data-cor="warn"] h4 .icon { color: var(--warn); }
+  .kb-col[data-cor="primary"] h4 .icon { color: var(--primary-strong); }
+
   .kb-card { background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius-sm);
-             padding: var(--s2) var(--s3); margin-bottom: var(--s2); cursor: pointer; font-size: var(--t-meta); font-weight: 500; }
-  .kb-card:hover { border-color: var(--line-strong); }
-  .kb-card .m { font-size: var(--t-kicker); color: var(--ink-400); font-weight: 400; margin-top: 2px; }
-  .kb-mais { font-size: var(--t-caption); color: var(--ink-400); text-align: center; padding: var(--s1); }
+             padding: var(--s3); margin-bottom: var(--s2); cursor: grab;
+             box-shadow: var(--shadow-sm);
+             transition: box-shadow var(--speed), transform var(--speed), border-color var(--speed); }
+  .kb-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); border-color: var(--line-strong); }
+  .kb-card:active { cursor: grabbing; }
+  .kb-epic { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+             letter-spacing: 0.05em; color: var(--ink-500); background: var(--bg-soft);
+             border-radius: 4px; padding: 1px var(--s2); margin-bottom: var(--s2); }
+  .kb-t { font-size: var(--t-body); font-weight: 600; line-height: 1.35; }
+  .kb-foot { display: flex; align-items: center; gap: var(--s1); margin-top: var(--s2);
+             font-size: var(--t-caption); color: var(--ink-400); }
+  .kb-foot .icon { width: 13px; height: 13px; }
+  .kb-foot .warn-c { color: var(--warn); }
+  .kb-foot .prim-c { color: var(--primary-strong); }
+  .kb-foot .d { margin-left: auto; font-weight: 500; color: var(--ink-500); }
+  .kb-mais { font-size: var(--t-caption); color: var(--ink-400); text-align: center; padding: var(--s2);
+             border: 1px dashed var(--line-strong); border-radius: var(--radius-sm); cursor: pointer; }
+  .kb-mais:hover { background: var(--bg-card); }
   @media (max-width: 900px) { .kanban { grid-template-columns: repeat(2, 1fr); } }
 
   /* ---- T5: painel lateral ---- */
@@ -300,29 +321,89 @@
 
         </div>
 
-        <!-- ===================== KANBAN ===================== -->
+        <!-- ===================== KANBAN (estilo Jira) ===================== -->
         <div class="kanban hidden" id="viewKanban">
-          <div class="kb-col"><h4>Não iniciado <span class="tnum">8</span></h4>
-            <div class="kb-card" data-estado="nao_iniciado" data-titulo="Porcentagem" data-materia="Matemática Financeira" data-elabel="Não iniciado">Porcentagem<div class="m">Mat. Financeira · sex 12/06</div></div>
-            <div class="kb-card" data-estado="nao_iniciado" data-titulo="Desconto Simples e Composto" data-materia="Matemática Financeira" data-elabel="Não iniciado">Desconto S. e Composto<div class="m">Mat. Financeira · sáb 13/06</div></div>
-            <div class="kb-card" data-estado="nao_iniciado" data-titulo="Interpretação de Texto" data-materia="Língua Portuguesa" data-elabel="Não iniciado">Interpretação de Texto<div class="m">Português · seg 15/06</div></div>
-            <div class="kb-card" data-estado="nao_iniciado" data-titulo="Produtos Bancários" data-materia="Conhecimentos Bancários" data-elabel="Não iniciado">Produtos Bancários<div class="m">C. Bancários · qui 18/06</div></div>
-            <div class="kb-mais">+ 4 outros</div>
+
+          <div class="kb-col">
+            <h4><svg class="icon"><use href="#i-circ"/></svg> Não iniciado <span class="cnt tnum">8</span></h4>
+            <div class="kb-card" data-estado="nao_iniciado" data-titulo="Porcentagem" data-materia="Matemática Financeira" data-elabel="Não iniciado">
+              <span class="kb-epic">Mat. Financeira</span>
+              <div class="kb-t">Porcentagem</div>
+              <div class="kb-foot"><svg class="icon"><use href="#i-cal"/></svg> agendado <span class="d tnum">sex 12/06</span></div>
+            </div>
+            <div class="kb-card" data-estado="nao_iniciado" data-titulo="Desconto Simples e Composto" data-materia="Matemática Financeira" data-elabel="Não iniciado">
+              <span class="kb-epic">Mat. Financeira</span>
+              <div class="kb-t">Desconto Simples e Composto</div>
+              <div class="kb-foot"><svg class="icon"><use href="#i-cal"/></svg> agendado <span class="d tnum">sáb 13/06</span></div>
+            </div>
+            <div class="kb-card" data-estado="nao_iniciado" data-titulo="Interpretação de Texto" data-materia="Língua Portuguesa" data-elabel="Não iniciado">
+              <span class="kb-epic">Português</span>
+              <div class="kb-t">Interpretação de Texto</div>
+              <div class="kb-foot"><svg class="icon"><use href="#i-cal"/></svg> agendado <span class="d tnum">seg 15/06</span></div>
+            </div>
+            <div class="kb-card" data-estado="nao_iniciado" data-titulo="Produtos Bancários" data-materia="Conhecimentos Bancários" data-elabel="Não iniciado">
+              <span class="kb-epic">C. Bancários</span>
+              <div class="kb-t">Produtos Bancários</div>
+              <div class="kb-foot"><svg class="icon"><use href="#i-cal"/></svg> agendado <span class="d tnum">qui 18/06</span></div>
+            </div>
+            <div class="kb-mais" data-nav="Expandir coluna">mostrar mais 4</div>
           </div>
-          <div class="kb-col"><h4>Em estudo <span class="tnum">2</span></h4>
-            <div class="kb-card" data-estado="em_estudo" data-titulo="Juros Compostos" data-materia="Matemática Financeira" data-elabel="Em estudo">Juros Compostos<div class="m">Mat. Financeira · em foco hoje</div></div>
-            <div class="kb-card" data-estado="em_estudo" data-titulo="Sistema Financeiro Nacional" data-materia="Conhecimentos Bancários" data-elabel="Em estudo">Sistema Financeiro Nacional<div class="m">C. Bancários · 1 sessão</div></div>
+
+          <div class="kb-col">
+            <h4><svg class="icon"><use href="#i-meio"/></svg> Em estudo <span class="cnt tnum">2</span></h4>
+            <div class="kb-card" data-estado="em_estudo" data-titulo="Juros Compostos" data-materia="Matemática Financeira" data-elabel="Em estudo">
+              <span class="kb-epic">Mat. Financeira</span>
+              <div class="kb-t">Juros Compostos</div>
+              <div class="kb-foot"><svg class="icon"><use href="#i-book"/></svg> 2 sessões · 1h10 <span class="d">em foco hoje</span></div>
+            </div>
+            <div class="kb-card" data-estado="em_estudo" data-titulo="Sistema Financeiro Nacional" data-materia="Conhecimentos Bancários" data-elabel="Em estudo">
+              <span class="kb-epic">C. Bancários</span>
+              <div class="kb-t">Sistema Financeiro Nacional</div>
+              <div class="kb-foot"><svg class="icon"><use href="#i-book"/></svg> 1 sessão · 50 min</div>
+            </div>
           </div>
-          <div class="kb-col"><h4>Em revisão <span class="tnum">4</span></h4>
-            <div class="kb-card" data-estado="em_revisao" data-titulo="Crase" data-materia="Língua Portuguesa" data-elabel="Em revisão (1ª de 3 · hoje)">Crase<div class="m">1ª revisão hoje</div></div>
-            <div class="kb-card" data-estado="em_revisao" data-titulo="Juros Simples" data-materia="Matemática Financeira" data-elabel="Em revisão (3ª de 3 · 18/06)">Juros Simples<div class="m">3ª revisão 18/06</div></div>
-            <div class="kb-card" data-estado="em_revisao" data-titulo="Pontuação" data-materia="Língua Portuguesa" data-elabel="Em revisão (2ª de 3 · 20/06)">Pontuação<div class="m">2ª revisão 20/06</div></div>
-            <div class="kb-card" data-estado="em_revisao" data-titulo="Redes e Internet" data-materia="Informática" data-elabel="Em revisão (2ª de 3 · 22/06)">Redes e Internet<div class="m">2ª revisão 22/06</div></div>
+
+          <div class="kb-col" data-cor="warn">
+            <h4><svg class="icon"><use href="#i-redo"/></svg> Em revisão <span class="cnt tnum">4</span></h4>
+            <div class="kb-card" data-estado="em_revisao" data-titulo="Crase" data-materia="Língua Portuguesa" data-elabel="Em revisão (1ª de 3 · hoje)">
+              <span class="kb-epic">Português</span>
+              <div class="kb-t">Crase</div>
+              <div class="kb-foot"><span class="warn-c" style="display:inline-flex;"><svg class="icon"><use href="#i-redo"/></svg></span> 1ª de 3 <span class="d tnum">hoje</span></div>
+            </div>
+            <div class="kb-card" data-estado="em_revisao" data-titulo="Juros Simples" data-materia="Matemática Financeira" data-elabel="Em revisão (3ª de 3 · 18/06)">
+              <span class="kb-epic">Mat. Financeira</span>
+              <div class="kb-t">Juros Simples</div>
+              <div class="kb-foot"><span class="warn-c" style="display:inline-flex;"><svg class="icon"><use href="#i-redo"/></svg></span> 3ª de 3 <span class="d tnum">18/06</span></div>
+            </div>
+            <div class="kb-card" data-estado="em_revisao" data-titulo="Pontuação" data-materia="Língua Portuguesa" data-elabel="Em revisão (2ª de 3 · 20/06)">
+              <span class="kb-epic">Português</span>
+              <div class="kb-t">Pontuação</div>
+              <div class="kb-foot"><span class="warn-c" style="display:inline-flex;"><svg class="icon"><use href="#i-redo"/></svg></span> 2ª de 3 <span class="d tnum">20/06</span></div>
+            </div>
+            <div class="kb-card" data-estado="em_revisao" data-titulo="Redes e Internet" data-materia="Informática" data-elabel="Em revisão (2ª de 3 · 22/06)">
+              <span class="kb-epic">Informática</span>
+              <div class="kb-t">Redes e Internet</div>
+              <div class="kb-foot"><span class="warn-c" style="display:inline-flex;"><svg class="icon"><use href="#i-redo"/></svg></span> 2ª de 3 <span class="d tnum">22/06</span></div>
+            </div>
           </div>
-          <div class="kb-col"><h4>Dominado <span class="tnum">3</span></h4>
-            <div class="kb-card" data-estado="dominado" data-titulo="MDC e MMC" data-materia="Matemática Financeira" data-elabel="Dominado">MDC e MMC<div class="m">manutenção 02/08</div></div>
-            <div class="kb-card" data-estado="dominado" data-titulo="Concordância Verbal" data-materia="Língua Portuguesa" data-elabel="Dominado">Concordância Verbal<div class="m">manutenção 20/07</div></div>
-            <div class="kb-card" data-estado="dominado" data-titulo="Pacote Office e Excel" data-materia="Informática" data-elabel="Dominado">Pacote Office e Excel<div class="m">manutenção 10/08</div></div>
+
+          <div class="kb-col" data-cor="primary">
+            <h4><svg class="icon"><use href="#i-star"/></svg> Dominado <span class="cnt tnum">3</span></h4>
+            <div class="kb-card" data-estado="dominado" data-titulo="MDC e MMC" data-materia="Matemática Financeira" data-elabel="Dominado">
+              <span class="kb-epic">Mat. Financeira</span>
+              <div class="kb-t">MDC e MMC</div>
+              <div class="kb-foot"><span class="prim-c" style="display:inline-flex;"><svg class="icon"><use href="#i-star"/></svg></span> manutenção <span class="d tnum">02/08</span></div>
+            </div>
+            <div class="kb-card" data-estado="dominado" data-titulo="Concordância Verbal" data-materia="Língua Portuguesa" data-elabel="Dominado">
+              <span class="kb-epic">Português</span>
+              <div class="kb-t">Concordância Verbal</div>
+              <div class="kb-foot"><span class="prim-c" style="display:inline-flex;"><svg class="icon"><use href="#i-star"/></svg></span> manutenção <span class="d tnum">20/07</span></div>
+            </div>
+            <div class="kb-card" data-estado="dominado" data-titulo="Pacote Office e Excel" data-materia="Informática" data-elabel="Dominado">
+              <span class="kb-epic">Informática</span>
+              <div class="kb-t">Pacote Office e Excel</div>
+              <div class="kb-foot"><span class="prim-c" style="display:inline-flex;"><svg class="icon"><use href="#i-star"/></svg></span> manutenção <span class="d tnum">10/08</span></div>
+            </div>
           </div>
         </div>
 
