@@ -13,9 +13,9 @@ Cada tela tem um par: `tN-nome.html` (wireframe navegável) + `tN-nome.md` (desc
 | T1 | Hoje (home — métrica dos 10s) | ✅ validada (2026-06-12) |
 | T2 | Calendário | ⬜ |
 | T3 | Planos (lista) | ⬜ |
-| T4 | Plano (detalhe: árvore ⇄ kanban) | 🟡 rascunho em revisão |
-| T5 | Tópico (painel lateral, dentro de t4-plano.html) | 🟡 rascunho em revisão |
-| T6 | Novo plano (wizard, 4 modos) | ⬜ |
+| T4 | Plano (detalhe: árvore ⇄ kanban) | ✅ validada (2026-06-12) |
+| T5 | Tópico (painel lateral, dentro de t4-plano.html) | ✅ validada (2026-06-12) |
+| T6 | Novo plano (wizard, 4 modos) | 🟡 próxima |
 | T7 | Progresso | ⬜ |
 | T8 | Configurações | ⬜ |
 

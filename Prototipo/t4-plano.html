@@ -557,10 +557,20 @@ $('busca').addEventListener('input', () => { termo = $('busca').value.toLowerCas
 
 /* T5: abrir painel do tópico */
 const ESTADO_LABEL = { nao_iniciado: 'Não iniciado', em_estudo: 'Em estudo', em_revisao: 'Em revisão', dominado: 'Dominado' };
+/* matriz estado × ação: só as ações válidas aparecem (decisão da revisão) */
+const ACOES_POR_ESTADO = {
+  nao_iniciado: ['concluir', 'domino'],
+  em_estudo:    ['concluir', 'domino'],
+  em_revisao:   ['domino', 'reabrir'],
+  dominado:     ['reabrir'],
+};
 function abrePainel(el) {
   $('dTitulo').textContent = el.dataset.titulo;
   $('dCrumb').textContent = `BB 2026 › ${el.dataset.materia}`;
   $('dEstado').textContent = el.dataset.elabel || ESTADO_LABEL[el.dataset.estado];
+  const validas = ACOES_POR_ESTADO[el.dataset.estado] || [];
+  document.querySelectorAll('.drawer [data-acao]').forEach(b =>
+    b.classList.toggle('hidden', !validas.includes(b.dataset.acao)));
   $('drawer').classList.add('aberto');
   $('backdrop').classList.add('aberto');
 }

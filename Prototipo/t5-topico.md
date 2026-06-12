@@ -20,7 +20,7 @@ Detalhe completo da **entidade central** sem perder o contexto: painel desliza d
 
 - Abre por clique em tópico (T4 lista/kanban; futuramente T1 fila e T2 calendário); fecha por X, clique fora ou `Esc`.
 - As 3 ações de estado mudam o badge na hora + toast explicativo — **a UI conta a história** (regra global de design).
-- 🔶 Quais ações aparecem por estado (ex.: "Reabrir" só faz sentido em concluído/dominado)? No rascunho, todas visíveis; decidir matriz estado×ação na revisão.
+- ✅ **Matriz estado×ação** (decidida 2026-06-12): só as ações válidas aparecem — Não iniciado/Em estudo → `Concluí` + `Já domino` · Em revisão → `Já domino` + `Reabrir` · Dominado → só `Reabrir`. Menos ruído, ação sem sentido é impossível.
 
 ## 4. O que não tem (de propósito)
 
