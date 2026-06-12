@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hoje — Cognix v2 · protótipo T1</title>
+<script>
+  /* tema antes do primeiro paint (evita flash). Escuro é o padrão. */
+  document.documentElement.dataset.theme = localStorage.getItem('cognix-tema') || 'dark';
+</script>
 <link rel="stylesheet" href="css/wireframe.css">
 <style>
   /* ---- específicos da T1 ---- */
@@ -311,6 +315,8 @@
   <a href="?cenario=padrao" data-cenario="padrao">dia normal</a>
   <a href="?cenario=fim" data-cenario="fim">tudo feito</a>
   <a href="?cenario=vazio" data-cenario="vazio">sem plano</a>
+  <span class="sep"></span>
+  <button class="theme" id="themeToggle" title="Alternar tema claro/escuro">tema</button>
 </nav>
 
 <!-- Toast com Desfazer (A2) -->
@@ -340,6 +346,14 @@ function toast(msg, undo) {
 $('toastUndo').addEventListener('click', () => {
   if (undoFn) undoFn();
   $('toast').classList.remove('show');
+});
+
+/* tema: escuro é o padrão; o alternador persiste a escolha.
+   No produto, esta opção mora na T8 (Configurações). */
+$('themeToggle').addEventListener('click', () => {
+  const r = document.documentElement;
+  r.dataset.theme = r.dataset.theme === 'light' ? 'dark' : 'light';
+  localStorage.setItem('cognix-tema', r.dataset.theme);
 });
 
 /* telas ainda não construídas */
