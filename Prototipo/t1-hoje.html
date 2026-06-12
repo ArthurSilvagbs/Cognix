@@ -413,6 +413,10 @@ function filaAtualiza() {
     .filter(i => !i.classList.contains('hidden'));
   const feitos = itens.filter(i => i.classList.contains('done')).length;
   $('filaFeitos').textContent = `${feitos} de ${itens.length}`;
+  /* renumera a sequência (itens feitos mantêm o ✓) */
+  itens.forEach((it, ix) => {
+    if (!it.classList.contains('done')) it.querySelector('.num').textContent = ix + 1;
+  });
 }
 
 function filaEstudoConcluido() {
@@ -527,18 +531,41 @@ function ligaRevisao(item) {
 }
 document.querySelectorAll('#filaList .fila-item[data-topico]').forEach(ligaRevisao);
 
-/* ---------- Alternativas: trocar a recomendação ---------- */
+/* ---------- Alternativas: trocar o FOCO, nunca as datas ----------
+   O item que estava em foco não sai de hoje: é rebaixado para
+   "na fila" logo abaixo. Nada desliza de dia — datas só se movem
+   pelo fluxo de pendência/replanejar. */
 document.querySelectorAll('[data-acao="trocar"]').forEach(btn => {
   btn.addEventListener('click', () => {
     const alt = btn.closest('.item');
-    const anterior = $('heroTitulo').textContent;
+    const anteriorTitulo = $('filaEstudoTitulo').textContent;
+    const anteriorMeta = $('filaEstudoMeta').textContent;
+
+    /* alternativa assume o foco (hero + item 1 da fila) */
     $('heroTitulo').textContent = alt.dataset.titulo;
     $('heroCrumb').innerHTML = alt.dataset.crumb.replace('›', '<span class="sep">›</span>');
     $('heroReason').textContent = 'Escolha sua — o plano se ajusta, não reclama.';
     $('filaEstudoTitulo').textContent = alt.dataset.titulo;
     $('filaEstudoMeta').textContent = `Estudo · ${alt.dataset.crumb.split('›')[1].trim()} · ${alt.dataset.min}`;
     heroEstado('hero-idle');
-    toast(`Trocado para ${alt.dataset.titulo}. ${anterior} continua na fila.`);
+
+    /* o anterior continua HOJE: entra logo abaixo, como "na fila" */
+    const demovido = document.createElement('div');
+    demovido.className = 'fila-item fade-in';
+    demovido.innerHTML = `
+      <span class="num"></span>
+      <div class="grow">
+        <div class="title-md">${anteriorTitulo}</div>
+        <div class="meta-dim">${anteriorMeta}</div>
+      </div>
+      <span class="meta-dim">na fila</span>`;
+    $('filaEstudo').after(demovido);
+
+    /* a alternativa escolhida sai da lista de alternativas */
+    alt.remove();
+
+    filaAtualiza();
+    toast(`${alt.dataset.titulo} em foco. ${anteriorTitulo} segue na fila de hoje — nenhuma data mudou.`);
   });
 });
 

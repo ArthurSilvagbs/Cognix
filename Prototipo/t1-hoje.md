@@ -93,7 +93,7 @@ parado ──Iniciar──▶ rodando ⇄ pausado
 | Adiar revisão | Item sai da lista (A3: pular = adiar, nunca morre) | toast: "Revisão de X adiada para amanhã." + **Desfazer** |
 | Revisar | Item marca ✓, mostra encadeamento (R1) | toast: "Próxima revisão de X: +7 dias (18/06)." |
 | Concluí | Hero promove próximo da fila | toast: "Revisões agendadas: amanhã (12/06) · depois +7d e +21d." — *só a 1ª tem data firme; seguintes são projeção (R1)* |
-| Estudar esta (alternativa) | Troca a recomendação, sem punição | toast: "Trocado para X. Y continua na fila." + motivo vira "Escolha sua — o plano se ajusta, não reclama." |
+| Estudar esta (alternativa) | **Troca o foco, nunca as datas.** A alternativa assume o hero e o item 1 da fila; o anterior é rebaixado para "na fila" logo abaixo — **continua sendo de hoje**. Nada desliza de dia: datas só se movem pelo fluxo de pendência/replanejar (fim do dia sem fazer → banner amanhã) ou naturalmente (concluir cedo o item de amanhã libera folga). A alternativa escolhida sai da lista de alternativas; a fila renumera | toast: "X em foco. Y segue na fila de hoje — nenhuma data mudou." + motivo vira "Escolha sua — o plano se ajusta, não reclama." |
 | Descartar sessão | Nada é gravado | toast: "Sessão descartada — nada foi registrado." |
 
 **Tom do microcopy:** afirmativo, curto, nunca culpado. Proibido: vermelho, "atrasado", contagem de dias perdidos, exclamações de alarme. O banner do caos diz "Sem problema — dá pra reorganizar em um clique."
