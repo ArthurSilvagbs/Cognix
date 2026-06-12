@@ -1,6 +1,6 @@
 # T1 — Hoje (home)
 
-> **Wireframe:** `t1-hoje.html` · **Fase:** 4 — Protótipo · **Status:** em revisão
+> **Protótipo:** `t1-hoje.html` · **Fase:** 4 · **Status:** ✅ **validada pelo Arthur em 2026-06-12** (7 rodadas de revisão — histórico no fim deste doc)
 > **Referências:** Arquitetura de Informação v0.1 (T1, F2, F3, F4) · Modelo de Domínio v0.1 (§3 projeção "Hoje", R1, R3) · PRD §5.2, §8, §10
 
 ---
@@ -137,3 +137,19 @@ parado ──Iniciar──▶ rodando ⇄ pausado
 | Mais de 2 alternativas | Vira decisão de novo — o custo que o produto elimina |
 | Badge de "X dias atrasado" | Pune o caos em vez de absorver (princípio §4.2) |
 | Botão de replanejar permanente | Sem pendência não há o que replanejar; aparecer só no banner evita ruído |
+| Upload de arquivo no tópico | D6: tópico tem notas + links; material entra uma vez na criação do plano. Gerenciador, não repositório |
+| "Focar" em revisões | O caminho da revisão já é "Revisar" (F4) — dois caminhos pro mesmo destino é ruído |
+
+---
+
+## 9. Histórico das rodadas de revisão (decisões que esta tela gerou)
+
+| # | Feedback do Arthur | Resultado |
+|---|---|---|
+| 1 | "Muito simples, muito xoxo" | Decisão de processo: protótipo **hi-fi** (cor provisória 🔶), não wireframe cinza |
+| 2 | "Parece vazio, parecido com o v1, falta algo" | Layout 2 colunas + **Fila de hoje** + lateral de contexto (só leitura) + fix ícones (viewBox) |
+| 3 | "Modo escuro?" | **Escuro vira padrão do app**; claro em Configurações; toast invertido |
+| 4 | "Posso ter vários grupos?" | Demo multi-plano; nota no modelo: Plano substitui grupos do v1 sem virar ilha |
+| 5 | "Não dá pra saber o que ficou pendente" + mockup próprio | Sanfona "Detalhes" no banner; **âmbar = token de atenção**; selos "estudo não feito"/"revisão não feita" |
+| 6 | "Estudar o de ontem some com o banner?" / "antecipar tira do dia?" | Banner persiste com contagem; **regra de ouro: escolhas nunca mexem em datas**; origem explícita "antecipado de amanhã"; rename → **Antecipar** |
+| 7 | "Posso selecionar fora da ordem?" | **Foco móvel** (botão Focar); ícones de tipo (livro/setas); refatoração do foco fixo |
