@@ -53,9 +53,18 @@
   .topico .m2 { font-size: var(--t-caption); color: var(--ink-400); }
   .topico .data { flex-shrink: 0; }
 
-  /* ---- kanban (estilo Jira: colunas rebaixadas, cards em camadas, hover com elevação) ---- */
-  .kanban { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s3); align-items: start; }
-  .kb-col { background: var(--bg-soft); border-radius: var(--radius); padding: var(--s2); }
+  /* ---- kanban (estilo Jira: colunas de largura fixa + scroll horizontal) ---- */
+  .kanban {
+    display: flex; gap: var(--s3); align-items: flex-start;
+    overflow-x: auto; padding-bottom: var(--s3);
+    scroll-snap-type: x proximity;
+  }
+  .kanban::-webkit-scrollbar { height: 8px; }
+  .kanban::-webkit-scrollbar-track { background: var(--bg-soft); border-radius: 99px; }
+  .kanban::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 99px; }
+  .kanban::-webkit-scrollbar-thumb:hover { background: var(--ink-400); }
+  .kb-col { flex: 0 0 290px; scroll-snap-align: start;
+            background: var(--bg-soft); border-radius: var(--radius); padding: var(--s3); }
   .kb-col h4 { font-size: var(--t-kicker); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
                color: var(--ink-500); padding: var(--s2) var(--s2) var(--s3);
                display: flex; align-items: center; gap: var(--s2); }
@@ -68,7 +77,7 @@
   .kb-foot .succ-c { color: var(--success); }
 
   .kb-card { background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius-sm);
-             padding: var(--s3); margin-bottom: var(--s2); cursor: grab;
+             padding: var(--s4); margin-bottom: var(--s3); cursor: grab;
              box-shadow: var(--shadow-sm);
              transition: box-shadow var(--speed), transform var(--speed), border-color var(--speed); }
   .kb-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); border-color: var(--line-strong); }
@@ -86,7 +95,7 @@
   .kb-mais { font-size: var(--t-caption); color: var(--ink-400); text-align: center; padding: var(--s2);
              border: 1px dashed var(--line-strong); border-radius: var(--radius-sm); cursor: pointer; }
   .kb-mais:hover { background: var(--bg-card); }
-  @media (max-width: 900px) { .kanban { grid-template-columns: repeat(2, 1fr); } }
+  /* mobile: o scroll horizontal já resolve — swipe lateral, colunas inteiras */
 
   /* ---- T5: painel lateral ---- */
   .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.45); opacity: 0;
