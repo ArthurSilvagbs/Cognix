@@ -43,9 +43,11 @@
             border-bottom: 1px solid var(--line); }
   .topico:last-child { border-bottom: none; }
   .topico:hover { background: var(--bg-soft); }
+  /* Escala de cor de ESTADO (tokens, só em indicadores): cinza → âmbar → primária → verde */
   .topico .estado-ico { color: var(--ink-400); flex-shrink: 0; }
-  .topico[data-estado="dominado"] .estado-ico { color: var(--primary-strong); }
-  .topico[data-estado="em_revisao"] .estado-ico { color: var(--warn); }
+  .topico[data-estado="em_estudo"] .estado-ico { color: var(--warn); }
+  .topico[data-estado="em_revisao"] .estado-ico { color: var(--primary-strong); }
+  .topico[data-estado="dominado"] .estado-ico { color: var(--success); }
   .topico .grow { flex: 1; min-width: 0; }
   .topico .t { font-size: var(--t-body); font-weight: 600; }
   .topico .m2 { font-size: var(--t-caption); color: var(--ink-400); }
@@ -62,6 +64,8 @@
                     border-radius: 99px; padding: 0 var(--s2); font-size: 10px; color: var(--ink-500); }
   .kb-col[data-cor="warn"] h4 .icon { color: var(--warn); }
   .kb-col[data-cor="primary"] h4 .icon { color: var(--primary-strong); }
+  .kb-col[data-cor="success"] h4 .icon { color: var(--success); }
+  .kb-foot .succ-c { color: var(--success); }
 
   .kb-card { background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius-sm);
              padding: var(--s3); margin-bottom: var(--s2); cursor: grab;
@@ -349,7 +353,7 @@
             <div class="kb-mais" data-nav="Expandir coluna">mostrar mais 4</div>
           </div>
 
-          <div class="kb-col">
+          <div class="kb-col" data-cor="warn">
             <h4><svg class="icon"><use href="#i-meio"/></svg> Em estudo <span class="cnt tnum">2</span></h4>
             <div class="kb-card" data-estado="em_estudo" data-titulo="Juros Compostos" data-materia="Matemática Financeira" data-elabel="Em estudo">
               <span class="kb-epic">Mat. Financeira</span>
@@ -363,46 +367,46 @@
             </div>
           </div>
 
-          <div class="kb-col" data-cor="warn">
+          <div class="kb-col" data-cor="primary">
             <h4><svg class="icon"><use href="#i-redo"/></svg> Em revisão <span class="cnt tnum">4</span></h4>
             <div class="kb-card" data-estado="em_revisao" data-titulo="Crase" data-materia="Língua Portuguesa" data-elabel="Em revisão (1ª de 3 · hoje)">
               <span class="kb-epic">Português</span>
               <div class="kb-t">Crase</div>
-              <div class="kb-foot"><span class="warn-c" style="display:inline-flex;"><svg class="icon"><use href="#i-redo"/></svg></span> 1ª de 3 <span class="d tnum">hoje</span></div>
+              <div class="kb-foot"><span class="prim-c" style="display:inline-flex;"><svg class="icon"><use href="#i-redo"/></svg></span> 1ª de 3 <span class="d tnum">hoje</span></div>
             </div>
             <div class="kb-card" data-estado="em_revisao" data-titulo="Juros Simples" data-materia="Matemática Financeira" data-elabel="Em revisão (3ª de 3 · 18/06)">
               <span class="kb-epic">Mat. Financeira</span>
               <div class="kb-t">Juros Simples</div>
-              <div class="kb-foot"><span class="warn-c" style="display:inline-flex;"><svg class="icon"><use href="#i-redo"/></svg></span> 3ª de 3 <span class="d tnum">18/06</span></div>
+              <div class="kb-foot"><span class="prim-c" style="display:inline-flex;"><svg class="icon"><use href="#i-redo"/></svg></span> 3ª de 3 <span class="d tnum">18/06</span></div>
             </div>
             <div class="kb-card" data-estado="em_revisao" data-titulo="Pontuação" data-materia="Língua Portuguesa" data-elabel="Em revisão (2ª de 3 · 20/06)">
               <span class="kb-epic">Português</span>
               <div class="kb-t">Pontuação</div>
-              <div class="kb-foot"><span class="warn-c" style="display:inline-flex;"><svg class="icon"><use href="#i-redo"/></svg></span> 2ª de 3 <span class="d tnum">20/06</span></div>
+              <div class="kb-foot"><span class="prim-c" style="display:inline-flex;"><svg class="icon"><use href="#i-redo"/></svg></span> 2ª de 3 <span class="d tnum">20/06</span></div>
             </div>
             <div class="kb-card" data-estado="em_revisao" data-titulo="Redes e Internet" data-materia="Informática" data-elabel="Em revisão (2ª de 3 · 22/06)">
               <span class="kb-epic">Informática</span>
               <div class="kb-t">Redes e Internet</div>
-              <div class="kb-foot"><span class="warn-c" style="display:inline-flex;"><svg class="icon"><use href="#i-redo"/></svg></span> 2ª de 3 <span class="d tnum">22/06</span></div>
+              <div class="kb-foot"><span class="prim-c" style="display:inline-flex;"><svg class="icon"><use href="#i-redo"/></svg></span> 2ª de 3 <span class="d tnum">22/06</span></div>
             </div>
           </div>
 
-          <div class="kb-col" data-cor="primary">
+          <div class="kb-col" data-cor="success">
             <h4><svg class="icon"><use href="#i-star"/></svg> Dominado <span class="cnt tnum">3</span></h4>
             <div class="kb-card" data-estado="dominado" data-titulo="MDC e MMC" data-materia="Matemática Financeira" data-elabel="Dominado">
               <span class="kb-epic">Mat. Financeira</span>
               <div class="kb-t">MDC e MMC</div>
-              <div class="kb-foot"><span class="prim-c" style="display:inline-flex;"><svg class="icon"><use href="#i-star"/></svg></span> manutenção <span class="d tnum">02/08</span></div>
+              <div class="kb-foot"><span class="succ-c" style="display:inline-flex;"><svg class="icon"><use href="#i-star"/></svg></span> manutenção <span class="d tnum">02/08</span></div>
             </div>
             <div class="kb-card" data-estado="dominado" data-titulo="Concordância Verbal" data-materia="Língua Portuguesa" data-elabel="Dominado">
               <span class="kb-epic">Português</span>
               <div class="kb-t">Concordância Verbal</div>
-              <div class="kb-foot"><span class="prim-c" style="display:inline-flex;"><svg class="icon"><use href="#i-star"/></svg></span> manutenção <span class="d tnum">20/07</span></div>
+              <div class="kb-foot"><span class="succ-c" style="display:inline-flex;"><svg class="icon"><use href="#i-star"/></svg></span> manutenção <span class="d tnum">20/07</span></div>
             </div>
             <div class="kb-card" data-estado="dominado" data-titulo="Pacote Office e Excel" data-materia="Informática" data-elabel="Dominado">
               <span class="kb-epic">Informática</span>
               <div class="kb-t">Pacote Office e Excel</div>
-              <div class="kb-foot"><span class="prim-c" style="display:inline-flex;"><svg class="icon"><use href="#i-star"/></svg></span> manutenção <span class="d tnum">10/08</span></div>
+              <div class="kb-foot"><span class="succ-c" style="display:inline-flex;"><svg class="icon"><use href="#i-star"/></svg></span> manutenção <span class="d tnum">10/08</span></div>
             </div>
           </div>
         </div>
@@ -422,10 +426,10 @@
         <div class="card">
           <h3>Distribuição</h3>
           <div class="dist-row"><svg class="icon"><use href="#i-circ"/></svg> Não iniciado <span class="n tnum">8</span></div>
-          <div class="dist-row"><svg class="icon"><use href="#i-meio"/></svg> Em estudo <span class="n tnum">2</span></div>
-          <div class="dist-row" style="color:var(--warn);"><svg class="icon"><use href="#i-redo"/></svg> <span style="color:var(--ink-500);">Em revisão</span> <span class="n tnum">4</span></div>
-          <div class="dist-row" style="color:var(--primary-strong);"><svg class="icon"><use href="#i-star"/></svg> <span style="color:var(--ink-500);">Dominado</span> <span class="n tnum">3</span></div>
-          <div class="meta-dim" style="margin-top:var(--s2);">"Em revisão" é derivado — concluído com revisão pendente.</div>
+          <div class="dist-row" style="color:var(--warn);"><svg class="icon"><use href="#i-meio"/></svg> <span style="color:var(--ink-500);">Em estudo</span> <span class="n tnum">2</span></div>
+          <div class="dist-row" style="color:var(--primary-strong);"><svg class="icon"><use href="#i-redo"/></svg> <span style="color:var(--ink-500);">Em revisão</span> <span class="n tnum">4</span></div>
+          <div class="dist-row" style="color:var(--success);"><svg class="icon"><use href="#i-star"/></svg> <span style="color:var(--ink-500);">Dominado</span> <span class="n tnum">3</span></div>
+          <div class="meta-dim" style="margin-top:var(--s2);">"Em revisão" = ciclo 1·7·21 em andamento. <b>Dominado continua revisando</b> — manutenção a cada 60 dias; só muda o ritmo.</div>
         </div>
 
         <div class="card">

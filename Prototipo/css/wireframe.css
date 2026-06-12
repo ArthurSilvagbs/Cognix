@@ -28,10 +28,13 @@
   --primary-soft:   rgba(99, 102, 241, 0.16);
   --primary-line:   #4f46e5;
 
-  /* Atenção/pendência — única cor além da primária (PRD §8: cor com significado) */
+  /* Atenção/pendência (PRD §8: cor com significado) */
   --warn:      #fbbf24;
   --warn-soft: rgba(251, 191, 36, 0.10);
   --warn-line: rgba(251, 191, 36, 0.35);
+
+  /* Sucesso/dominado — só em indicadores de estado, nunca em botões */
+  --success:   #4ade80;
 
   /* Toast invertido em relação ao fundo (contraste) */
   --toast-bg: #f4f4f5;
@@ -85,6 +88,8 @@
   --warn:      #b45309;
   --warn-soft: #fef3c7;
   --warn-line: #fcd34d;
+
+  --success:   #16a34a;
 
   --toast-bg: #18181b;
   --toast-fg: #ffffff;

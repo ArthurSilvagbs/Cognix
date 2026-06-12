@@ -24,14 +24,18 @@ Ver e **editar a estrutura** de um plano: matérias, tópicos, ordem, estados. �
 - **Árvore:** matéria colapsável (aberta por padrão) com sublinha rica (n tópicos · tempo estudado · próxima ação); tópico em **duas linhas** (título + estado·detalhe·sessões) com **chip de data relevante** à direita (agendamento, revisão ou manutenção).
 - **Clicar em qualquer tópico** (lista ou kanban) abre o painel T5 — ver `t5-topico.md`.
 
-## 4. Estados do tópico — iconografia (R4)
+## 4. Estados do tópico — iconografia e escala de cor (R4 · revisão 2026-06-12)
 
-| Estado | Ícone | Cor |
+| Estado | Ícone | Cor (token) |
 |---|---|---|
-| Não iniciado | círculo vazio | neutra |
-| Em estudo | círculo meio-cheio | neutra |
-| Em revisão (derivado) | setas circulares | **âmbar** (atenção: tem revisão viva) |
-| Dominado | estrela | **primária** (conquista, não alerta) |
+| Não iniciado | círculo vazio | neutra (`ink-400`) |
+| Em estudo | círculo meio-cheio | **âmbar** (`--warn`) — energia ativa |
+| Em revisão (derivado) | setas circulares | **primária** — obrigação viva do ciclo 1·7·21 |
+| Dominado | estrela | **verde** (`--success`, token novo) — conquista |
+
+**Regra anti-arco-íris:** a escala de estado (cinza → âmbar → primária → verde) é permitida **somente em indicadores de estado** — ícones, cabeçalhos de coluna do kanban, distribuição da lateral. Nunca em botões, superfícies ou texto corrido. Proposta do Arthur na revisão; o verde entrou como token `--success`.
+
+**Semântica importante (pergunta da revisão):** Dominado **não significa "nunca mais revisar"** — significa que saiu do ciclo intensivo 1·7·21 e entrou em **manutenção espaçada** (a cada 60d, editável — D1). A revisão de manutenção aparece no Hoje quando vence, mas o tópico permanece na coluna Dominado. "Em revisão" é exclusivamente o ciclo intensivo. A legenda da lateral explica isso na própria tela.
 
 ## 5. Pendências 🔶
 
