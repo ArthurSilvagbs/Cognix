@@ -206,7 +206,7 @@
               <span class="num">1</span>
               <div class="grow">
                 <div class="title-md" id="filaEstudoTitulo">Juros Compostos</div>
-                <div class="meta-dim" id="filaEstudoMeta">Estudo · Matemática Financeira · ~40 min</div>
+                <div class="meta-dim"><svg class="icon tipo-ico"><use href="#i-book"/></svg><span id="filaEstudoMeta">Estudo · Matemática Financeira · ~40 min</span></div>
               </div>
               <span class="badge soft" id="filaEstudoBadge">em foco</span>
             </div>
@@ -214,7 +214,7 @@
               <span class="num">2</span>
               <div class="grow">
                 <div class="title-md">Beans e Injeção de Dependência</div>
-                <div class="meta-dim">Estudo · Spring Boot › Fundamentos · ~30 min</div>
+                <div class="meta-dim"><svg class="icon tipo-ico"><use href="#i-book"/></svg>Estudo · Spring Boot › Fundamentos · ~30 min</div>
               </div>
               <span class="meta-dim">na fila</span>
             </div>
@@ -222,7 +222,7 @@
               <span class="num">3</span>
               <div class="grow">
                 <div class="title-md">Regra de Três</div>
-                <div class="meta-dim">Revisão 2 de 3 · BB 2026 › Matemática · concluído há 7 dias</div>
+                <div class="meta-dim"><svg class="icon tipo-ico"><use href="#i-redo"/></svg>Revisão 2 de 3 · BB 2026 › Matemática · concluído há 7 dias</div>
               </div>
               <div class="actions">
                 <button class="btn sm" data-acao="revisar">Revisar</button>
@@ -233,7 +233,7 @@
               <span class="num">4</span>
               <div class="grow">
                 <div class="title-md">Crase</div>
-                <div class="meta-dim">Revisão 1 de 3 · BB 2026 › Português · concluído ontem</div>
+                <div class="meta-dim"><svg class="icon tipo-ico"><use href="#i-redo"/></svg>Revisão 1 de 3 · BB 2026 › Português · concluído ontem</div>
               </div>
               <div class="actions">
                 <button class="btn sm" data-acao="revisar">Revisar</button>
@@ -546,7 +546,9 @@ document.querySelectorAll('[data-acao="trocar"]').forEach(btn => {
     $('heroCrumb').innerHTML = alt.dataset.crumb.replace('›', '<span class="sep">›</span>');
     $('heroReason').textContent = 'Escolha sua — o plano se ajusta, não reclama.';
     $('filaEstudoTitulo').textContent = alt.dataset.titulo;
-    $('filaEstudoMeta').textContent = `Estudo · ${alt.dataset.crumb.split('›')[1].trim()} · ${alt.dataset.min}`;
+    /* origem explícita: o item era de amanhã e foi puxado por escolha */
+    $('filaEstudoMeta').textContent =
+      `Estudo · ${alt.dataset.crumb.split('›')[1].trim()} · ${alt.dataset.min} · antecipado de amanhã`;
     heroEstado('hero-idle');
 
     /* o anterior continua HOJE: entra logo abaixo, como "na fila" */
@@ -556,7 +558,7 @@ document.querySelectorAll('[data-acao="trocar"]').forEach(btn => {
       <span class="num"></span>
       <div class="grow">
         <div class="title-md">${anteriorTitulo}</div>
-        <div class="meta-dim">${anteriorMeta}</div>
+        <div class="meta-dim"><svg class="icon tipo-ico"><use href="#i-book"/></svg>${anteriorMeta}</div>
       </div>
       <span class="meta-dim">na fila</span>`;
     $('filaEstudo').after(demovido);
@@ -581,7 +583,7 @@ $('btnReplanejar').addEventListener('click', () => {
     <span class="num">+</span>
     <div class="grow">
       <div class="title-md">Juros Simples</div>
-      <div class="meta-dim">Revisão 3 de 3 · Matemática · reancorada de ontem</div>
+      <div class="meta-dim"><svg class="icon tipo-ico"><use href="#i-redo"/></svg>Revisão 3 de 3 · Matemática · reancorada de ontem</div>
     </div>
     <div class="actions">
       <button class="btn sm" data-acao="revisar">Revisar</button>

@@ -279,6 +279,7 @@ h2.section:first-child { margin-top: 0; }
 .fila-item.done .title-md { text-decoration: line-through; }
 .fila-item .grow { flex: 1; min-width: 0; }
 .fila-item .actions { display: flex; gap: var(--s2); flex-shrink: 0; }
+.tipo-ico { width: 13px; height: 13px; vertical-align: -2px; margin-right: 3px; color: var(--ink-400); }
 
 /* ---------- Coluna lateral: semana ---------- */
 .week { display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--s1); margin-top: var(--s3); }

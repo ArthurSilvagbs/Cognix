@@ -59,6 +59,10 @@ Nenhuma tabela própria. Tudo deriva do modelo:
 
 **A fila de hoje** é o dia inteiro como sequência numerada (estudo + revisões na ordem recomendada). O item em foco espelha o hero; concluir/revisar marca ✓ na fila — sensação de jornada, contador "N de M".
 
+**Tipo de item sempre visível:** cada item da fila carrega um ícone de tipo antes do meta — **livro = estudo novo**, **setas circulares = revisão** — além do prefixo textual ("Estudo ·" / "Revisão 2 de 3 ·"). Diferenciação em dois canais (ícone + texto), nunca só por cor.
+
+**Antecipação explícita:** item puxado das alternativas mostra `· antecipado de amanhã` no meta. Regra do modelo: escolher **não muda a data** do agendamento — o item só "sai" do dia original quando for **concluído** (cumprido antecipado, o dia original ganha folga). A fila de hoje = agenda de hoje + o que o usuário puxou por escolha, com origem declarada.
+
 **Regra da coluna lateral (anti-dashboard):** a lateral é *contexto de relance* — semana, plano ativo, avulsos. **Nenhuma ação de execução mora nela**, só leitura e links de navegação. Se ela crescer além de 3 cartões ou ganhar botões de ação, virou dashboard e quebrou a decisão "home é execução" (contrato §3). No mobile ela empilha *depois* da coluna principal.
 
 ## 4. Estados do hero (máquina de estados)
