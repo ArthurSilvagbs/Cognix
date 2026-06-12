@@ -24,8 +24,10 @@ Nenhuma tabela própria. Tudo deriva do modelo:
 | Alternativas | Próximos N=2 tópicos da fila (mesma query da recomendação, offset 1) |
 | Timer → grava | SessãoDeEstudo (`inicio`, `duracaoMin`, `anotacoes`, `revisaoId?`) |
 | Lateral: semana | Mini-projeção do Calendário (T2): sessões realizadas ✓, dia replanejado —, carga futura por dia |
-| Lateral: plano ativo | Mini-projeção do Progresso (T7): % tópicos, % revisões em dia, Σ duração da semana, `dataAlvo` |
+| Lateral: planos ativos | Mini-projeção do Progresso (T7) por plano (barra + prazo) + agregados do usuário (% revisões em dia, ritmo da semana) |
 | Lateral: avulsos | Tópicos com `materiaId = null` e estado ativo |
+
+**Multi-plano:** todas as consultas acima são por *usuário*, nunca por plano — a fila de hoje mistura "Juros Compostos (BB 2026)" com "Beans (Spring Boot)" numa sequência só. Por isso o breadcrumb `Plano › Matéria` aparece em cada item: é o que situa o tópico quando os planos se misturam. Plano substitui os "grupos" do v1 sem virar ilha.
 
 ## 3. Anatomia (desktop: 2 colunas — execução + contexto)
 

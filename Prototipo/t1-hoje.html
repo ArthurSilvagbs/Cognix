@@ -75,7 +75,7 @@
       <div class="page-kicker">Quinta-feira, 11 de junho</div>
       <h1>Hoje</h1>
       <div class="day-summary" id="daySummary">
-        <b>1 estudo</b> (~40 min) · <b>2 revisões</b> · BB 2026 em dia
+        <b>2 estudos</b> (~1h10) · <b>2 revisões</b> · 2 planos ativos
       </div>
     </div>
 
@@ -175,8 +175,8 @@
             <div class="hero-top"><span class="badge soft">Por hoje é isso</span></div>
             <div class="title-xl">Tudo feito. ✓</div>
             <div class="fim-resumo tnum">
-              <div class="kpi"><div class="n">2</div><div class="l">sessões</div></div>
-              <div class="kpi"><div class="n">1h05</div><div class="l">estudadas</div></div>
+              <div class="kpi"><div class="n">3</div><div class="l">sessões</div></div>
+              <div class="kpi"><div class="n">1h35</div><div class="l">estudadas</div></div>
               <div class="kpi"><div class="n">2/2</div><div class="l">revisões</div></div>
             </div>
             <div class="hero-actions">
@@ -197,11 +197,19 @@
               </div>
               <span class="badge soft" id="filaEstudoBadge">em foco</span>
             </div>
-            <div class="fila-item" data-topico="Regra de Três" data-prox="+7 dias (18/06)">
+            <div class="fila-item" id="filaEstudo2">
               <span class="num">2</span>
               <div class="grow">
+                <div class="title-md">Beans e Injeção de Dependência</div>
+                <div class="meta-dim">Estudo · Spring Boot › Fundamentos · ~30 min</div>
+              </div>
+              <span class="meta-dim">na fila</span>
+            </div>
+            <div class="fila-item" data-topico="Regra de Três" data-prox="+7 dias (18/06)">
+              <span class="num">3</span>
+              <div class="grow">
                 <div class="title-md">Regra de Três</div>
-                <div class="meta-dim">Revisão 2 de 3 · Matemática · concluído há 7 dias</div>
+                <div class="meta-dim">Revisão 2 de 3 · BB 2026 › Matemática · concluído há 7 dias</div>
               </div>
               <div class="actions">
                 <button class="btn sm" data-acao="revisar">Revisar</button>
@@ -209,10 +217,10 @@
               </div>
             </div>
             <div class="fila-item" data-topico="Crase" data-prox="+7 dias (18/06)">
-              <span class="num">3</span>
+              <span class="num">4</span>
               <div class="grow">
                 <div class="title-md">Crase</div>
-                <div class="meta-dim">Revisão 1 de 3 · Português · concluído ontem</div>
+                <div class="meta-dim">Revisão 1 de 3 · BB 2026 › Português · concluído ontem</div>
               </div>
               <div class="actions">
                 <button class="btn sm" data-acao="revisar">Revisar</button>
@@ -269,12 +277,20 @@
         </div>
 
         <div class="card">
-          <h3>BB 2026 <a href="#" data-nav="T4 — Plano BB 2026">ver plano →</a></h3>
-          <div class="side-stat"><span class="l">Progresso</span><span class="v tnum">47 de 138 tópicos</span></div>
+          <h3>Planos ativos <a href="#" data-nav="T3 — Planos">todos →</a></h3>
+
+          <div class="side-stat"><span class="v">BB 2026</span><span class="l tnum">47 de 138</span></div>
           <div class="progress-bar"><div class="fill" style="width:34%"></div></div>
-          <div class="side-stat"><span class="l">Revisões em dia</span><span class="v tnum">92%</span></div>
-          <div class="side-stat"><span class="l">Ritmo desta semana</span><span class="v tnum">3h40 / 5h</span></div>
-          <div class="side-stat"><span class="l">Prova</span><span class="v tnum">08/11 · em 150 dias</span></div>
+          <div class="meta-dim" style="margin-bottom:var(--s3);">Prova 08/11 · em 150 dias</div>
+
+          <div class="side-stat"><span class="v">Spring Boot</span><span class="l tnum">12 de 40</span></div>
+          <div class="progress-bar"><div class="fill" style="width:30%"></div></div>
+          <div class="meta-dim" style="margin-bottom:var(--s3);">Sem prazo · no seu ritmo</div>
+
+          <div style="border-top:1px solid var(--line); padding-top:var(--s2);">
+            <div class="side-stat"><span class="l">Revisões em dia</span><span class="v tnum">92%</span></div>
+            <div class="side-stat"><span class="l">Ritmo desta semana</span><span class="v tnum">3h40 / 5h</span></div>
+          </div>
         </div>
 
         <div class="card">
@@ -527,12 +543,12 @@ $('btnReplanejar').addEventListener('click', () => {
   $('filaList').appendChild(nova);
   ligaRevisao(nova);
   filaAtualiza();
-  $('daySummary').innerHTML = '<b>2 estudos</b> (~1h15) · <b>3 revisões</b> · replanejado agora';
+  $('daySummary').innerHTML = '<b>3 estudos</b> (~1h45) · <b>3 revisões</b> · replanejado agora';
   toast('Replanejado: 2 estudos deslizados · 1 revisão trazida para hoje.', () => {
     $('banner').classList.remove('hidden');
     nova.remove();
     filaAtualiza();
-    $('daySummary').innerHTML = '<b>1 estudo</b> (~40 min) · <b>2 revisões</b> · BB 2026 em dia';
+    $('daySummary').innerHTML = '<b>2 estudos</b> (~1h10) · <b>2 revisões</b> · 2 planos ativos';
   });
 });
 
@@ -560,13 +576,15 @@ $('btnEstudarOntem').addEventListener('click', () => {
     $('banner').classList.add('hidden');
     heroEstado('hero-fim');
     filaEstudoConcluido();
-    document.querySelectorAll('#filaList .fila-item[data-topico]').forEach(i => {
+    document.querySelectorAll('#filaList .fila-item').forEach(i => {
       i.classList.add('done');
+      i.classList.remove('atual');
       i.querySelector('.num').innerHTML = '✓';
-      i.querySelector('.actions').innerHTML = '<span class="meta-dim">✓ revisada</span>';
+      const acoes = i.querySelector('.actions');
+      if (acoes) acoes.innerHTML = '<span class="meta-dim">✓ revisada</span>';
     });
     filaAtualiza();
-    $('daySummary').innerHTML = '<b>2 sessões</b> · <b>1h05</b> estudadas · revisões em dia ✓';
+    $('daySummary').innerHTML = '<b>3 sessões</b> · <b>1h35</b> estudadas · revisões em dia ✓';
   }
   if (c === 'vazio') {
     $('banner').classList.add('hidden');
