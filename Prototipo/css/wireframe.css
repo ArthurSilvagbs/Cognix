@@ -255,6 +255,7 @@ h2.section:first-child { margin-top: 0; }
 .pend-item .t { color: var(--ink-700); font-weight: 600; }
 .pend-item .m { color: var(--ink-400); }
 .chip.warn { color: var(--warn); border-color: var(--warn-line); background: var(--warn-soft); font-weight: 600; }
+.chip.foco { color: var(--primary-strong); border-color: transparent; background: var(--primary-soft); font-weight: 600; }
 .chev { transition: transform var(--speed); }
 .chev.aberto { transform: rotate(180deg); }
 

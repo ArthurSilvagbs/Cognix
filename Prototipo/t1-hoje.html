@@ -91,7 +91,7 @@
         <div class="banner" id="banner">
           <div class="banner-title">
             <svg class="icon warn-ico"><use href="#i-warn"/></svg>
-            <div class="title-md">Ontem ficou pendente.</div>
+            <div class="title-md" id="bannerTitulo">Ontem ficou pendente.</div>
           </div>
           <div class="meta-dim">Sem problema — dá pra reorganizar em um clique.</div>
           <div class="banner-actions">
@@ -105,9 +105,9 @@
             </button>
           </div>
           <div class="banner-details hidden fade-in" id="bannerDetalhes">
-            <div class="pend-item"><span class="chip warn">estudo não feito</span><span class="t">Razão e Proporção</span><span class="m">~35 min · BB 2026 › Matemática</span></div>
-            <div class="pend-item"><span class="chip warn">estudo não feito</span><span class="t">Funções</span><span class="m">~30 min · BB 2026 › Matemática</span></div>
-            <div class="pend-item"><span class="chip warn">revisão não feita</span><span class="t">Juros Simples</span><span class="m">3ª de 3 · BB 2026 › Matemática</span></div>
+            <div class="pend-item" id="pendRP"><span class="chip warn">estudo não feito</span><span class="t">Razão e Proporção</span><span class="m">~35 min · BB 2026 › Matemática</span></div>
+            <div class="pend-item" id="pendFun"><span class="chip warn">estudo não feito</span><span class="t">Funções</span><span class="m">~30 min · BB 2026 › Matemática</span></div>
+            <div class="pend-item" id="pendJS"><span class="chip warn">revisão não feita</span><span class="t">Juros Simples</span><span class="m">3ª de 3 · BB 2026 › Matemática</span></div>
           </div>
         </div>
 
@@ -572,15 +572,41 @@ $('btnReplanejar').addEventListener('click', () => {
   });
 });
 
+/* "Estudar o de ontem" NÃO resolve as pendências — só puxa a próxima
+   pro foco de agora. O banner persiste com a contagem do que resta;
+   só o Replanejar (ou zerar a fila) o faz sumir. */
+const pendEstudos = [
+  { id: 'pendRP',  titulo: 'Razão e Proporção', meta: 'Estudo · Matemática · ~35 min (de ontem)' },
+  { id: 'pendFun', titulo: 'Funções',           meta: 'Estudo · Matemática · ~30 min (de ontem)' },
+];
+
 $('btnEstudarOntem').addEventListener('click', () => {
-  $('banner').classList.add('hidden');
-  $('heroTitulo').textContent = 'Razão e Proporção';
+  const prox = pendEstudos.shift();
+  if (!prox) return;
+
+  $('heroTitulo').textContent = prox.titulo;
   $('heroCrumb').innerHTML = 'BB 2026 <span class="sep">›</span> Matemática';
   $('heroReason').textContent = 'Era o estudo de ontem — retomado por sua escolha.';
-  $('filaEstudoTitulo').textContent = 'Razão e Proporção';
-  $('filaEstudoMeta').textContent = 'Estudo · Matemática · ~35 min (de ontem)';
+  $('filaEstudoTitulo').textContent = prox.titulo;
+  $('filaEstudoMeta').textContent = prox.meta;
   heroEstado('hero-idle');
-  toast('Recomendação trocada para o estudo de ontem.');
+
+  /* marca o item na sanfona como em foco e abre pra mostrar */
+  const chip = document.querySelector(`#${prox.id} .chip`);
+  chip.classList.remove('warn');
+  chip.classList.add('foco');
+  chip.textContent = 'em foco agora';
+  $('bannerDetalhes').classList.remove('hidden');
+  $('btnDetalhes').setAttribute('aria-expanded', 'true');
+  $('chevDetalhes').classList.add('aberto');
+
+  /* contagem do que ainda resta (estudos restantes + 1 revisão) */
+  const restam = pendEstudos.length + 1;
+  $('bannerTitulo').textContent =
+    restam === 1 ? 'Ainda há 1 pendência de ontem.' : `Ainda há ${restam} pendências de ontem.`;
+  if (pendEstudos.length === 0) $('btnEstudarOntem').classList.add('hidden');
+
+  toast(`${prox.titulo} em foco. O restante de ontem continua no banner.`);
 });
 
 /* ---------- Cenário inicial via URL (?cenario=caos|padrao|fim|vazio) ---------- */
