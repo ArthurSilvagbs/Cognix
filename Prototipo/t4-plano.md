@@ -1,6 +1,6 @@
 # T4 — Plano (detalhe)
 
-> **Protótipo:** `t4-plano.html` · **Fase:** 4 · **Status:** 🟡 rascunho para revisão
+> **Protótipo:** `t4-plano.html` · **Fase:** 4 · **Status:** ✅ **validada pelo Arthur em 2026-06-12** (revisões: listagem encorpada, kanban Jira + scroll horizontal, escala de cor de estado, semântica do Dominado na legenda)
 > **Referências:** AI v0.1 (T4) · Modelo de Domínio (§3 projeções Lista/árvore e Kanban, R4)
 
 ## 1. Objetivo

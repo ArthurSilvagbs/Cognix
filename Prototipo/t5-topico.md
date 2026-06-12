@@ -1,6 +1,6 @@
 # T5 — Tópico (painel lateral)
 
-> **Protótipo:** vive dentro de `t4-plano.html` (clicar em qualquer tópico) · **Status:** 🟡 rascunho para revisão
+> **Protótipo:** vive dentro de `t4-plano.html` (clicar em qualquer tópico) · **Status:** ✅ **validada pelo Arthur em 2026-06-12** (matriz estado×ação decidida)
 > **Referências:** AI v0.1 (T5) · Modelo de Domínio (Tópico, Sessão, Revisão, R1/R2/D4/D6)
 
 ## 1. Objetivo
