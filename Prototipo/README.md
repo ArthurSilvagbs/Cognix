@@ -15,7 +15,7 @@ Cada tela tem um par: `tN-nome.html` (wireframe navegável) + `tN-nome.md` (desc
 | T3 | Planos (lista) | ⬜ |
 | T4 | Plano (detalhe: árvore ⇄ kanban) | ✅ validada (2026-06-12) |
 | T5 | Tópico (painel lateral, dentro de t4-plano.html) | ✅ validada (2026-06-12) |
-| T6 | Novo plano (wizard, 4 modos) | 🟡 próxima |
+| T6 | Novo plano (wizard, 4 modos) | 🟡 rascunho em revisão |
 | T7 | Progresso | ⬜ |
 | T8 | Configurações | ⬜ |
 

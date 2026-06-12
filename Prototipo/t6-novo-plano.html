@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Novo plano — Cognix v2 · protótipo T6</title>
+<script>
+  document.documentElement.dataset.theme = localStorage.getItem('cognix-tema') || 'dark';
+</script>
+<link rel="stylesheet" href="css/wireframe.css">
+<style>
+  .passos { display: flex; align-items: center; gap: var(--s2); margin-bottom: var(--s5);
+            font-size: var(--t-caption); color: var(--ink-400); }
+  .passos .p { display: flex; align-items: center; gap: var(--s1); }
+  .passos .p .dot { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center;
+                    justify-content: center; background: var(--bg-soft); font-weight: 700; font-size: 11px; }
+  .passos .p.on { color: var(--primary-strong); font-weight: 600; }
+  .passos .p.on .dot { background: var(--primary); color: #fff; }
+  .passos .lig { width: 24px; height: 1px; background: var(--line-strong); }
+
+  /* passo 1: modos */
+  .modos { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s3); }
+  .modo { background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius);
+          padding: var(--s4); cursor: pointer; transition: border-color var(--speed), box-shadow var(--speed); }
+  .modo:hover { border-color: var(--primary-line); box-shadow: var(--shadow-md); }
+  .modo .icon { color: var(--primary-strong); margin-bottom: var(--s2); width: 22px; height: 22px; }
+  .modo .ex { font-size: var(--t-caption); color: var(--ink-400); margin-top: var(--s2);
+              border-top: 1px dashed var(--line); padding-top: var(--s2); }
+  @media (max-width: 700px) { .modos { grid-template-columns: 1fr; } }
+
+  /* passo 2: input */
+  .perg { display: flex; gap: var(--s3); flex-wrap: wrap; margin-top: var(--s4); }
+  .perg .field { flex: 1; min-width: 200px; }
+  .gerando { text-align: center; padding: var(--s7) 0; }
+  .gerando .spin { width: 28px; height: 28px; border: 3px solid var(--bg-soft); border-top-color: var(--primary);
+                   border-radius: 50%; margin: 0 auto var(--s3); animation: gira 0.8s linear infinite; }
+  @keyframes gira { to { transform: rotate(360deg); } }
+
+  /* passo 3: rascunho */
+  .rascunho-aviso { display: flex; align-items: center; gap: var(--s2); background: var(--primary-soft);
+                    border-radius: var(--radius-sm); padding: var(--s2) var(--s3);
+                    font-size: var(--t-meta); color: var(--primary-strong); margin-bottom: var(--s4); }
+  .r-materia { display: flex; align-items: center; gap: var(--s3); padding: var(--s2) 0;
+               border-bottom: 1px solid var(--line); font-size: var(--t-body); }
+  .r-materia:last-of-type { border-bottom: none; }
+  .r-materia .n { margin-left: auto; font-size: var(--t-meta); color: var(--ink-500); }
+  .r-materia .btn { visibility: hidden; }
+  .r-materia:hover .btn { visibility: visible; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-hoje" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-planos" viewBox="0 0 24 24"><path d="M5 5h14M5 12h14M5 19h9"/></symbol>
+    <symbol id="i-prog" viewBox="0 0 24 24"><path d="M5 19V10M12 19V5M19 19v-6"/></symbol>
+    <symbol id="i-config" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M21 12h-2.5M5.5 12H3M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8M18.4 18.4l-1.8-1.8M7.4 7.4 5.6 5.6"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-width="2.25"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h6M9 16h6"/></symbol>
+    <symbol id="i-lista" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" stroke-width="2"/></symbol>
+    <symbol id="i-alvo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-mao" viewBox="0 0 24 24"><path d="M14 4.5a1.5 1.5 0 0 1 3 0V12m0-5.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-1a7 7 0 0 1-6-3.4L4 13.5a1.6 1.6 0 0 1 2.7-1.6L8 13V6a1.5 1.5 0 0 1 3 0m0 0v5m3-6.5V11"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-volta" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+  </defs>
+</svg>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">Cognix <span class="v">v2</span></div>
+    <button class="btn-novo" style="opacity:.5; cursor:default;"><svg class="icon sm"><use href="#i-plus"/></svg> Novo</button>
+    <a class="nav-item" href="t1-hoje.html"><svg class="icon"><use href="#i-hoje"/></svg> Hoje</a>
+    <a class="nav-item" href="#" data-nav="T2 — Calendário"><svg class="icon"><use href="#i-cal"/></svg> Calendário</a>
+    <a class="nav-item" href="t4-plano.html"><svg class="icon"><use href="#i-planos"/></svg> Planos</a>
+    <a class="nav-item" href="#" data-nav="T7 — Progresso"><svg class="icon"><use href="#i-prog"/></svg> Progresso</a>
+    <div class="spacer"></div>
+    <a class="nav-item" href="#" data-nav="T8 — Configurações"><svg class="icon"><use href="#i-config"/></svg> Configurações</a>
+  </aside>
+
+  <main><div class="page" style="max-width:640px;">
+
+    <div class="page-kicker">Novo plano</div>
+    <h1 id="titulo">Como o conteúdo chega?</h1>
+
+    <div class="passos" aria-hidden="true">
+      <div class="p on" id="p1"><span class="dot">1</span> Modo</div>
+      <div class="lig"></div>
+      <div class="p" id="p2"><span class="dot">2</span> Conteúdo</div>
+      <div class="lig"></div>
+      <div class="p" id="p3"><span class="dot">3</span> Rascunho</div>
+    </div>
+
+    <!-- ============ PASSO 1: os 4 modos ============ -->
+    <div id="passo1">
+      <div class="modos">
+        <div class="modo" data-modo="documento">
+          <svg class="icon"><use href="#i-doc"/></svg>
+          <div class="title-md">Tenho um documento</div>
+          <div class="meta">Edital, PDF da escola, ementa — a IA extrai e organiza a estrutura.</div>
+          <div class="ex">ex.: "Edital BB 2026.pdf"</div>
+        </div>
+        <div class="modo" data-modo="lista">
+          <svg class="icon"><use href="#i-lista"/></svg>
+          <div class="title-md">Tenho uma lista solta</div>
+          <div class="meta">Assuntos anotados de qualquer jeito — a IA completa as lacunas e organiza.</div>
+          <div class="ex">ex.: "cai português, mat. financeira e mais umas coisas"</div>
+        </div>
+        <div class="modo" data-modo="objetivo">
+          <svg class="icon"><use href="#i-alvo"/></svg>
+          <div class="title-md">Só sei o objetivo</div>
+          <div class="meta">Diga o que quer aprender — a IA monta a trilha com os pré-requisitos na ordem.</div>
+          <div class="ex">ex.: "quero aprender integrais"</div>
+        </div>
+        <div class="modo" data-modo="manual">
+          <svg class="icon"><use href="#i-mao"/></svg>
+          <div class="title-md">Eu monto na mão</div>
+          <div class="meta">Estrutura vazia, sem IA — matérias e tópicos do seu jeito, com os mesmos poderes.</div>
+          <div class="ex">caminho de primeira classe, não um plano B</div>
+        </div>
+      </div>
+      <div class="meta-dim" style="margin-top:var(--s4);">Em todos os modos o resultado é um <b>rascunho 100% editável</b> — a IA escreve o rascunho; você é o dono.</div>
+    </div>
+
+    <!-- ============ PASSO 2: conteúdo + 2 perguntas ============ -->
+    <div id="passo2" class="hidden">
+      <div class="card">
+        <label for="conteudo" id="lblConteudo">Cole o conteúdo (ou arraste o arquivo)</label>
+        <textarea id="conteudo" rows="7" placeholder="Cole aqui o edital, a lista ou descreva o objetivo…">CONHECIMENTOS BÁSICOS: LÍNGUA PORTUGUESA: Compreensão de textos. Ortografia oficial. Crase. Pontuação. Concordância nominal e verbal. Regência. (...) MATEMÁTICA: Juros simples e compostos. Porcentagem. Razão e proporção. (...) CONHECIMENTOS BANCÁRIOS: Sistema Financeiro Nacional. (...)</textarea>
+
+        <div class="perg">
+          <div class="field">
+            <label for="dataAlvo">Data da prova/meta (opcional)</label>
+            <input type="text" id="dataAlvo" class="tnum" value="08/11/2026">
+          </div>
+          <div class="field">
+            <label>Sua disponibilidade (do perfil — D7)</label>
+            <input type="text" value="seg–sex 1h · sáb–dom 3h" readonly style="color:var(--ink-500);">
+          </div>
+        </div>
+
+        <div style="display:flex; gap:var(--s3); margin-top:var(--s5);">
+          <button class="btn primary" id="btnGerar">Gerar rascunho com IA</button>
+          <button class="btn ghost" id="btnVoltar1"><svg class="icon sm"><use href="#i-volta"/></svg> Voltar</button>
+        </div>
+        <div class="meta-dim" style="margin-top:var(--s3);">A IA só escreve estrutura (plano → matérias → tópicos), sempre como rascunho. Sessões, revisões e agendamentos nunca são criados por ela.</div>
+      </div>
+
+      <div class="gerando hidden" id="gerando">
+        <div class="spin"></div>
+        <div class="title-md">Lendo o conteúdo e montando a estrutura…</div>
+        <div class="meta-dim">única etapa com custo de IA — daqui pra frente é tudo algorítmico</div>
+      </div>
+    </div>
+
+    <!-- ============ PASSO 3: rascunho ============ -->
+    <div id="passo3" class="hidden">
+      <div class="rascunho-aviso">
+        <svg class="icon sm"><use href="#i-check"/></svg>
+        Rascunho pronto: <b>8 matérias · 138 tópicos</b> — edite à vontade antes de ativar. Nada foi agendado ainda.
+      </div>
+
+      <div class="card" style="padding-top:var(--s2); padding-bottom:var(--s2);">
+        <div class="r-materia"><span class="title-md">Língua Portuguesa</span><button class="btn ghost sm" data-nav="Editar matéria">editar</button><span class="n tnum">24 tópicos</span></div>
+        <div class="r-materia"><span class="title-md">Matemática</span><button class="btn ghost sm" data-nav="Editar matéria">editar</button><span class="n tnum">18 tópicos</span></div>
+        <div class="r-materia"><span class="title-md">Matemática Financeira</span><button class="btn ghost sm" data-nav="Editar matéria">editar</button><span class="n tnum">12 tópicos</span></div>
+        <div class="r-materia"><span class="title-md">Conhecimentos Bancários</span><button class="btn ghost sm" data-nav="Editar matéria">editar</button><span class="n tnum">22 tópicos</span></div>
+        <div class="r-materia"><span class="title-md">Informática</span><button class="btn ghost sm" data-nav="Editar matéria">editar</button><span class="n tnum">19 tópicos</span></div>
+        <div class="r-materia"><span class="title-md">Atualidades do Mercado Financeiro</span><button class="btn ghost sm" data-nav="Editar matéria">editar</button><span class="n tnum">15 tópicos</span></div>
+        <div class="r-materia"><span class="title-md">Vendas e Negociação</span><button class="btn ghost sm" data-nav="Editar matéria">editar</button><span class="n tnum">16 tópicos</span></div>
+        <div class="r-materia"><span class="title-md">Língua Inglesa</span><button class="btn ghost sm" data-nav="Editar matéria">editar</button><span class="n tnum">12 tópicos</span></div>
+      </div>
+
+      <div class="meta-dim" style="margin:var(--s3) 0 var(--s5);">
+        A edição completa (renomear, excluir, reordenar, adicionar) acontece na <b>tela do plano</b> — a mesma de sempre, com o plano em estado <i>rascunho</i>. Não existe editor paralelo.
+      </div>
+
+      <div style="display:flex; gap:var(--s3); flex-wrap:wrap;">
+        <button class="btn primary" id="btnConfirmar"><svg class="icon sm"><use href="#i-check"/></svg> Ativar plano</button>
+        <a class="btn" href="t4-plano.html">Revisar na tela do plano →</a>
+        <button class="btn ghost" id="btnVoltar2"><svg class="icon sm"><use href="#i-volta"/></svg> Voltar</button>
+      </div>
+      <div class="meta-dim" style="margin-top:var(--s3);">Ativar = distribuir os agendamentos no calendário (algorítmico, R5) respeitando sua disponibilidade por dia da semana.</div>
+    </div>
+
+  </div></main>
+</div>
+
+<nav class="bottombar" aria-label="Navegação principal">
+  <a href="t1-hoje.html"><svg class="icon"><use href="#i-hoje"/></svg>Hoje</a>
+  <a href="#" data-nav="T2 — Calendário"><svg class="icon"><use href="#i-cal"/></svg>Calendário</a>
+  <div class="fab"><button aria-label="Novo" style="opacity:.5;"><svg class="icon"><use href="#i-plus"/></svg></button></div>
+  <a href="t4-plano.html"><svg class="icon"><use href="#i-planos"/></svg>Planos</a>
+  <a href="#" data-nav="T7 — Progresso"><svg class="icon"><use href="#i-prog"/></svg>Progresso</a>
+</nav>
+
+<nav class="demo-bar" aria-label="Demo">
+  <span class="lbl">T6</span>
+  <a href="t1-hoje.html">← T1</a>
+  <a href="t4-plano.html">T4</a>
+  <span class="sep"></span>
+  <button class="theme" id="themeToggle" title="Alternar tema">tema</button>
+</nav>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toastMsg"></span></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let toastTimer = null;
+function toast(msg) {
+  $('toastMsg').textContent = msg;
+  $('toast').classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $('toast').classList.remove('show'), 4500);
+}
+document.querySelectorAll('[data-nav]').forEach(el => el.addEventListener('click', (e) => {
+  e.preventDefault(); e.stopPropagation();
+  toast(`${el.dataset.nav}: ainda não construída neste protótipo.`);
+}));
+$('themeToggle').addEventListener('click', () => {
+  const r = document.documentElement;
+  r.dataset.theme = r.dataset.theme === 'light' ? 'dark' : 'light';
+  localStorage.setItem('cognix-tema', r.dataset.theme);
+});
+
+/* navegação do wizard */
+const TITULOS = { 1: 'Como o conteúdo chega?', 2: 'Conteúdo e contexto', 3: 'BB 2026 — rascunho da IA' };
+function passo(n) {
+  [1,2,3].forEach(i => {
+    $('passo'+i).classList.toggle('hidden', i !== n);
+    $('p'+i).classList.toggle('on', i <= n);
+  });
+  $('titulo').textContent = TITULOS[n];
+}
+
+const LABELS = {
+  documento: 'Cole o conteúdo (ou arraste o arquivo)',
+  lista: 'Cole ou escreva sua lista de assuntos',
+  objetivo: 'Descreva o que você quer aprender',
+};
+document.querySelectorAll('.modo').forEach(m => m.addEventListener('click', () => {
+  if (m.dataset.modo === 'manual') {
+    /* manual pula a IA: nasce um plano rascunho vazio na tela do plano */
+    toast('Plano vazio criado como rascunho — montagem na tela do plano (T4).');
+    setTimeout(() => location.href = 't4-plano.html', 900);
+    return;
+  }
+  $('lblConteudo').textContent = LABELS[m.dataset.modo];
+  passo(2);
+}));
+
+$('btnVoltar1').addEventListener('click', () => passo(1));
+$('btnVoltar2').addEventListener('click', () => passo(2));
+
+$('btnGerar').addEventListener('click', () => {
+  document.querySelector('#passo2 .card').classList.add('hidden');
+  $('gerando').classList.remove('hidden');
+  setTimeout(() => {
+    document.querySelector('#passo2 .card').classList.remove('hidden');
+    $('gerando').classList.add('hidden');
+    passo(3);
+  }, 1600);
+});
+
+$('btnConfirmar').addEventListener('click', () => {
+  toast('Plano ativo: 138 agendamentos distribuídos (R5). Primeiro estudo: amanhã — veja em Hoje.');
+  setTimeout(() => location.href = 't1-hoje.html?cenario=padrao', 1400);
+});
+</script>
+</body>
+</html>
