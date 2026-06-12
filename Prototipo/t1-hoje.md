@@ -20,39 +20,44 @@ Nenhuma tabela própria. Tudo deriva do modelo:
 | Resumo do dia | Agendamentos de hoje (count + Σ estimativaMin) + revisões vencendo (count) |
 | Banner do caos | Existe Agendamento `pendente` com `data < hoje` OU Revisão `agendada` com `dataPrevista < hoje` |
 | Recomendação principal | 1º Agendamento `pendente` de hoje, na `ordem` do plano |
-| Revisões de hoje | Revisões `agendada` com `dataPrevista ≤ hoje` |
+| Fila de hoje | Agendamentos de hoje ∪ Revisões `agendada` com `dataPrevista ≤ hoje`, ordenados (estudo primeiro, revisões por antiguidade) |
 | Alternativas | Próximos N=2 tópicos da fila (mesma query da recomendação, offset 1) |
 | Timer → grava | SessãoDeEstudo (`inicio`, `duracaoMin`, `anotacoes`, `revisaoId?`) |
+| Lateral: semana | Mini-projeção do Calendário (T2): sessões realizadas ✓, dia replanejado —, carga futura por dia |
+| Lateral: plano ativo | Mini-projeção do Progresso (T7): % tópicos, % revisões em dia, Σ duração da semana, `dataAlvo` |
+| Lateral: avulsos | Tópicos com `materiaId = null` e estado ativo |
 
-## 3. Anatomia (ordem vertical = hierarquia de atenção)
+## 3. Anatomia (desktop: 2 colunas — execução + contexto)
 
 ```
-┌──────────────────────────────────────────────┐
-│ kicker: data por extenso                     │
-│ H1 "Hoje"                                    │
-│ resumo do dia (1 linha, números em negrito)  │
-├──────────────────────────────────────────────┤
-│ [banner do caos]      ← só quando há pendência│
-├──────────────────────────────────────────────┤
-│ ╔══ HERO (card destacado) ══╗                │
-│ ║ badge ESTUDE AGORA + chip tempo            │
-│ ║ título do tópico (maior texto da tela)     │
-│ ║ breadcrumb Plano › Matéria                 │
-│ ║ linha de motivo ("por que este?")          │
-│ ║ [▶ Iniciar] [Estudei fora do app]          │
-│ ╚════════════════════════════╝               │
-├──────────────────────────────────────────────┤
-│ REVISÕES DE HOJE (n)                         │
-│   item: tópico · "2ª de 3" · contexto        │
-│         [Revisar] [Adiar]                    │
-├──────────────────────────────────────────────┤
-│ ALTERNATIVAS VÁLIDAS                         │
-│   item: tópico · matéria · tempo [Estudar esta]│
-│   nota: "trocar não bagunça o plano"         │
-└──────────────────────────────────────────────┘
+┌ kicker: data por extenso ─────────────────────────────────────────┐
+│ H1 "Hoje" · resumo do dia (1 linha, números em negrito)           │
+├───────────────────────────────────────────┬───────────────────────┤
+│ COLUNA PRINCIPAL (execução)               │ LATERAL (contexto)    │
+│                                           │                       │
+│ [banner do caos]  ← só quando há pendência │ SUA SEMANA            │
+│                                           │  7 células: ✓ feitos, │
+│ ╔══ HERO (card destacado) ══╗             │  — replanejado, hoje  │
+│ ║ badge ESTUDE AGORA + chip tempo         │  destacado, futuros   │
+│ ║ título do tópico (maior texto da tela)  │  com carga (···)      │
+│ ║ breadcrumb Plano › Matéria              │                       │
+│ ║ motivo ("por que este?")                │ BB 2026 (plano ativo) │
+│ ║ [▶ Iniciar] [Registrar sem timer]       │  barra de progresso   │
+│ ╚════════════════════════════╝            │  revisões em dia %    │
+│                                           │  ritmo da semana      │
+│ FILA DE HOJE (0 de 3)                     │  countdown da prova   │
+│  ① estudo (em foco) ② revisão ③ revisão   │                       │
+│  [Revisar] [Adiar] por item               │ AVULSOS (2 itens)     │
+│                                           │                       │
+│ SE NÃO ESTIVER NO CLIMA (alternativas)    │                       │
+└───────────────────────────────────────────┴───────────────────────┘
 ```
 
-**Regra de ouro da hierarquia:** o título do tópico recomendado é o maior texto da página depois do H1 — o olho tem que cair nele primeiro. Banner e revisões nunca competem visualmente com o hero.
+**Regra de ouro da hierarquia:** o título do tópico recomendado é o maior texto da página depois do H1 — o olho cai nele primeiro. Banner, fila e lateral nunca competem visualmente com o hero.
+
+**A fila de hoje** é o dia inteiro como sequência numerada (estudo + revisões na ordem recomendada). O item em foco espelha o hero; concluir/revisar marca ✓ na fila — sensação de jornada, contador "N de M".
+
+**Regra da coluna lateral (anti-dashboard):** a lateral é *contexto de relance* — semana, plano ativo, avulsos. **Nenhuma ação de execução mora nela**, só leitura e links de navegação. Se ela crescer além de 3 cartões ou ganhar botões de ação, virou dashboard e quebrou a decisão "home é execução" (contrato §3). No mobile ela empilha *depois* da coluna principal.
 
 ## 4. Estados do hero (máquina de estados)
 
