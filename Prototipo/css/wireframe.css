@@ -55,6 +55,7 @@
   --t-body: 14px;
   --t-md: 15px;
   --t-lg: 17px;
+  --t-section: 20px;  /* cabeçalho de seção (h2.section) — entre t-lg e t-xl */
   --t-xl: 22px;
   --t-h1: 28px;
   --t-timer: 56px;
@@ -216,14 +217,14 @@ h1 { font-size: var(--t-h1); font-weight: 700; letter-spacing: -0.02em; margin: 
 .page-head { margin-bottom: var(--s5); }
 
 h2.section {
-  font-size: var(--t-caption); color: var(--ink-500); font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.08em;
-  margin: var(--s5) 0 var(--s3);
+  font-size: var(--t-section); color: var(--ink-900); font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: var(--s6) 0 var(--s3);
   display: flex; align-items: center; gap: var(--s2);
 }
 h2.section .count {
-  background: var(--bg-soft); border-radius: 99px; padding: 0 var(--s2);
-  font-size: var(--t-kicker); color: var(--ink-500);
+  background: var(--bg-soft); border-radius: 99px; padding: 1px var(--s2);
+  font-size: var(--t-caption); color: var(--ink-500); font-weight: 600;
 }
 h2.section:first-child { margin-top: 0; }
 
