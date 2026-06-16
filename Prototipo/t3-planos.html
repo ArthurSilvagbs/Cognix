@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planos — Cognix v2 · protótipo T3</title>
+<script>
+  document.documentElement.dataset.theme = localStorage.getItem('cognix-tema') || 'dark';
+</script>
+<link rel="stylesheet" href="css/wireframe.css">
+<style>
+  /* ---- T3: grid de cards de plano ---- */
+  .plans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--s4);
+  }
+
+  .plan-card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: var(--s4) var(--s5);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: border-color var(--speed), box-shadow var(--speed);
+    display: flex;
+    flex-direction: column;
+    gap: var(--s3);
+    text-decoration: none;
+  }
+  .plan-card:hover {
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-md);
+  }
+
+  .plan-card-head {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--s2);
+  }
+  .plan-card-head .name {
+    flex: 1;
+    font-size: var(--t-md);
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--ink-900);
+  }
+  .menu-wrap { position: relative; display: inline-block; }
+  .menu-btn {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: var(--ink-400);
+    cursor: pointer;
+    padding: 3px;
+    border-radius: var(--radius-sm);
+    transition: background var(--speed), color var(--speed);
+    display: flex;
+    align-items: center;
+    line-height: 0;
+  }
+  .menu-btn:hover { background: var(--bg-soft); color: var(--ink-700); }
+
+  .plan-card-badges {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    flex-wrap: wrap;
+  }
+
+  /* Progresso */
+  .plan-progress { display: flex; flex-direction: column; gap: var(--s1); }
+  .pct-row { display: flex; justify-content: space-between; align-items: baseline; }
+  .pct-val { font-size: var(--t-meta); font-weight: 700; color: var(--ink-700); }
+  .pct-lbl { font-size: var(--t-caption); color: var(--ink-400); }
+
+  /* KPIs */
+  .plan-kpis { display: flex; gap: var(--s5); flex-wrap: wrap; }
+  .plan-kpis .kpi { display: flex; flex-direction: column; gap: 1px; }
+  .plan-kpis .kpi .n { font-size: var(--t-body); font-weight: 700; color: var(--ink-900); }
+  .plan-kpis .kpi .l { font-size: var(--t-caption); color: var(--ink-400); }
+
+  /* Footer */
+  .plan-card-foot {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    flex-wrap: wrap;
+    padding-top: var(--s2);
+    border-top: 1px solid var(--line);
+    margin-top: auto;
+  }
+  .plan-card-foot .grow { flex: 1; }
+
+  /* Rascunho leve */
+  .plan-card.rascunho { opacity: 0.8; }
+
+  /* Badge rascunho */
+  .badge.draft { background: var(--bg-soft); color: var(--ink-500); }
+
+  /* Dropdown contextual */
+  .dropdown {
+    position: absolute; right: 0; top: calc(100% + 4px);
+    background: var(--bg-card);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
+    z-index: 30;
+    min-width: 170px;
+    overflow: hidden;
+    opacity: 0; pointer-events: none;
+    transform: translateY(-4px);
+    transition: opacity var(--speed), transform var(--speed);
+  }
+  .dropdown.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  .dropdown a, .dropdown button {
+    display: flex; align-items: center; gap: var(--s2);
+    padding: var(--s2) var(--s3);
+    font-size: var(--t-body); color: var(--ink-700);
+    text-decoration: none; background: none; border: none;
+    cursor: pointer; width: 100%; font: inherit; text-align: left;
+    transition: background var(--speed);
+  }
+  .dropdown a:hover, .dropdown button:hover { background: var(--bg-soft); }
+  .dropdown .danger { color: #f87171; }
+  .dropdown .sep-line { height: 1px; background: var(--line); margin: var(--s1) 0; }
+
+  /* Tópicos avulsos */
+  .avulso-list { display: flex; flex-direction: column; }
+  .avulso-item {
+    display: flex; align-items: center; gap: var(--s3);
+    padding: var(--s3) var(--s2);
+    border-bottom: 1px solid var(--line);
+    cursor: pointer; border-radius: var(--radius-sm);
+    transition: background var(--speed);
+  }
+  .avulso-item:hover { background: var(--bg-soft); }
+  .avulso-item:last-child { border-bottom: none; }
+  /* Escala de cor de estado — mesma da T4 */
+  .avulso-item .estado-ico { color: var(--ink-400); flex-shrink: 0; }
+  .avulso-item[data-estado="em_estudo"]  .estado-ico { color: var(--warn); }
+  .avulso-item[data-estado="em_revisao"] .estado-ico { color: var(--primary-strong); }
+  .avulso-item[data-estado="dominado"]   .estado-ico { color: var(--success); }
+  .avulso-item .grow { flex: 1; min-width: 0; }
+  .avulso-item .t  { font-size: var(--t-body); font-weight: 600; }
+  .avulso-item .m2 { font-size: var(--t-caption); color: var(--ink-400); }
+  .avulso-item .prox { font-size: var(--t-meta); color: var(--ink-500); flex-shrink: 0; }
+
+  /* Empty state onboarding */
+  .ob-cards {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: var(--s4); max-width: 520px; margin: var(--s5) auto 0;
+  }
+  .ob-card {
+    background: var(--bg-card); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: var(--s5);
+    text-align: center; cursor: pointer;
+    transition: border-color var(--speed), box-shadow var(--speed);
+    text-decoration: none;
+  }
+  .ob-card:hover { border-color: var(--primary-line); box-shadow: var(--shadow-md); }
+  .ob-card .ob-ico { color: var(--primary-strong); margin-bottom: var(--s3); }
+  .ob-card .ob-title { font-size: var(--t-md); font-weight: 700; color: var(--ink-900); margin-bottom: var(--s2); }
+  .ob-card .ob-desc  { font-size: var(--t-meta); color: var(--ink-500); }
+
+  @media (max-width: 768px) {
+    .plans-grid { grid-template-columns: 1fr; }
+    .ob-cards    { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ══ SIDEBAR ══ -->
+  <nav class="sidebar">
+    <div class="logo"><span class="mark">C</span> Cognix <span class="v">v2</span></div>
+
+    <button class="btn-novo" onclick="window.location='t6-novo-plano.html'">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-width="2.25"/></svg>
+      Novo
+    </button>
+
+    <a href="t1-hoje.html" class="nav-item">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18"/><path d="M7.5 18a4.5 4.5 0 0 1 9 0"/><path d="M12 4v3M5.2 8.6l1.5 1.5M18.8 8.6l-1.5 1.5M2.5 13H5M19 13h2.5"/></svg>
+      Hoje
+    </a>
+    <a href="t2-calendario.html" class="nav-item">
+      <svg class="icon" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg>
+      Calendário
+    </a>
+    <a href="t3-planos.html" class="nav-item active">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M12 3 3 7.5l9 4.5 9-4.5L12 3z"/><path d="M3 12l9 4.5L21 12"/><path d="M3 16.5 12 21l9-4.5"/></svg>
+      Planos
+    </a>
+    <a href="t7-progresso.html" class="nav-item">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M5 19V10M12 19V5M19 19v-6"/></svg>
+      Progresso
+    </a>
+
+    <div class="spacer"></div>
+
+    <a class="side-foco" href="t1-hoje.html">
+      <span class="sf-kick">Foco de hoje</span>
+      <div class="sf-next">
+        <span class="sf-play"><svg class="icon" viewBox="0 0 24 24"><path d="M8 6.5v11l9-5.5z" fill="currentColor" stroke="none"/></svg></span>
+        <span class="sf-info">
+          <span class="sf-t">Juros compostos</span>
+          <span class="sf-c">Mat. Financeira · ~40min</span>
+        </span>
+      </div>
+      <div class="sf-bar"><i style="width:33%"></i></div>
+      <div class="sf-meta">1 de 3 estudos feitos</div>
+    </a>
+    <a href="t8-config.html" class="nav-item">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Configurações
+    </a>
+  </nav>
+
+  <!-- ══ MAIN ══ -->
+  <main>
+
+    <!-- ── Cenário A: Normal ── -->
+    <div class="page" id="page-normal">
+
+      <div class="page-head">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:var(--s4); flex-wrap:wrap;">
+          <div>
+            <p class="page-kicker">Cognix v2</p>
+            <h1>Planos</h1>
+            <p class="day-summary"><b>2 planos ativos</b> · 1 rascunho · 2 tópicos avulsos</p>
+          </div>
+          <button class="btn primary" onclick="window.location='t6-novo-plano.html'">
+            <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Novo plano
+          </button>
+        </div>
+      </div>
+
+      <!-- ─ Ativos ─ -->
+      <h2 class="section">Ativos <span class="count">2</span></h2>
+
+      <div class="plans-grid">
+
+        <!-- Plano 1 -->
+        <div class="plan-card" onclick="window.location='t4-plano.html'">
+          <div class="plan-card-head">
+            <div class="name">BB 2026 — Conhecimentos Bancários</div>
+            <div class="menu-wrap">
+              <button class="menu-btn" onclick="event.stopPropagation(); toggleMenu('m1')" aria-label="Opções">
+                <svg class="icon" viewBox="0 0 24 24">
+                  <circle cx="12" cy="5"  r="1" fill="currentColor" stroke="none"/>
+                  <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/>
+                  <circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/>
+                </svg>
+              </button>
+              <div class="dropdown" id="m1">
+                <a href="t4-plano.html">
+                  <svg class="icon sm" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h8"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
+                  Ver plano
+                </a>
+                <button onclick="event.stopPropagation()">
+                  <svg class="icon sm" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  Renomear
+                </button>
+                <div class="sep-line"></div>
+                <button class="danger" onclick="event.stopPropagation()">
+                  <svg class="icon sm" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="9" y1="10" x2="15" y2="10"/></svg>
+                  Arquivar plano
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="plan-card-badges">
+            <span class="badge soft">Ativo</span>
+            <span class="chip">
+              <svg class="icon sm" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Prazo: 14 ago 2026
+            </span>
+          </div>
+
+          <div class="plan-progress">
+            <div class="pct-row">
+              <span class="pct-val">42%</span>
+              <span class="pct-lbl">concluído</span>
+            </div>
+            <div class="progress-bar"><div class="fill" style="width:42%"></div></div>
+          </div>
+
+          <div class="plan-kpis">
+            <div class="kpi"><span class="n">3</span><span class="l">matérias</span></div>
+            <div class="kpi"><span class="n">28</span><span class="l">tópicos</span></div>
+            <div class="kpi"><span class="n">7</span><span class="l">revisões pendentes</span></div>
+          </div>
+
+          <div class="plan-card-foot">
+            <span class="meta">Próximo: <b>hoje</b></span>
+            <div class="grow"></div>
+            <span class="chip foco">em foco</span>
+          </div>
+        </div>
+
+        <!-- Plano 2 -->
+        <div class="plan-card" onclick="window.location='t4-plano.html'">
+          <div class="plan-card-head">
+            <div class="name">ENEM 2026 — Matemática e Ciências da Natureza</div>
+            <div class="menu-wrap">
+              <button class="menu-btn" onclick="event.stopPropagation(); toggleMenu('m2')" aria-label="Opções">
+                <svg class="icon" viewBox="0 0 24 24">
+                  <circle cx="12" cy="5"  r="1" fill="currentColor" stroke="none"/>
+                  <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/>
+                  <circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/>
+                </svg>
+              </button>
+              <div class="dropdown" id="m2">
+                <a href="t4-plano.html">
+                  <svg class="icon sm" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h8"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
+                  Ver plano
+                </a>
+                <button onclick="event.stopPropagation()">
+                  <svg class="icon sm" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  Renomear
+                </button>
+                <div class="sep-line"></div>
+                <button class="danger" onclick="event.stopPropagation()">
+                  <svg class="icon sm" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="9" y1="10" x2="15" y2="10"/></svg>
+                  Arquivar plano
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="plan-card-badges">
+            <span class="badge soft">Ativo</span>
+            <span class="chip">
+              <svg class="icon sm" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Prazo: 02 nov 2026
+            </span>
+          </div>
+
+          <div class="plan-progress">
+            <div class="pct-row">
+              <span class="pct-val">18%</span>
+              <span class="pct-lbl">concluído</span>
+            </div>
+            <div class="progress-bar"><div class="fill" style="width:18%"></div></div>
+          </div>
+
+          <div class="plan-kpis">
+            <div class="kpi"><span class="n">5</span><span class="l">matérias</span></div>
+            <div class="kpi"><span class="n">41</span><span class="l">tópicos</span></div>
+            <div class="kpi"><span class="n">2</span><span class="l">revisões pendentes</span></div>
+          </div>
+
+          <div class="plan-card-foot">
+            <span class="meta">Próximo: <b>amanhã</b></span>
+            <div class="grow"></div>
+          </div>
+        </div>
+
+      </div><!-- /plans-grid ativos -->
+
+      <!-- ─ Rascunhos ─ -->
+      <h2 class="section" style="margin-top:var(--s6)">Rascunhos <span class="count">1</span></h2>
+
+      <div class="plans-grid">
+
+        <div class="plan-card rascunho" onclick="window.location='t4-plano.html'">
+          <div class="plan-card-head">
+            <div class="name">Língua Portuguesa — Gramática e Redação</div>
+            <div class="menu-wrap">
+              <button class="menu-btn" onclick="event.stopPropagation(); toggleMenu('m3')" aria-label="Opções">
+                <svg class="icon" viewBox="0 0 24 24">
+                  <circle cx="12" cy="5"  r="1" fill="currentColor" stroke="none"/>
+                  <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/>
+                  <circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/>
+                </svg>
+              </button>
+              <div class="dropdown" id="m3">
+                <a href="t4-plano.html">
+                  <svg class="icon sm" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h8"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
+                  Ver rascunho
+                </a>
+                <button onclick="event.stopPropagation()">
+                  <svg class="icon sm" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  Ativar plano
+                </button>
+                <button onclick="event.stopPropagation()">
+                  <svg class="icon sm" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  Renomear
+                </button>
+                <div class="sep-line"></div>
+                <button class="danger" onclick="event.stopPropagation()">
+                  <svg class="icon sm" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                  Excluir rascunho
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="plan-card-badges">
+            <span class="badge draft">Rascunho</span>
+          </div>
+
+          <div class="plan-progress">
+            <div class="pct-row">
+              <span class="pct-val">—</span>
+              <span class="pct-lbl">não iniciado</span>
+            </div>
+            <div class="progress-bar"><div class="fill" style="width:0%"></div></div>
+          </div>
+
+          <div class="plan-kpis">
+            <div class="kpi"><span class="n">2</span><span class="l">matérias</span></div>
+            <div class="kpi"><span class="n">14</span><span class="l">tópicos</span></div>
+          </div>
+
+          <div class="plan-card-foot">
+            <span class="meta-dim">Ative para começar a estudar</span>
+            <div class="grow"></div>
+            <button class="btn sm primary" onclick="event.stopPropagation()">Ativar</button>
+          </div>
+        </div>
+
+      </div><!-- /plans-grid rascunhos -->
+
+      <!-- ─ Tópicos avulsos ─ -->
+      <h2 class="section" style="margin-top:var(--s6)">
+        Tópicos avulsos
+        <span class="count">2</span>
+        <div style="margin-left:auto;">
+          <button class="btn ghost sm" onclick="event.stopPropagation()">
+            <svg class="icon sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Novo tópico
+          </button>
+        </div>
+      </h2>
+
+      <div class="card" style="padding:var(--s2) var(--s3);">
+        <div class="avulso-list">
+
+          <div class="avulso-item" data-estado="em_revisao">
+            <svg class="icon estado-ico" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+            <div class="grow">
+              <div class="t">Estrutura de dados — Árvore B+</div>
+              <div class="m2">Avulso · 1ª revisão</div>
+            </div>
+            <span class="prox">hoje</span>
+          </div>
+
+          <div class="avulso-item" data-estado="em_estudo">
+            <svg class="icon estado-ico" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            <div class="grow">
+              <div class="t">Inglês — Phrasal Verbs comuns</div>
+              <div class="m2">Avulso · em estudo</div>
+            </div>
+            <span class="prox">amanhã</span>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /page-normal -->
+
+
+    <!-- ── Cenário B: Vazio (onboarding) ── -->
+    <div class="page hidden" id="page-vazio">
+
+      <div class="page-head">
+        <p class="page-kicker">Cognix v2</p>
+        <h1>Planos</h1>
+      </div>
+
+      <div class="empty">
+        <svg class="icon" style="width:40px;height:40px;color:var(--ink-400);margin-bottom:var(--s3);" viewBox="0 0 24 24">
+          <path d="M4 6h16M4 10h16M4 14h8"/><rect x="13" y="13" width="8" height="8" rx="1"/>
+        </svg>
+        <p class="title-md" style="margin-bottom:var(--s2);">Nenhum plano ainda</p>
+        <p class="meta" style="max-width:340px;margin:0 auto var(--s5);">
+          Crie seu primeiro plano de estudos e o Cognix decide o que estudar todos os dias.
+        </p>
+
+        <div class="ob-cards">
+          <a href="t6-novo-plano.html" class="ob-card">
+            <div class="ob-ico">
+              <svg class="icon" style="width:32px;height:32px;" viewBox="0 0 24 24">
+                <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/>
+                <path d="M12 8v4l3 3" stroke="var(--bg-card)" stroke-width="1.75"/>
+                <path d="M12 2v4M20 12h-4" stroke="var(--primary-strong)" stroke-width="1.75"/>
+              </svg>
+            </div>
+            <div class="ob-title">Criar com IA</div>
+            <div class="ob-desc">Cole um edital, lista ou objetivo. A IA monta a estrutura e distribui os estudos.</div>
+          </a>
+          <a href="t6-novo-plano.html" class="ob-card">
+            <div class="ob-ico">
+              <svg class="icon" style="width:32px;height:32px;" viewBox="0 0 24 24">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </div>
+            <div class="ob-title">Montar na mão</div>
+            <div class="ob-desc">Adicione matérias e tópicos do zero, no seu ritmo.</div>
+          </a>
+        </div>
+      </div>
+
+    </div><!-- /page-vazio -->
+
+  </main>
+</div><!-- /app -->
+
+<!-- ══ BOTTOMBAR (mobile) ══ -->
+<nav class="bottombar">
+  <a href="t1-hoje.html">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18"/><path d="M7.5 18a4.5 4.5 0 0 1 9 0"/><path d="M12 4v3M5.2 8.6l1.5 1.5M18.8 8.6l-1.5 1.5M2.5 13H5M19 13h2.5"/></svg>
+    Hoje
+  </a>
+  <a href="t2-calendario.html">
+    <svg class="icon" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg>
+    Calendário
+  </a>
+  <div class="fab">
+    <button onclick="window.location='t6-novo-plano.html'" aria-label="Novo">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-width="2.25"/></svg>
+    </button>
+  </div>
+  <a href="t3-planos.html" class="active">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M12 3 3 7.5l9 4.5 9-4.5L12 3z"/><path d="M3 12l9 4.5L21 12"/><path d="M3 16.5 12 21l9-4.5"/></svg>
+    Planos
+  </a>
+  <a href="t7-progresso.html">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M5 19V10M12 19V5M19 19v-6"/></svg>
+    Progresso
+  </a>
+</nav>
+
+<!-- ══ TOAST ══ -->
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toastMsg"></span></div>
+
+<!-- ══ DEMO BAR ══ -->
+<div class="demo-bar">
+  <span class="lbl">CENA</span>
+  <a href="#" class="on" id="demo-A" onclick="setScene('normal'); return false;">A · Normal</a>
+  <a href="#"             id="demo-B" onclick="setScene('vazio');  return false;">B · Vazio</a>
+  <div class="sep"></div>
+  <button class="theme" onclick="toggleTheme()">☀︎</button>
+</div>
+
+<script>
+  /* Toast para destinos ainda não construídos (T2, T7) */
+  let _toastT = null;
+  function toast(msg) {
+    document.getElementById('toastMsg').textContent = msg;
+    document.getElementById('toast').classList.add('show');
+    clearTimeout(_toastT);
+    _toastT = setTimeout(() => document.getElementById('toast').classList.remove('show'), 4000);
+  }
+  document.querySelectorAll('[data-nav]').forEach(el => el.addEventListener('click', (e) => {
+    e.preventDefault();
+    toast(`${el.dataset.nav}: ainda não construída neste protótipo.`);
+  }));
+
+  /* Cenários */
+  function setScene(s) {
+    document.getElementById('page-normal').classList.toggle('hidden', s !== 'normal');
+    document.getElementById('page-vazio').classList.toggle('hidden',  s !== 'vazio');
+    document.getElementById('demo-A').classList.toggle('on', s === 'normal');
+    document.getElementById('demo-B').classList.toggle('on', s === 'vazio');
+  }
+
+  /* Dropdowns — fecha ao clicar fora */
+  function toggleMenu(id) {
+    const target = document.getElementById(id);
+    const wasOpen = target.classList.contains('open');
+    document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
+    if (!wasOpen) target.classList.add('open');
+  }
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
+  });
+
+  /* Tema */
+  function toggleTheme() {
+    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem('cognix-tema', next);
+  }
+</script>
+
+</body>
+</html>

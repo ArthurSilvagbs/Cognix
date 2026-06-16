@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configurações — Cognix v2 · protótipo T8</title>
+<script>
+  document.documentElement.dataset.theme = localStorage.getItem('cognix-tema') || 'dark';
+</script>
+<link rel="stylesheet" href="css/wireframe.css">
+<style>
+  /* ---- T8: container estreito de configurações ---- */
+  .settings { max-width: 720px; margin: 0 auto; }
+
+  .set-card {
+    background: var(--bg-card); border: 1px solid var(--line);
+    border-radius: var(--radius); box-shadow: var(--shadow-sm);
+    padding: var(--s5); margin-bottom: var(--s4);
+  }
+  .set-card-head { margin-bottom: var(--s4); }
+  .set-card-head .h { font-size: var(--t-md); font-weight: 700; color: var(--ink-900); }
+  .set-card-head .d { font-size: var(--t-meta); color: var(--ink-500); margin-top: 2px; }
+
+  /* linha de configuração genérica (label à esquerda, controle à direita) */
+  .set-row {
+    display: flex; align-items: center; gap: var(--s4);
+    padding: var(--s3) 0; border-top: 1px solid var(--line);
+  }
+  .set-row:first-of-type { border-top: none; padding-top: 0; }
+  .set-row .info { flex: 1; min-width: 0; }
+  .set-row .info .l { font-size: var(--t-body); font-weight: 600; color: var(--ink-700); }
+  .set-row .info .h { font-size: var(--t-caption); color: var(--ink-400); margin-top: 1px; }
+  .set-row .ctrl { flex-shrink: 0; }
+
+  /* ---- Stepper (reusa o padrão D7 da T6) ---- */
+  .stepper {
+    display: inline-flex; align-items: center;
+    border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
+    overflow: hidden; background: var(--bg-app);
+  }
+  .stepper button {
+    width: 30px; height: 30px; border: none; background: var(--bg-card);
+    color: var(--ink-500); font-size: var(--t-lg); cursor: pointer; line-height: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: background var(--speed), color var(--speed);
+  }
+  .stepper button:hover { background: var(--bg-soft); color: var(--ink-900); }
+  .stepper input {
+    width: 60px; height: 30px; border: none; border-left: 1px solid var(--line);
+    border-right: 1px solid var(--line); background: transparent; text-align: center;
+    font: inherit; font-weight: 600; color: var(--ink-900); padding: 0;
+    border-radius: 0; box-shadow: none !important;
+  }
+  .stepper input:focus { outline: none; }
+  .stepper .suf { font-size: var(--t-caption); color: var(--ink-400); padding: 0 var(--s2); }
+
+  /* ---- Disponibilidade semanal ---- */
+  .dispo-row {
+    display: grid; grid-template-columns: 44px 1fr 132px;
+    align-items: center; gap: var(--s3);
+    padding: var(--s2) 0; border-top: 1px solid var(--line);
+  }
+  .dispo-row:first-of-type { border-top: none; }
+  .dispo-row .dow { font-size: var(--t-body); font-weight: 600; color: var(--ink-700); }
+  .dispo-row .dow.fim { color: var(--primary-strong); }
+  .dispo-bar { height: 6px; background: var(--bg-soft); border-radius: 99px; overflow: hidden; }
+  .dispo-bar i { display: block; height: 100%; background: var(--primary); border-radius: 99px;
+                 transition: width var(--speed); }
+
+  .dispo-stepper { display: inline-flex; align-items: center; justify-content: flex-end; gap: var(--s2); }
+  .dispo-stepper .val { font-size: var(--t-body); font-weight: 600; color: var(--ink-900);
+                        min-width: 52px; text-align: right; }
+  .dispo-stepper button {
+    width: 26px; height: 26px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
+    background: var(--bg-card); color: var(--ink-500); cursor: pointer; line-height: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: background var(--speed), color var(--speed);
+  }
+  .dispo-stepper button:hover { background: var(--bg-soft); color: var(--ink-900); }
+
+  .dispo-total {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-top: var(--s4); padding-top: var(--s3); border-top: 1px solid var(--line);
+  }
+  .dispo-total .l { font-size: var(--t-meta); color: var(--ink-500); }
+  .dispo-total .v { font-size: var(--t-lg); font-weight: 700; color: var(--ink-900); }
+
+  /* ---- Sequência de intervalos (D2) ---- */
+  .intervalos { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
+  .iv-chip {
+    display: inline-flex; align-items: center; gap: var(--s1);
+    border: 1px solid var(--line-strong); border-radius: 99px;
+    padding: var(--s1) var(--s1) var(--s1) var(--s3); background: var(--bg-app);
+  }
+  .iv-chip input {
+    width: 42px; border: none; background: transparent; text-align: center;
+    font: inherit; font-weight: 700; color: var(--ink-900); padding: 0;
+    box-shadow: none !important; border-radius: 0;
+  }
+  .iv-chip input:focus { outline: none; }
+  .iv-chip .u { font-size: var(--t-caption); color: var(--ink-400); }
+  .iv-chip .rm {
+    width: 20px; height: 20px; border: none; background: none; color: var(--ink-400);
+    cursor: pointer; border-radius: 50%; line-height: 0; display: flex;
+    align-items: center; justify-content: center; transition: background var(--speed), color var(--speed);
+  }
+  .iv-chip .rm:hover { background: var(--bg-soft); color: #f87171; }
+  .iv-arrow { color: var(--ink-400); }
+  .iv-add {
+    border: 1px dashed var(--line-strong); border-radius: 99px;
+    background: none; color: var(--ink-500); cursor: pointer;
+    padding: var(--s1) var(--s3); font: inherit; font-weight: 600; font-size: var(--t-meta);
+    display: inline-flex; align-items: center; gap: var(--s1);
+    transition: border-color var(--speed), color var(--speed);
+  }
+  .iv-add:hover { border-color: var(--primary-line); color: var(--primary-strong); }
+
+  /* ---- Switch de tema ---- */
+  .switch {
+    position: relative; width: 52px; height: 28px;
+    border-radius: 99px; border: 1px solid var(--line-strong);
+    background: var(--bg-app); cursor: pointer; padding: 0;
+    transition: background var(--speed), border-color var(--speed);
+    flex-shrink: 0;
+  }
+  .switch .knob {
+    position: absolute; top: 2px; left: 2px;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--ink-700); color: var(--bg-card);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform var(--speed), background var(--speed);
+  }
+  .switch .knob .icon { width: 13px; height: 13px; stroke-width: 2; }
+  /* escuro = knob à esquerda (lua) · claro = knob à direita (sol) */
+  .switch[data-on="light"] { background: var(--primary-soft); border-color: var(--primary-line); }
+  .switch[data-on="light"] .knob { transform: translateX(24px); background: var(--primary); color: #fff; }
+  .switch .ico-lua  { display: block; }
+  .switch .ico-sol  { display: none; }
+  .switch[data-on="light"] .ico-lua { display: none; }
+  .switch[data-on="light"] .ico-sol { display: block; }
+
+  /* ---- Conta ---- */
+  .conta { display: flex; align-items: center; gap: var(--s4); }
+  .avatar {
+    width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
+    background: var(--primary-soft); color: var(--primary-strong);
+    display: flex; align-items: center; justify-content: center;
+    font-size: var(--t-lg); font-weight: 700;
+  }
+  .conta .nome { font-size: var(--t-md); font-weight: 700; color: var(--ink-900); }
+  .conta .email { font-size: var(--t-meta); color: var(--ink-500); }
+
+  .save-hint { font-size: var(--t-meta); color: var(--success); display: inline-flex;
+               align-items: center; gap: var(--s1); }
+
+  @media (max-width: 768px) {
+    .dispo-row { grid-template-columns: 40px 1fr; }
+    .dispo-row .dispo-bar { display: none; }
+    .set-row { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ══ SIDEBAR ══ -->
+  <nav class="sidebar">
+    <div class="logo"><span class="mark">C</span> Cognix <span class="v">v2</span></div>
+
+    <button class="btn-novo" onclick="window.location='t6-novo-plano.html'">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-width="2.25"/></svg>
+      Novo
+    </button>
+
+    <a href="t1-hoje.html" class="nav-item">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18"/><path d="M7.5 18a4.5 4.5 0 0 1 9 0"/><path d="M12 4v3M5.2 8.6l1.5 1.5M18.8 8.6l-1.5 1.5M2.5 13H5M19 13h2.5"/></svg>
+      Hoje
+    </a>
+    <a href="t2-calendario.html" class="nav-item">
+      <svg class="icon" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg>
+      Calendário
+    </a>
+    <a href="t3-planos.html" class="nav-item">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M12 3 3 7.5l9 4.5 9-4.5L12 3z"/><path d="M3 12l9 4.5L21 12"/><path d="M3 16.5 12 21l9-4.5"/></svg>
+      Planos
+    </a>
+    <a href="t7-progresso.html" class="nav-item">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M5 19V10M12 19V5M19 19v-6"/></svg>
+      Progresso
+    </a>
+
+    <div class="spacer"></div>
+
+    <a class="side-foco" href="t1-hoje.html">
+      <span class="sf-kick">Foco de hoje</span>
+      <div class="sf-next">
+        <span class="sf-play"><svg class="icon" viewBox="0 0 24 24"><path d="M8 6.5v11l9-5.5z" fill="currentColor" stroke="none"/></svg></span>
+        <span class="sf-info">
+          <span class="sf-t">Juros compostos</span>
+          <span class="sf-c">Mat. Financeira · ~40min</span>
+        </span>
+      </div>
+      <div class="sf-bar"><i style="width:33%"></i></div>
+      <div class="sf-meta">1 de 3 estudos feitos</div>
+    </a>
+    <a href="t8-config.html" class="nav-item active">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Configurações
+    </a>
+  </nav>
+
+  <!-- ══ MAIN ══ -->
+  <main>
+    <div class="page">
+
+      <div class="page-head">
+        <p class="page-kicker">Cognix v2</p>
+        <h1>Configurações</h1>
+        <p class="day-summary">Estes são os <b>padrões do seu perfil</b>. Cada plano pode sobrescrever os intervalos de revisão.</p>
+      </div>
+
+      <div class="settings">
+
+        <!-- ─── Conta ─── -->
+        <h2 class="section">Conta</h2>
+        <div class="set-card">
+          <div class="conta">
+            <div class="avatar">A</div>
+            <div class="grow" style="flex:1;">
+              <div class="nome">Arthur Silva</div>
+              <div class="email">arthurborges2607@gmail.com</div>
+            </div>
+            <button class="btn sm">Gerenciar conta</button>
+          </div>
+        </div>
+
+        <!-- ─── Disponibilidade semanal (D7) ─── -->
+        <h2 class="section">Disponibilidade semanal</h2>
+        <div class="set-card">
+          <div class="set-card-head">
+            <div class="h">Quanto tempo você tem por dia</div>
+            <div class="d">O Cognix planeja pelo piso de cada dia (R5). Um dia melhor que o previsto você absorve antecipando estudos. Passos de 15 min, até 10 h.</div>
+          </div>
+
+          <div id="dispo">
+            <!-- linhas geradas por JS -->
+          </div>
+
+          <div class="dispo-total">
+            <span class="l">Total na semana</span>
+            <span class="v" id="dispo-total-val">11h 00</span>
+          </div>
+        </div>
+
+        <!-- ─── Revisão espaçada ─── -->
+        <h2 class="section">Revisão espaçada</h2>
+        <div class="set-card">
+          <div class="set-card-head">
+            <div class="h">Intervalos padrão</div>
+            <div class="d">Dias após concluir um tópico até cada revisão. Sequência sugerida 1 · 7 · 21 — edite à vontade. Cada plano pode ter a sua.</div>
+          </div>
+
+          <div class="intervalos" id="intervalos">
+            <!-- chips gerados por JS -->
+          </div>
+        </div>
+
+        <div class="set-card">
+          <div class="set-row">
+            <div class="info">
+              <div class="l">Revisão de manutenção (dominado)</div>
+              <div class="h">Tópico dominado continua revisando neste ritmo, para não esquecer.</div>
+            </div>
+            <div class="ctrl">
+              <div class="stepper">
+                <button onclick="bump('dom', -15)" aria-label="Diminuir">−</button>
+                <input id="in-dom" value="60" inputmode="numeric">
+                <button onclick="bump('dom', 15)" aria-label="Aumentar">+</button>
+                <span class="suf">dias</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="set-row">
+            <div class="info">
+              <div class="l">Teto de revisões por dia</div>
+              <div class="h">Ao replanejar, revisões atrasadas reancoram em hoje respeitando este limite (R3).</div>
+            </div>
+            <div class="ctrl">
+              <div class="stepper">
+                <button onclick="bump('teto', -1)" aria-label="Diminuir">−</button>
+                <input id="in-teto" value="6" inputmode="numeric">
+                <button onclick="bump('teto', 1)" aria-label="Aumentar">+</button>
+                <span class="suf">por dia</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── Aparência ─── -->
+        <h2 class="section">Aparência</h2>
+        <div class="set-card">
+          <div class="set-row">
+            <div class="info">
+              <div class="l">Tema</div>
+              <div class="h">O escuro é o padrão — pensado para sessões longas de estudo.</div>
+            </div>
+            <div class="ctrl">
+              <button class="switch" id="switch-tema" onclick="toggleTheme()" role="switch" aria-label="Alternar tema">
+                <span class="knob">
+                  <svg class="icon ico-lua" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                  <svg class="icon ico-sol" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- rodapé salvar -->
+        <div style="display:flex; align-items:center; gap:var(--s3); margin-top:var(--s5);">
+          <button class="btn primary" onclick="salvar()">Salvar alterações</button>
+          <span class="save-hint hidden" id="save-ok">
+            <svg class="icon sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Salvo
+          </span>
+        </div>
+
+      </div><!-- /settings -->
+    </div>
+  </main>
+</div><!-- /app -->
+
+<!-- ══ BOTTOMBAR (mobile) ══ -->
+<nav class="bottombar">
+  <a href="t1-hoje.html">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M3 18h18"/><path d="M7.5 18a4.5 4.5 0 0 1 9 0"/><path d="M12 4v3M5.2 8.6l1.5 1.5M18.8 8.6l-1.5 1.5M2.5 13H5M19 13h2.5"/></svg>
+    Hoje
+  </a>
+  <a href="t2-calendario.html">
+    <svg class="icon" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4"/></svg>
+    Calendário
+  </a>
+  <div class="fab">
+    <button onclick="window.location='t6-novo-plano.html'" aria-label="Novo">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-width="2.25"/></svg>
+    </button>
+  </div>
+  <a href="t3-planos.html">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M12 3 3 7.5l9 4.5 9-4.5L12 3z"/><path d="M3 12l9 4.5L21 12"/><path d="M3 16.5 12 21l9-4.5"/></svg>
+    Planos
+  </a>
+  <a href="t7-progresso.html">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M5 19V10M12 19V5M19 19v-6"/></svg>
+    Progresso
+  </a>
+</nav>
+
+<!-- ══ TOAST ══ -->
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toastMsg"></span></div>
+
+<!-- ══ DEMO BAR ══ -->
+<div class="demo-bar">
+  <span class="lbl">TEMA</span>
+  <button class="theme" onclick="toggleTheme()">☀︎ / ☾</button>
+</div>
+
+<script>
+  /* ====== Disponibilidade semanal (D7) ====== */
+  const DIAS = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+  // minutos por dia — default seg–sex 60, sáb–dom 180
+  let dispo = [60, 60, 60, 60, 60, 180, 180];
+  const PASSO = 15, MAX = 600; // 10h
+
+  function fmt(min) {
+    const h = Math.floor(min / 60), m = min % 60;
+    if (min === 0) return '0';
+    return m === 0 ? `${h}h` : `${h}h ${String(m).padStart(2,'0')}`;
+  }
+
+  function renderDispo() {
+    const wrap = document.getElementById('dispo');
+    wrap.innerHTML = dispo.map((min, i) => {
+      const fim = i >= 5 ? 'fim' : '';
+      const pct = Math.round((min / MAX) * 100);
+      return `
+        <div class="dispo-row">
+          <span class="dow ${fim}">${DIAS[i]}</span>
+          <div class="dispo-bar"><i style="width:${pct}%"></i></div>
+          <div class="dispo-stepper">
+            <button onclick="stepDia(${i}, -${PASSO})" aria-label="Menos">−</button>
+            <span class="val tnum">${fmt(min)}</span>
+            <button onclick="stepDia(${i}, ${PASSO})" aria-label="Mais">+</button>
+          </div>
+        </div>`;
+    }).join('');
+
+    const total = dispo.reduce((a,b) => a+b, 0);
+    document.getElementById('dispo-total-val').textContent = fmt(total);
+  }
+
+  function stepDia(i, delta) {
+    dispo[i] = Math.max(0, Math.min(MAX, dispo[i] + delta));
+    renderDispo();
+  }
+
+  /* ====== Intervalos de revisão (D2) ====== */
+  let intervalos = [1, 7, 21];
+
+  function renderIntervalos() {
+    const wrap = document.getElementById('intervalos');
+    const chips = intervalos.map((d, i) => `
+      ${i > 0 ? '<svg class="icon sm iv-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>' : ''}
+      <span class="iv-chip">
+        <input value="${d}" inputmode="numeric" onchange="editIv(${i}, this.value)">
+        <span class="u">d</span>
+        ${intervalos.length > 1 ? `<button class="rm" onclick="rmIv(${i})" aria-label="Remover">
+          <svg class="icon sm" viewBox="0 0 24 24" style="width:13px;height:13px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>` : ''}
+      </span>
+    `).join('');
+    wrap.innerHTML = chips + `
+      <button class="iv-add" onclick="addIv()">
+        <svg class="icon sm" viewBox="0 0 24 24" style="width:13px;height:13px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        adicionar
+      </button>`;
+  }
+
+  function editIv(i, v) { intervalos[i] = Math.max(1, parseInt(v) || 1); renderIntervalos(); }
+  function rmIv(i)      { intervalos.splice(i, 1); renderIntervalos(); }
+  function addIv() {
+    const ultimo = intervalos[intervalos.length - 1] || 0;
+    intervalos.push(ultimo * 2 || 1);
+    renderIntervalos();
+  }
+
+  /* ====== Steppers simples (dominado / teto) ====== */
+  function bump(id, delta) {
+    const el = document.getElementById('in-' + id);
+    const min = id === 'teto' ? 1 : 15;
+    el.value = Math.max(min, (parseInt(el.value) || 0) + delta);
+  }
+
+  /* ====== Tema ====== */
+  function setTema(t) {
+    document.documentElement.dataset.theme = t;
+    localStorage.setItem('cognix-tema', t);
+    syncSwitchTema();
+  }
+  function syncSwitchTema() {
+    document.getElementById('switch-tema').dataset.on = document.documentElement.dataset.theme;
+  }
+  function toggleTheme() {
+    setTema(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+  }
+
+  /* ====== Salvar (feedback) ====== */
+  function salvar() {
+    const ok = document.getElementById('save-ok');
+    ok.classList.remove('hidden');
+    clearTimeout(window._saveT);
+    window._saveT = setTimeout(() => ok.classList.add('hidden'), 2200);
+  }
+
+  /* ====== Toast para destinos ainda não construídos (T2, T7) ====== */
+  let _toastT = null;
+  function toast(msg) {
+    document.getElementById('toastMsg').textContent = msg;
+    document.getElementById('toast').classList.add('show');
+    clearTimeout(_toastT);
+    _toastT = setTimeout(() => document.getElementById('toast').classList.remove('show'), 4000);
+  }
+  document.querySelectorAll('[data-nav]').forEach(el => el.addEventListener('click', (e) => {
+    e.preventDefault();
+    toast(`${el.dataset.nav}: ainda não construída neste protótipo.`);
+  }));
+
+  /* init */
+  renderDispo();
+  renderIntervalos();
+  syncSwitchTema();
+</script>
+
+</body>
+</html>

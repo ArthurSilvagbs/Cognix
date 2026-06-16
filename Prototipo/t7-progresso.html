@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Progresso — Cognix v2 · protótipo T7</title>
+<script>
+  document.documentElement.dataset.theme = localStorage.getItem('cognix-tema') || 'dark';
+</script>
+<link rel="stylesheet" href="css/wireframe.css">
+<style>
+  /* ---- T7: KPIs ---- */
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s4); }
+  .kpi-card {
+    background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: var(--s4) var(--s5); box-shadow: var(--shadow-sm);
+    display: flex; flex-direction: column; gap: var(--s1);
+  }
+  .kpi-card .ico {
+    width: 30px; height: 30px; border-radius: var(--radius-sm); display: flex;
+    align-items: center; justify-content: center; background: var(--primary-soft);
+    color: var(--primary-strong); margin-bottom: var(--s1);
+  }
+  .kpi-card .ico .icon { width: 17px; height: 17px; }
+  .kpi-card .n { font-size: var(--t-h1); font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; }
+  .kpi-card .n small { font-size: var(--t-lg); font-weight: 600; color: var(--ink-500); }
+  .kpi-card .l { font-size: var(--t-meta); color: var(--ink-500); }
+
+  /* ---- cartão de seção ---- */
+  .panel {
+    background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: var(--s5); box-shadow: var(--shadow-sm);
+  }
+  .panel-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: var(--s4); }
+  .panel-head .h { font-size: var(--t-md); font-weight: 700; }
+  .panel-head .sub { font-size: var(--t-meta); color: var(--ink-400); }
+
+  .grid-2 { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: var(--s4); align-items: start; }
+
+  /* ---- gráfico de atividade (barras verticais) ---- */
+  .bars { display: flex; align-items: flex-end; gap: var(--s2); height: 168px; }
+  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: var(--s2);
+             height: 100%; justify-content: flex-end; cursor: default; }
+  .bar-track { width: 100%; max-width: 34px; flex: 1; display: flex; align-items: flex-end;
+               justify-content: center; }
+  .bar { width: 100%; max-width: 34px; background: var(--primary-soft); border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+         position: relative; transition: background var(--speed); min-height: 3px; }
+  .bar i { position: absolute; left: 0; right: 0; bottom: 0; background: var(--primary);
+           border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
+  .bar-col.atual .bar { background: var(--primary); }
+  .bar-col .bv { font-size: var(--t-caption); font-weight: 600; color: var(--ink-700); }
+  .bar-col.zero .bv { color: var(--ink-400); }
+  .bar-col .bl { font-size: 10px; color: var(--ink-400); text-transform: uppercase; letter-spacing: .03em; }
+  .bar-col.atual .bl { color: var(--primary-strong); font-weight: 700; }
+
+  /* ---- horas por matéria (barras horizontais) ---- */
+  .hbar-row { display: grid; grid-template-columns: 150px 1fr 52px; align-items: center; gap: var(--s3);
+              padding: var(--s2) 0; }
+  .hbar-row .nm { font-size: var(--t-meta); color: var(--ink-700); font-weight: 500;
+                  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hbar-track { height: 8px; background: var(--bg-soft); border-radius: 99px; overflow: hidden; }
+  .hbar-fill { height: 100%; background: var(--primary); border-radius: 99px; }
+  .hbar-row .hv { font-size: var(--t-meta); color: var(--ink-500); text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* ---- donut revisões em dia ---- */
+  .donut-wrap { display: flex; flex-direction: column; align-items: center; gap: var(--s4); }
+  .donut { position: relative; width: 132px; height: 132px; }
+  .donut svg { transform: rotate(-90deg); }
+  .donut .center { position: absolute; inset: 0; display: flex; flex-direction: column;
+                   align-items: center; justify-content: center; }
+  .donut .center .pct { font-size: var(--t-xl); font-weight: 700; letter-spacing: -0.02em; }
+  .donut .center .cl { font-size: var(--t-caption); color: var(--ink-400); }
+  .donut-legend { width: 100%; display: flex; flex-direction: column; gap: var(--s2); }
+  .donut-legend .lg { display: flex; align-items: center; gap: var(--s2); font-size: var(--t-meta); }
+  .donut-legend .lg .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .donut-legend .lg .v { margin-left: auto; font-weight: 600; color: var(--ink-700); }
+  .dot-prim { background: var(--primary); } .dot-warn { background: var(--warn); }
+  .dot-soft { background: var(--line-strong); }
+
+  /* ---- progresso por plano ---- */
+  .plan-row { display: flex; align-items: center; gap: var(--s4); padding: var(--s3) 0;
+              border-bottom: 1px solid var(--line); }
+  .plan-row:last-child { border-bottom: none; }
+  .plan-row .info { flex: 1; min-width: 0; }
+  .plan-row .info .nm { font-size: var(--t-body); font-weight: 600; }
+  .plan-row .info .mt { font-size: var(--t-caption); color: var(--ink-400); }
+  .plan-row .bar-w { flex: 1.4; }
+  .plan-row .bar-w .progress-bar { margin: 0; height: 8px; }
+  .plan-row .pc { font-size: var(--t-md); font-weight: 700; width: 44px; text-align: right; }
+
+  @media (max-width: 900px) {
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 768px) {
+    .bars { height: 140px; }
+    .hbar-row { grid-template-columns: 120px 1fr 48px; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-hoje" viewBox="0 0 24 24"><path d="M3 18h18"/><path d="M7.5 18a4.5 4.5 0 0 1 9 0"/><path d="M12 4v3M5.2 8.6l1.5 1.5M18.8 8.6l-1.5 1.5M2.5 13H5M19 13h2.5"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-planos" viewBox="0 0 24 24"><path d="M12 3 3 7.5l9 4.5 9-4.5L12 3z"/><path d="M3 12l9 4.5L21 12"/><path d="M3 16.5 12 21l9-4.5"/></symbol>
+    <symbol id="i-prog" viewBox="0 0 24 24"><path d="M5 19V10M12 19V5M19 19v-6"/></symbol>
+    <symbol id="i-config" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-width="2.25"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-redo" viewBox="0 0 24 24"><path d="M4 11a8 8 0 0 1 14-4.5L20 9M20 4v5h-5"/><path d="M20 13a8 8 0 0 1-14 4.5L4 15M4 20v-5h5"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 3c.5 3 3.5 4.2 3.5 8a3.5 3.5 0 0 1-7 0c0-1.3.5-2.2.9-2.8.4 1 1.1 1.3 1.6 1.3C10.5 7.5 11.5 5.5 12 3z"/></symbol>
+  </defs>
+</svg>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo"><span class="mark">C</span> Cognix <span class="v">v2</span></div>
+    <button class="btn-novo" onclick="location.href='t6-novo-plano.html'"><svg class="icon sm"><use href="#i-plus"/></svg> Novo</button>
+    <a class="nav-item" href="t1-hoje.html"><svg class="icon"><use href="#i-hoje"/></svg> Hoje</a>
+    <a class="nav-item" href="t2-calendario.html"><svg class="icon"><use href="#i-cal"/></svg> Calendário</a>
+    <a class="nav-item" href="t3-planos.html"><svg class="icon"><use href="#i-planos"/></svg> Planos</a>
+    <a class="nav-item active" href="t7-progresso.html"><svg class="icon"><use href="#i-prog"/></svg> Progresso</a>
+    <div class="spacer"></div>
+    <a class="side-foco" href="t1-hoje.html">
+      <span class="sf-kick">Foco de hoje</span>
+      <div class="sf-next">
+        <span class="sf-play"><svg class="icon" viewBox="0 0 24 24"><path d="M8 6.5v11l9-5.5z" fill="currentColor" stroke="none"/></svg></span>
+        <span class="sf-info">
+          <span class="sf-t">Juros compostos</span>
+          <span class="sf-c">Mat. Financeira · ~40min</span>
+        </span>
+      </div>
+      <div class="sf-bar"><i style="width:33%"></i></div>
+      <div class="sf-meta">1 de 3 estudos feitos</div>
+    </a>
+    <a class="nav-item" href="t8-config.html"><svg class="icon"><use href="#i-config"/></svg> Configurações</a>
+  </aside>
+
+  <main>
+
+    <!-- ====== COM DADOS ====== -->
+    <div class="page" id="page-dados">
+
+      <div class="page-head">
+        <p class="page-kicker">Cognix v2</p>
+        <h1>Progresso</h1>
+        <p class="day-summary">Desde <b>11 jun 2026</b> · 2 planos ativos · semana de 14–20 jun</p>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpis">
+        <div class="kpi-card">
+          <div class="ico"><svg class="icon"><use href="#i-clock"/></svg></div>
+          <div class="n tnum">38<small>h20</small></div>
+          <div class="l">Horas estudadas</div>
+        </div>
+        <div class="kpi-card">
+          <div class="ico"><svg class="icon"><use href="#i-check"/></svg></div>
+          <div class="n tnum">47<small> / 151</small></div>
+          <div class="l">Tópicos concluídos</div>
+        </div>
+        <div class="kpi-card">
+          <div class="ico"><svg class="icon"><use href="#i-redo"/></svg></div>
+          <div class="n tnum">92<small>%</small></div>
+          <div class="l">Revisões em dia</div>
+        </div>
+        <div class="kpi-card">
+          <div class="ico"><svg class="icon"><use href="#i-flame"/></svg></div>
+          <div class="n tnum">6<small> dias</small></div>
+          <div class="l">Sequência atual</div>
+        </div>
+      </div>
+
+      <!-- Atividade -->
+      <h2 class="section">Atividade de estudo</h2>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="h">Horas por semana</div>
+          <div class="sub">últimas 8 semanas</div>
+        </div>
+        <div class="bars" id="bars"></div>
+      </div>
+
+      <!-- Matéria + Revisões -->
+      <h2 class="section">Onde o tempo foi e como estão as revisões</h2>
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-head">
+            <div class="h">Horas por matéria</div>
+            <div class="sub">BB 2026</div>
+          </div>
+          <div id="hbars"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div class="h">Saúde das revisões</div>
+          </div>
+          <div class="donut-wrap">
+            <div class="donut">
+              <svg width="132" height="132" viewBox="0 0 132 132">
+                <circle cx="66" cy="66" r="52" fill="none" stroke="var(--bg-soft)" stroke-width="14"/>
+                <circle id="donutFill" cx="66" cy="66" r="52" fill="none" stroke="var(--primary)" stroke-width="14"
+                        stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+              </svg>
+              <div class="center"><span class="pct tnum">92%</span><span class="cl">em dia</span></div>
+            </div>
+            <div class="donut-legend">
+              <div class="lg"><span class="dot dot-prim"></span> Em dia <span class="v tnum">23</span></div>
+              <div class="lg"><span class="dot dot-warn"></span> Atrasadas <span class="v tnum">2</span></div>
+              <div class="lg"><span class="dot dot-soft"></span> Concluídas no período <span class="v tnum">18</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Por plano -->
+      <h2 class="section">Progresso por plano</h2>
+      <div class="panel" style="padding-top:var(--s2); padding-bottom:var(--s2);">
+        <div class="plan-row">
+          <div class="info">
+            <div class="nm">BB 2026 — Conhecimentos Bancários</div>
+            <div class="mt">38 de 92 tópicos · 31h estudadas · prazo 14 ago</div>
+          </div>
+          <div class="bar-w"><div class="progress-bar"><div class="fill" style="width:42%"></div></div></div>
+          <div class="pc tnum">42%</div>
+        </div>
+        <div class="plan-row">
+          <div class="info">
+            <div class="nm">ENEM 2026 — Matemática e Ciências</div>
+            <div class="mt">9 de 59 tópicos · 7h20 estudadas · prazo 02 nov</div>
+          </div>
+          <div class="bar-w"><div class="progress-bar"><div class="fill" style="width:18%"></div></div></div>
+          <div class="pc tnum">18%</div>
+        </div>
+      </div>
+
+      <div class="meta-dim" style="margin-top:var(--s5);">
+        Os números são uma projeção do que já aconteceu (sessões + revisões). Nenhuma ação aqui — esta tela só lê.
+      </div>
+
+    </div><!-- /page-dados -->
+
+    <!-- ====== VAZIO ====== -->
+    <div class="page hidden" id="page-vazio">
+      <div class="page-head">
+        <p class="page-kicker">Cognix v2</p>
+        <h1>Progresso</h1>
+      </div>
+      <div class="empty">
+        <svg class="icon" style="width:40px;height:40px;color:var(--ink-400);margin-bottom:var(--s3);"><use href="#i-prog"/></svg>
+        <p class="title-md" style="margin-bottom:var(--s2);">Estude para ver dados</p>
+        <p class="meta" style="max-width:360px;margin:0 auto var(--s5);">
+          Quando você registrar suas primeiras sessões, aqui aparece quanto tempo investiu, onde, e como vão as revisões.
+        </p>
+        <a class="btn primary" href="t1-hoje.html">Ir para Hoje</a>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- bottombar -->
+<nav class="bottombar" aria-label="Navegação principal">
+  <a href="t1-hoje.html"><svg class="icon"><use href="#i-hoje"/></svg>Hoje</a>
+  <a href="t2-calendario.html"><svg class="icon"><use href="#i-cal"/></svg>Calendário</a>
+  <div class="fab"><button aria-label="Novo" onclick="location.href='t6-novo-plano.html'"><svg class="icon"><use href="#i-plus"/></svg></button></div>
+  <a href="t3-planos.html"><svg class="icon"><use href="#i-planos"/></svg>Planos</a>
+  <a href="t7-progresso.html" class="active"><svg class="icon"><use href="#i-prog"/></svg>Progresso</a>
+</nav>
+
+<!-- demo bar -->
+<nav class="demo-bar" aria-label="Demo">
+  <span class="lbl">CENA</span>
+  <a href="#" class="on" id="demo-A" onclick="setScene('dados'); return false;">A · Com dados</a>
+  <a href="#"            id="demo-B" onclick="setScene('vazio'); return false;">B · Vazio</a>
+  <span class="sep"></span>
+  <button class="theme" id="themeToggle" title="Alternar tema">tema</button>
+</nav>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+/* ===== gráfico de atividade: horas por semana (8 semanas) ===== */
+const SEMANAS = [
+  { l: '28/4', h: 2.5 }, { l: '5/5', h: 4.0 }, { l: '12/5', h: 3.0 }, { l: '19/5', h: 5.5 },
+  { l: '26/5', h: 4.5 }, { l: '2/6', h: 6.0 }, { l: '9/6', h: 7.0 }, { l: 'esta', h: 5.0 },
+];
+function renderBars() {
+  const max = Math.max(...SEMANAS.map(s => s.h));
+  $('bars').innerHTML = SEMANAS.map((s, i) => {
+    const atual = i === SEMANAS.length - 1;
+    const pct = Math.round(s.h / max * 100);
+    const txt = s.h ? `${Math.floor(s.h)}h${s.h % 1 ? '30' : ''}` : '0';
+    return `<div class="bar-col${atual ? ' atual' : ''}${s.h ? '' : ' zero'}">
+      <span class="bv">${txt}</span>
+      <div class="bar-track"><div class="bar" style="height:${pct}%"></div></div>
+      <span class="bl">${s.l}</span>
+    </div>`;
+  }).join('');
+}
+
+/* ===== horas por matéria (BB 2026) ===== */
+const MATERIAS = [
+  { nm: 'Matemática', h: 8.0 }, { nm: 'Conhecimentos Bancários', h: 7.0 },
+  { nm: 'Língua Portuguesa', h: 6.5 }, { nm: 'Matemática Financeira', h: 5.0 },
+  { nm: 'Língua Inglesa', h: 4.0 }, { nm: 'Informática', h: 3.0 },
+  { nm: 'Vendas e Negociação', h: 2.5 }, { nm: 'Atualidades', h: 2.0 },
+];
+function fmtH(h) { return `${Math.floor(h)}h${h % 1 ? '30' : ''}`; }
+function renderHBars() {
+  const max = Math.max(...MATERIAS.map(m => m.h));
+  $('hbars').innerHTML = MATERIAS.map(m => `
+    <div class="hbar-row">
+      <span class="nm" title="${m.nm}">${m.nm}</span>
+      <div class="hbar-track"><div class="hbar-fill" style="width:${Math.round(m.h / max * 100)}%"></div></div>
+      <span class="hv">${fmtH(m.h)}</span>
+    </div>`).join('');
+}
+
+/* ===== donut revisões em dia ===== */
+function renderDonut() {
+  const pct = 92, c = 2 * Math.PI * 52;
+  $('donutFill').setAttribute('stroke-dasharray', c.toFixed(1));
+  // anima do vazio até o valor
+  $('donutFill').style.transition = 'stroke-dashoffset 700ms ease-out';
+  requestAnimationFrame(() => { $('donutFill').setAttribute('stroke-dashoffset', (c * (1 - pct / 100)).toFixed(1)); });
+}
+
+/* ===== cenários ===== */
+function setScene(s) {
+  $('page-dados').classList.toggle('hidden', s !== 'dados');
+  $('page-vazio').classList.toggle('hidden', s !== 'vazio');
+  $('demo-A').classList.toggle('on', s === 'dados');
+  $('demo-B').classList.toggle('on', s === 'vazio');
+  if (s === 'dados') renderDonut();
+}
+
+/* tema */
+$('themeToggle').addEventListener('click', () => {
+  const r = document.documentElement;
+  r.dataset.theme = r.dataset.theme === 'light' ? 'dark' : 'light';
+  localStorage.setItem('cognix-tema', r.dataset.theme);
+});
+
+renderBars();
+renderHBars();
+renderDonut();
+</script>
+</body>
+</html>
