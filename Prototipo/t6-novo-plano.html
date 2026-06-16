@@ -29,8 +29,22 @@
   @media (max-width: 700px) { .modos { grid-template-columns: 1fr; } }
 
   /* passo 2: input */
+  .dropzone {
+    display: flex; align-items: center; gap: var(--s2); margin-top: var(--s3);
+    padding: var(--s3); border: 1px dashed var(--line-strong); border-radius: var(--radius-sm);
+    background: var(--bg-app); color: var(--ink-500); font-size: var(--t-meta);
+    cursor: pointer; transition: border-color var(--speed), color var(--speed), background var(--speed);
+  }
+  .dropzone:hover { border-color: var(--primary-line); color: var(--ink-700); }
+  .dropzone .icon { color: var(--ink-400); flex-shrink: 0; }
+  .dropzone b { color: var(--ink-700); font-weight: 600; }
   .perg { display: flex; gap: var(--s3); flex-wrap: wrap; margin-top: var(--s4); }
   .perg .field { flex: 1; min-width: 200px; }
+  .field-hint { font-size: var(--t-caption); color: var(--ink-400); margin-top: var(--s1); }
+  .field-hint a { color: var(--primary-strong); text-decoration: none; }
+  .field-hint a:hover { text-decoration: underline; }
+  label .opt { text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--ink-400);
+               font-size: var(--t-caption); margin-left: var(--s1); }
   .gerando { text-align: center; padding: var(--s7) 0; }
   .gerando .spin { width: 28px; height: 28px; border: 3px solid var(--bg-soft); border-top-color: var(--primary);
                    border-radius: 50%; margin: 0 auto var(--s3); animation: gira 0.8s linear infinite; }
@@ -40,23 +54,41 @@
   .rascunho-aviso { display: flex; align-items: center; gap: var(--s2); background: var(--primary-soft);
                     border-radius: var(--radius-sm); padding: var(--s2) var(--s3);
                     font-size: var(--t-meta); color: var(--primary-strong); margin-bottom: var(--s4); }
-  .r-materia { display: flex; align-items: center; gap: var(--s3); padding: var(--s2) 0;
-               border-bottom: 1px solid var(--line); font-size: var(--t-body); }
+  .r-materia { border-bottom: 1px solid var(--line); }
   .r-materia:last-of-type { border-bottom: none; }
-  .r-materia .n { margin-left: auto; font-size: var(--t-meta); color: var(--ink-500); }
-  .r-materia .btn { visibility: hidden; }
-  .r-materia:hover .btn { visibility: visible; }
+  .r-mat-head { display: flex; align-items: center; gap: var(--s3); padding: var(--s3) 0;
+                font-size: var(--t-body); cursor: pointer; width: 100%; background: none;
+                border: none; font: inherit; color: var(--ink-900); text-align: left; }
+  .r-mat-head .chev { color: var(--ink-400); transition: transform var(--speed); flex-shrink: 0; }
+  .r-mat-head .title-md { color: var(--ink-900); }
+  .r-mat-head .n { margin-left: auto; font-size: var(--t-meta); color: var(--ink-500); flex-shrink: 0; }
+  .r-mat-head .edit { color: var(--ink-400); visibility: hidden; }
+  .r-mat-head:hover .edit { visibility: visible; }
+  .r-mat-head:hover .edit:hover { color: var(--primary-strong); }
+  .r-materia.aberta .chev { transform: rotate(90deg); }
+
+  .r-topicos { padding: 0 0 var(--s3) calc(var(--s5) + var(--s1)); display: flex; flex-direction: column; }
+  .r-topicos.hidden { display: none; }
+  .r-topico { display: flex; align-items: center; gap: var(--s2); padding: var(--s1) 0;
+              font-size: var(--t-meta); color: var(--ink-700); }
+  .r-topico .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--ink-400); flex-shrink: 0; }
+  .mostrar-mais { align-self: flex-start; margin-top: var(--s2); background: none; border: none;
+                  color: var(--primary-strong); font: inherit; font-size: var(--t-meta); font-weight: 600;
+                  cursor: pointer; padding: var(--s1) 0; display: inline-flex; align-items: center; gap: var(--s1); }
+  .mostrar-mais:hover { text-decoration: underline; }
+  .mostrar-mais .chev { transition: transform var(--speed); }
+  .mostrar-mais.aberto .chev { transform: rotate(180deg); }
 </style>
 </head>
 <body>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
-    <symbol id="i-hoje" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-hoje" viewBox="0 0 24 24"><path d="M3 18h18"/><path d="M7.5 18a4.5 4.5 0 0 1 9 0"/><path d="M12 4v3M5.2 8.6l1.5 1.5M18.8 8.6l-1.5 1.5M2.5 13H5M19 13h2.5"/></symbol>
     <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4"/></symbol>
-    <symbol id="i-planos" viewBox="0 0 24 24"><path d="M5 5h14M5 12h14M5 19h9"/></symbol>
+    <symbol id="i-planos" viewBox="0 0 24 24"><path d="M12 3 3 7.5l9 4.5 9-4.5L12 3z"/><path d="M3 12l9 4.5L21 12"/><path d="M3 16.5 12 21l9-4.5"/></symbol>
     <symbol id="i-prog" viewBox="0 0 24 24"><path d="M5 19V10M12 19V5M19 19v-6"/></symbol>
-    <symbol id="i-config" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M21 12h-2.5M5.5 12H3M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8M18.4 18.4l-1.8-1.8M7.4 7.4 5.6 5.6"/></symbol>
+    <symbol id="i-config" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
     <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-width="2.25"/></symbol>
     <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h6M9 16h6"/></symbol>
     <symbol id="i-lista" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" stroke-width="2"/></symbol>
@@ -69,14 +101,26 @@
 
 <div class="app">
   <aside class="sidebar">
-    <div class="logo">Cognix <span class="v">v2</span></div>
+    <div class="logo"><span class="mark">C</span> Cognix <span class="v">v2</span></div>
     <button class="btn-novo" style="opacity:.5; cursor:default;"><svg class="icon sm"><use href="#i-plus"/></svg> Novo</button>
     <a class="nav-item" href="t1-hoje.html"><svg class="icon"><use href="#i-hoje"/></svg> Hoje</a>
-    <a class="nav-item" href="#" data-nav="T2 — Calendário"><svg class="icon"><use href="#i-cal"/></svg> Calendário</a>
-    <a class="nav-item" href="t4-plano.html"><svg class="icon"><use href="#i-planos"/></svg> Planos</a>
-    <a class="nav-item" href="#" data-nav="T7 — Progresso"><svg class="icon"><use href="#i-prog"/></svg> Progresso</a>
+    <a class="nav-item" href="t2-calendario.html"><svg class="icon"><use href="#i-cal"/></svg> Calendário</a>
+    <a class="nav-item" href="t3-planos.html"><svg class="icon"><use href="#i-planos"/></svg> Planos</a>
+    <a class="nav-item" href="t7-progresso.html"><svg class="icon"><use href="#i-prog"/></svg> Progresso</a>
     <div class="spacer"></div>
-    <a class="nav-item" href="#" data-nav="T8 — Configurações"><svg class="icon"><use href="#i-config"/></svg> Configurações</a>
+    <a class="side-foco" href="t1-hoje.html">
+      <span class="sf-kick">Foco de hoje</span>
+      <div class="sf-next">
+        <span class="sf-play"><svg class="icon" viewBox="0 0 24 24"><path d="M8 6.5v11l9-5.5z" fill="currentColor" stroke="none"/></svg></span>
+        <span class="sf-info">
+          <span class="sf-t">Juros compostos</span>
+          <span class="sf-c">Mat. Financeira · ~40min</span>
+        </span>
+      </div>
+      <div class="sf-bar"><i style="width:33%"></i></div>
+      <div class="sf-meta">1 de 3 estudos feitos</div>
+    </a>
+    <a class="nav-item" href="t8-config.html"><svg class="icon"><use href="#i-config"/></svg> Configurações</a>
   </aside>
 
   <main><div class="page" style="max-width:640px;">
@@ -92,51 +136,45 @@
       <div class="p" id="p3"><span class="dot">3</span> Rascunho</div>
     </div>
 
-    <!-- ============ PASSO 1: os 4 modos ============ -->
+    <!-- ============ PASSO 1: 2 modos ============ -->
     <div id="passo1">
       <div class="modos">
-        <div class="modo" data-modo="documento">
+        <div class="modo" data-modo="ia">
           <svg class="icon"><use href="#i-doc"/></svg>
-          <div class="title-md">Tenho um documento</div>
-          <div class="meta">Edital, PDF da escola, ementa — a IA extrai e organiza a estrutura.</div>
-          <div class="ex">ex.: "Edital BB 2026.pdf"</div>
-        </div>
-        <div class="modo" data-modo="lista">
-          <svg class="icon"><use href="#i-lista"/></svg>
-          <div class="title-md">Tenho uma lista solta</div>
-          <div class="meta">Assuntos anotados de qualquer jeito — a IA completa as lacunas e organiza.</div>
-          <div class="ex">ex.: "cai português, mat. financeira e mais umas coisas"</div>
-        </div>
-        <div class="modo" data-modo="objetivo">
-          <svg class="icon"><use href="#i-alvo"/></svg>
-          <div class="title-md">Só sei o objetivo</div>
-          <div class="meta">Diga o que quer aprender — a IA monta a trilha com os pré-requisitos na ordem.</div>
-          <div class="ex">ex.: "quero aprender integrais"</div>
+          <div class="title-md">Criar com IA</div>
+          <div class="meta">Cole um edital, uma lista solta ou só diga o objetivo — e anexe PDFs se tiver. A IA detecta o que é, completa as lacunas e organiza a estrutura.</div>
+          <div class="ex">ex.: "Edital BB 2026", "cai português e mat. financeira", "quero aprender integrais"</div>
         </div>
         <div class="modo" data-modo="manual">
           <svg class="icon"><use href="#i-mao"/></svg>
-          <div class="title-md">Eu monto na mão</div>
+          <div class="title-md">Montar na mão</div>
           <div class="meta">Estrutura vazia, sem IA — matérias e tópicos do seu jeito, com os mesmos poderes.</div>
           <div class="ex">caminho de primeira classe, não um plano B</div>
         </div>
       </div>
-      <div class="meta-dim" style="margin-top:var(--s4);">Em todos os modos o resultado é um <b>rascunho 100% editável</b> — a IA escreve o rascunho; você é o dono.</div>
+      <div class="meta-dim" style="margin-top:var(--s4);">Os dois caminhos terminam no mesmo lugar: um <b>rascunho 100% editável</b>. A IA escreve o rascunho; você é o dono.</div>
     </div>
 
     <!-- ============ PASSO 2: conteúdo + 2 perguntas ============ -->
     <div id="passo2" class="hidden">
       <div class="card">
-        <label for="conteudo" id="lblConteudo">Cole o conteúdo (ou arraste o arquivo)</label>
-        <textarea id="conteudo" rows="7" placeholder="Cole aqui o edital, a lista ou descreva o objetivo…">CONHECIMENTOS BÁSICOS: LÍNGUA PORTUGUESA: Compreensão de textos. Ortografia oficial. Crase. Pontuação. Concordância nominal e verbal. Regência. (...) MATEMÁTICA: Juros simples e compostos. Porcentagem. Razão e proporção. (...) CONHECIMENTOS BANCÁRIOS: Sistema Financeiro Nacional. (...)</textarea>
+        <label for="conteudo">Cole o edital, a lista ou descreva o objetivo</label>
+        <textarea id="conteudo" rows="7" placeholder="Ex.: cole o edital inteiro · &quot;cai português, matemática financeira e atualidades&quot; · &quot;quero aprender integrais do zero&quot;">CONHECIMENTOS BÁSICOS: LÍNGUA PORTUGUESA: Compreensão de textos. Ortografia oficial. Crase. Pontuação. Concordância nominal e verbal. Regência. (...) MATEMÁTICA: Juros simples e compostos. Porcentagem. Razão e proporção. (...) CONHECIMENTOS BANCÁRIOS: Sistema Financeiro Nacional. (...)</textarea>
+
+        <div class="dropzone" id="dropzone">
+          <svg class="icon sm"><use href="#i-doc"/></svg>
+          <span>Tem o PDF do edital? <b>Arraste aqui</b> ou clique para anexar — a IA lê junto.</span>
+        </div>
 
         <div class="perg">
           <div class="field">
-            <label for="dataAlvo">Data da prova/meta (opcional)</label>
+            <label for="dataAlvo">Data da prova ou meta <span class="opt">opcional</span></label>
             <input type="text" id="dataAlvo" class="tnum" value="08/11/2026">
           </div>
           <div class="field">
-            <label>Sua disponibilidade (do perfil — D7)</label>
+            <label>Tempo por dia</label>
             <input type="text" value="seg–sex 1h · sáb–dom 3h" readonly style="color:var(--ink-500);">
+            <div class="field-hint">Vem do seu perfil. <a href="t8-config.html">Ajustar em Configurações →</a></div>
           </div>
         </div>
 
@@ -144,7 +182,7 @@
           <button class="btn primary" id="btnGerar">Gerar rascunho com IA</button>
           <button class="btn ghost" id="btnVoltar1"><svg class="icon sm"><use href="#i-volta"/></svg> Voltar</button>
         </div>
-        <div class="meta-dim" style="margin-top:var(--s3);">A IA só escreve estrutura (plano → matérias → tópicos), sempre como rascunho. Sessões, revisões e agendamentos nunca são criados por ela.</div>
+        <div class="meta-dim" style="margin-top:var(--s3);">A IA só monta a <b>estrutura</b> (plano → matérias → tópicos), sempre como rascunho. Sessões, revisões e agendamentos nunca são criados por ela.</div>
       </div>
 
       <div class="gerando hidden" id="gerando">
@@ -158,18 +196,17 @@
     <div id="passo3" class="hidden">
       <div class="rascunho-aviso">
         <svg class="icon sm"><use href="#i-check"/></svg>
-        Rascunho pronto: <b>8 matérias · 138 tópicos</b> — edite à vontade antes de ativar. Nada foi agendado ainda.
+        Rascunho pronto: <b id="rascunhoResumo">8 matérias</b> — edite à vontade antes de ativar. Nada foi agendado ainda.
       </div>
 
-      <div class="card" style="padding-top:var(--s2); padding-bottom:var(--s2);">
-        <div class="r-materia"><span class="title-md">Língua Portuguesa</span><button class="btn ghost sm" data-nav="Editar matéria">editar</button><span class="n tnum">24 tópicos</span></div>
-        <div class="r-materia"><span class="title-md">Matemática</span><button class="btn ghost sm" data-nav="Editar matéria">editar</button><span class="n tnum">18 tópicos</span></div>
-        <div class="r-materia"><span class="title-md">Matemática Financeira</span><button class="btn ghost sm" data-nav="Editar matéria">editar</button><span class="n tnum">12 tópicos</span></div>
-        <div class="r-materia"><span class="title-md">Conhecimentos Bancários</span><button class="btn ghost sm" data-nav="Editar matéria">editar</button><span class="n tnum">22 tópicos</span></div>
-        <div class="r-materia"><span class="title-md">Informática</span><button class="btn ghost sm" data-nav="Editar matéria">editar</button><span class="n tnum">19 tópicos</span></div>
-        <div class="r-materia"><span class="title-md">Atualidades do Mercado Financeiro</span><button class="btn ghost sm" data-nav="Editar matéria">editar</button><span class="n tnum">15 tópicos</span></div>
-        <div class="r-materia"><span class="title-md">Vendas e Negociação</span><button class="btn ghost sm" data-nav="Editar matéria">editar</button><span class="n tnum">16 tópicos</span></div>
-        <div class="r-materia"><span class="title-md">Língua Inglesa</span><button class="btn ghost sm" data-nav="Editar matéria">editar</button><span class="n tnum">12 tópicos</span></div>
+      <div class="field" style="margin-bottom:var(--s4);">
+        <label for="nomePlano">Nome do plano</label>
+        <input type="text" id="nomePlano" value="BB 2026 — Conhecimentos Bancários">
+        <div class="field-hint">Sugerido pela IA a partir do conteúdo. Edite se quiser.</div>
+      </div>
+
+      <div class="card" style="padding-top:var(--s2); padding-bottom:var(--s2);" id="rascunhoLista">
+        <!-- matérias (sanfona) geradas por JS -->
       </div>
 
       <div class="meta-dim" style="margin:var(--s3) 0 var(--s5);">
@@ -189,10 +226,10 @@
 
 <nav class="bottombar" aria-label="Navegação principal">
   <a href="t1-hoje.html"><svg class="icon"><use href="#i-hoje"/></svg>Hoje</a>
-  <a href="#" data-nav="T2 — Calendário"><svg class="icon"><use href="#i-cal"/></svg>Calendário</a>
+  <a href="t2-calendario.html"><svg class="icon"><use href="#i-cal"/></svg>Calendário</a>
   <div class="fab"><button aria-label="Novo" style="opacity:.5;"><svg class="icon"><use href="#i-plus"/></svg></button></div>
-  <a href="t4-plano.html"><svg class="icon"><use href="#i-planos"/></svg>Planos</a>
-  <a href="#" data-nav="T7 — Progresso"><svg class="icon"><use href="#i-prog"/></svg>Progresso</a>
+  <a href="t3-planos.html"><svg class="icon"><use href="#i-planos"/></svg>Planos</a>
+  <a href="t7-progresso.html"><svg class="icon"><use href="#i-prog"/></svg>Progresso</a>
 </nav>
 
 <nav class="demo-bar" aria-label="Demo">
@@ -225,7 +262,7 @@ $('themeToggle').addEventListener('click', () => {
 });
 
 /* navegação do wizard */
-const TITULOS = { 1: 'Como o conteúdo chega?', 2: 'Conteúdo e contexto', 3: 'BB 2026 — rascunho da IA' };
+const TITULOS = { 1: 'Como o conteúdo chega?', 2: 'Conteúdo e contexto', 3: 'Revise o rascunho' };
 function passo(n) {
   [1,2,3].forEach(i => {
     $('passo'+i).classList.toggle('hidden', i !== n);
@@ -234,11 +271,6 @@ function passo(n) {
   $('titulo').textContent = TITULOS[n];
 }
 
-const LABELS = {
-  documento: 'Cole o conteúdo (ou arraste o arquivo)',
-  lista: 'Cole ou escreva sua lista de assuntos',
-  objetivo: 'Descreva o que você quer aprender',
-};
 document.querySelectorAll('.modo').forEach(m => m.addEventListener('click', () => {
   if (m.dataset.modo === 'manual') {
     /* manual pula a IA: nasce um plano rascunho vazio na tela do plano */
@@ -246,9 +278,10 @@ document.querySelectorAll('.modo').forEach(m => m.addEventListener('click', () =
     setTimeout(() => location.href = 't4-plano.html', 900);
     return;
   }
-  $('lblConteudo').textContent = LABELS[m.dataset.modo];
   passo(2);
 }));
+
+$('dropzone').addEventListener('click', () => toast('Anexo de PDF/imagem: ainda não construído neste protótipo.'));
 
 $('btnVoltar1').addEventListener('click', () => passo(1));
 $('btnVoltar2').addEventListener('click', () => passo(2));
@@ -263,8 +296,106 @@ $('btnGerar').addEventListener('click', () => {
   }, 1600);
 });
 
+/* ====== Rascunho da IA: sanfona de matérias (10 tópicos + mostrar mais) ====== */
+const LIMITE_TOPICOS = 10;
+const RASCUNHO = [
+  { nome: 'Língua Portuguesa', topicos: [
+    'Compreensão e interpretação de textos','Ortografia oficial','Acentuação gráfica','Crase','Pontuação',
+    'Classes de palavras','Concordância nominal','Concordância verbal','Regência nominal e verbal',
+    'Colocação pronominal','Coesão e coerência','Significação das palavras','Redação oficial','Reescrita de frases'] },
+  { nome: 'Matemática', topicos: [
+    'Razão e proporção','Regra de três simples e composta','Porcentagem','Conjuntos numéricos',
+    'Equações de 1º e 2º grau','Funções','Sistemas de medidas','Geometria plana','Análise combinatória',
+    'Probabilidade','Estatística básica','Progressões (PA e PG)'] },
+  { nome: 'Matemática Financeira', topicos: [
+    'Juros simples','Juros compostos','Desconto simples e composto','Taxas de juros (nominal, efetiva, equivalente)',
+    'Equivalência de capitais','Séries uniformes (rendas certas)','Sistemas de amortização (SAC, Price)',
+    'Inflação e correção monetária','Capitalização','Fluxo de caixa'] },
+  { nome: 'Conhecimentos Bancários', topicos: [
+    'Sistema Financeiro Nacional (SFN)','Conselho Monetário Nacional','Banco Central do Brasil','CVM e demais reguladores',
+    'Instituições financeiras bancárias e não bancárias','Produtos e serviços bancários','Aplicações financeiras',
+    'Crédito e financiamento','Meios de pagamento (Pix, TED, DOC)','Cartões de crédito e débito','Mercado de capitais',
+    'Câmbio','Garantias do SFN (FGC)','Autorregulação bancária'] },
+  { nome: 'Informática', topicos: [
+    'Hardware e software','Sistemas operacionais (Windows)','Editores de texto (Word)','Planilhas (Excel)',
+    'Apresentações (PowerPoint)','Internet e navegadores','Correio eletrônico','Segurança da informação',
+    'Malware e antivírus','Backup e armazenamento','Redes de computadores','Computação em nuvem'] },
+  { nome: 'Atualidades do Mercado Financeiro', topicos: [
+    'Política monetária e taxa Selic','Open Finance','Pix e evolução dos meios de pagamento','Moedas digitais (Drex, CBDCs)',
+    'Criptoativos','ESG no setor financeiro','Transformação digital nos bancos','Fintechs e bancos digitais',
+    'LGPD no mercado financeiro','IA em serviços financeiros'] },
+  { nome: 'Vendas e Negociação', topicos: [
+    'Técnicas de vendas','Etapas do processo de vendas','Funil de vendas','Prospecção de clientes',
+    'Negociação e resolução de conflitos','Relacionamento com o cliente (CRM)','Marketing de relacionamento',
+    'Pós-venda e fidelização','Comunicação e persuasão','Ética em vendas'] },
+  { nome: 'Língua Inglesa', topicos: [
+    'Interpretação de textos (reading)','Vocabulário financeiro','Tempos verbais (verb tenses)','Phrasal verbs',
+    'Preposições','Artigos e substantivos','Adjetivos e advérbios','Voz passiva','Conectivos (linking words)',
+    'Falsos cognatos'] },
+];
+
+function chevRight() { return '<svg class="icon sm chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>'; }
+function chevDown()  { return '<svg class="icon sm chev" viewBox="0 0 24 24" style="width:13px;height:13px;"><path d="M6 9l6 6 6-6"/></svg>'; }
+
+function renderRascunho() {
+  const totalTopicos = RASCUNHO.reduce((a, m) => a + m.topicos.length, 0);
+  $('rascunhoResumo').textContent = `${RASCUNHO.length} matérias · ${totalTopicos} tópicos`;
+
+  $('rascunhoLista').innerHTML = RASCUNHO.map((m, i) => {
+    const total = m.topicos.length;
+    const visiveis = m.topicos.slice(0, LIMITE_TOPICOS);
+    const ocultos = m.topicos.slice(LIMITE_TOPICOS);
+
+    const linhasVis = visiveis.map(t => `<div class="r-topico"><span class="dot"></span>${t}</div>`).join('');
+    const linhasOc = ocultos.map(t => `<div class="r-topico"><span class="dot"></span>${t}</div>`).join('');
+
+    const maisBtn = ocultos.length
+      ? `<div class="r-topico-extra hidden" id="extra-${i}">${linhasOc}</div>
+         <button class="mostrar-mais" onclick="toggleMais(${i}, event)">
+           <span class="lbl">Mostrar mais ${ocultos.length}</span> ${chevDown()}
+         </button>`
+      : '';
+
+    return `
+      <div class="r-materia" id="mat-${i}">
+        <button class="r-mat-head" onclick="toggleMat(${i})" aria-expanded="false">
+          ${chevRight()}
+          <span class="title-md">${m.nome}</span>
+          <a class="edit btn ghost sm" href="t4-plano.html" onclick="event.stopPropagation()">editar</a>
+          <span class="n tnum">${total} tópicos</span>
+        </button>
+        <div class="r-topicos hidden" id="top-${i}">
+          ${linhasVis}
+          ${maisBtn}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleMat(i) {
+  const mat = $('mat-' + i);
+  const body = $('top-' + i);
+  const aberta = mat.classList.toggle('aberta');
+  body.classList.toggle('hidden', !aberta);
+  mat.querySelector('.r-mat-head').setAttribute('aria-expanded', aberta);
+}
+
+function toggleMais(i, e) {
+  e.stopPropagation();
+  const extra = $('extra-' + i);
+  const btn = e.currentTarget;
+  const aberto = extra.classList.toggle('hidden') === false;
+  btn.classList.toggle('aberto', aberto);
+  const ocultos = RASCUNHO[i].topicos.length - LIMITE_TOPICOS;
+  btn.querySelector('.lbl').textContent = aberto ? 'Mostrar menos' : `Mostrar mais ${ocultos}`;
+}
+
+renderRascunho();
+
 $('btnConfirmar').addEventListener('click', () => {
-  toast('Plano ativo: 138 agendamentos distribuídos (R5). Primeiro estudo: amanhã — veja em Hoje.');
+  const nome = $('nomePlano').value.trim() || 'Novo plano';
+  const totalTopicos = RASCUNHO.reduce((a, m) => a + m.topicos.length, 0);
+  toast(`"${nome}" ativo: ${totalTopicos} agendamentos distribuídos (R5). Primeiro estudo: amanhã — veja em Hoje.`);
   setTimeout(() => location.href = 't1-hoje.html?cenario=padrao', 1400);
 });
 </script>
