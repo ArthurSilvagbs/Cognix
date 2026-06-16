@@ -132,8 +132,14 @@ body {
 }
 .sidebar .logo {
   font-weight: 800; letter-spacing: 0.02em; font-size: var(--t-md);
-  color: var(--ink-900); padding: 0 var(--s3) var(--s5);
-  display: flex; align-items: baseline; gap: var(--s1);
+  color: var(--ink-900); padding: 0 var(--s2) var(--s5);
+  display: flex; align-items: center; gap: var(--s2);
+}
+.sidebar .logo .mark {
+  width: 24px; height: 24px; border-radius: 7px; flex-shrink: 0;
+  background: var(--primary); color: #fff; box-shadow: var(--shadow-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 14px; letter-spacing: 0;
 }
 .sidebar .logo .v { font-size: var(--t-kicker); font-weight: 700; color: var(--primary-strong); }
 
@@ -141,11 +147,46 @@ body {
   display: flex; align-items: center; gap: var(--s3);
   padding: var(--s2) var(--s3); border-radius: var(--radius-sm);
   color: var(--ink-500); text-decoration: none; font-size: var(--t-body); font-weight: 500;
+  position: relative;
   transition: background var(--speed), color var(--speed);
 }
+.nav-item .icon { color: var(--ink-400); transition: color var(--speed); }
 .nav-item:hover { background: var(--bg-soft); color: var(--ink-700); }
+.nav-item:hover .icon { color: var(--ink-700); }
 .nav-item.active { background: var(--primary-soft); color: var(--primary-strong); font-weight: 600; }
+.nav-item.active .icon { color: var(--primary-strong); }
+.nav-item.active::before {
+  content: ""; position: absolute; left: calc(-1 * var(--s3) + 1px); top: 50%;
+  transform: translateY(-50%); width: 3px; height: 18px;
+  background: var(--primary); border-radius: 0 99px 99px 0;
+}
 .sidebar .spacer { flex: 1; }
+
+/* Mini "foco de hoje" no rodapé da sidebar — vivo, clica pra T1 */
+.side-foco {
+  display: block; text-decoration: none;
+  background: var(--primary-soft);
+  border: 1px solid var(--primary-line); border-radius: var(--radius);
+  padding: var(--s3); margin-bottom: var(--s2);
+  transition: border-color var(--speed), transform var(--speed), box-shadow var(--speed);
+}
+.side-foco:hover { border-color: var(--primary); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.side-foco .sf-kick { display: block; margin-bottom: var(--s2);
+                      font-size: var(--t-kicker); font-weight: 700; letter-spacing: 0.08em;
+                      text-transform: uppercase; color: var(--primary-strong); }
+.side-foco .sf-next { display: flex; align-items: center; gap: var(--s2); }
+.side-foco .sf-play { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+                      background: var(--primary); color: #fff; box-shadow: var(--shadow-sm);
+                      display: flex; align-items: center; justify-content: center; }
+.side-foco .sf-play .icon { width: 12px; height: 12px; }
+.side-foco .sf-info { display: flex; flex-direction: column; min-width: 0; }
+.side-foco .sf-t { font-size: var(--t-meta); font-weight: 600; color: var(--ink-900); line-height: 1.25;
+                   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.side-foco .sf-c { font-size: 11px; color: var(--ink-500); line-height: 1.2;
+                   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.side-foco .sf-bar { height: 5px; background: var(--bg-app); border-radius: 99px; overflow: hidden; margin-top: var(--s3); }
+.side-foco .sf-bar i { display: block; height: 100%; background: var(--primary); border-radius: 99px; }
+.side-foco .sf-meta { font-size: 10px; color: var(--ink-400); margin-top: 4px; text-align: right; }
 
 .btn-novo {
   display: flex; align-items: center; justify-content: center; gap: var(--s2);
