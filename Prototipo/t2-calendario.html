@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calendário — Cognix v2 · protótipo T2</title>
+<script>
+  document.documentElement.dataset.theme = localStorage.getItem('cognix-tema') || 'dark';
+</script>
+<link rel="stylesheet" href="css/wireframe.css">
+<style>
+  main { padding: var(--s5); }
+  .page { max-width: none; margin: 0; height: calc(100vh - var(--s5) - var(--s5));
+          display: flex; flex-direction: column; }
+  .page-kicker, .cal-head, .legenda { flex-shrink: 0; }
+  #vistaSemana { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  #vistaMes { flex: 1; min-height: 0; overflow-y: auto; }
+
+  /* cabeçalho do calendário */
+  .cal-head { display: flex; align-items: center; justify-content: space-between;
+              gap: var(--s4); margin-bottom: var(--s4); flex-wrap: wrap; }
+  .cal-nav { display: flex; align-items: center; gap: var(--s2); }
+  .cal-nav .periodo { font-size: var(--t-xl); font-weight: 700; min-width: 172px;
+                      text-transform: capitalize; color: var(--ink-900); letter-spacing: -0.01em; }
+  .nav-btn { width: 30px; height: 30px; border-radius: var(--radius-sm); flex-shrink: 0;
+             border: 1px solid var(--line-strong); background: var(--bg-card);
+             color: var(--ink-500); cursor: pointer; display: flex;
+             align-items: center; justify-content: center; transition: all var(--speed); }
+  .nav-btn:hover { border-color: var(--primary-line); color: var(--primary-strong); }
+  .cal-tools { display: flex; gap: var(--s3); align-items: center; }
+
+  .seg { display: inline-flex; background: var(--bg-soft); border-radius: var(--radius-sm); padding: 3px; }
+  .seg button { border: none; background: none; color: var(--ink-500); font: inherit;
+                font-size: var(--t-meta); font-weight: 600; padding: var(--s1) var(--s4);
+                border-radius: 5px; cursor: pointer; transition: all var(--speed); }
+  .seg button.on { background: var(--primary); color: #fff; }
+
+  /* legenda */
+  .legenda { display: flex; gap: var(--s4); margin-bottom: var(--s4); flex-wrap: wrap;
+             font-size: var(--t-caption); color: var(--ink-500); }
+  .legenda span { display: inline-flex; align-items: center; gap: var(--s1); }
+  .legenda .ic { width: 13px; height: 13px; }
+  .leg-est { color: var(--ink-400); }
+  .leg-rev { color: var(--primary-strong); }
+  .leg-proj-box { width: 14px; height: 11px; border: 1px dashed var(--primary-line);
+                  border-radius: 3px; opacity: .8; }
+  .leg-warn-box { width: 11px; height: 11px; border-radius: 3px; background: var(--warn-soft);
+                  border: 1px solid var(--warn-line); }
+
+  /* chip de evento (compartilhado) */
+  .ev { display: flex; align-items: center; gap: 5px; padding: 3px 7px; border-radius: 6px;
+        font-size: var(--t-caption); border: 1px solid var(--line); background: var(--bg-soft);
+        color: var(--ink-700); cursor: pointer; line-height: 1.3; width: 100%; text-align: left;
+        font-family: inherit; transition: border-color var(--speed); }
+  .ev:hover { border-color: var(--primary-line); }
+  .ev .tipo { width: 12px; height: 12px; flex-shrink: 0; color: var(--ink-400); }
+  .ev .ev-t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+  .ev .tag { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em;
+             color: var(--primary-strong); flex-shrink: 0; }
+  .ev.rev .tipo { color: var(--primary-strong); }
+  .ev.foco { background: var(--primary-soft); border-color: var(--primary-line);
+             color: var(--primary-strong); font-weight: 600; }
+  .ev.foco .tipo { color: var(--primary-strong); }
+  .ev.atrasado { background: var(--warn-soft); border-color: var(--warn-line); color: var(--warn); }
+  .ev.atrasado .tipo { color: var(--warn); }
+  .ev.feito { opacity: .5; }
+  .ev.feito .ev-t { text-decoration: line-through; }
+  .ev.feito .tipo { color: var(--success); }
+  .ev.proj { background: transparent; border-style: dashed; opacity: .65; }
+
+  /* ============ VISÃO MÊS (estilo ClickUp) ============ */
+  .mes-wrap { display: flex; }
+  .mes { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
+         background: var(--bg-card); width: 100%;
+         display: flex; flex-direction: column; }
+  .mes-dow { display: grid; grid-template-columns: repeat(7, 1fr);
+             background: var(--bg-soft); border-bottom: 1px solid var(--line); }
+  .mes-dow div { padding: var(--s2) var(--s3); font-size: var(--t-caption); font-weight: 700;
+                 color: var(--ink-400); text-transform: uppercase; letter-spacing: .04em; }
+  .mes-grid { display: grid; grid-template-columns: repeat(7, 1fr);
+              grid-auto-rows: minmax(120px, auto); }
+  .mes-cel { overflow: hidden; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
+             padding: var(--s2); display: flex; flex-direction: column; gap: 3px; cursor: pointer; }
+  .mes-cel:hover { background: var(--bg-soft); }
+  .mes-cel.hoje:hover { background: var(--primary-soft); }
+  .mes-cel:nth-child(7n) { border-right: none; }
+  .mes-grid > .mes-cel:nth-last-child(-n+7) { border-bottom: none; }
+  .mes-cel.fora { background: var(--bg-app); }
+  .mes-cel .dnum { font-size: var(--t-meta); color: var(--ink-500); font-weight: 600;
+                   align-self: flex-start; padding: 1px 3px; }
+  .mes-cel.fora .dnum { opacity: .4; }
+  .mes-cel.hoje { background: var(--primary-soft); box-shadow: inset 0 0 0 1px var(--primary-line); }
+  .mes-cel.hoje .dnum { background: var(--primary); color: #fff; min-width: 22px; height: 22px;
+                        border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .mes-cel .hoje-tag { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+                       color: var(--primary-strong); margin-left: auto; padding-top: 2px; }
+  .mes-cel .dtop { display: flex; align-items: center; width: 100%; }
+  .mes-cel .ev { font-size: 11px; padding: 2px 5px; }
+  .mes-cel .ev .tag { display: none; }
+  .mes-mais { font-size: 11px; color: var(--ink-400); cursor: pointer; padding: 1px 3px;
+              background: none; border: none; font-family: inherit; text-align: left; }
+  .mes-mais:hover { color: var(--primary-strong); }
+  .mes-dots { display: none; }
+  .mes-agenda { display: none; }
+  .dot-ev { width: 5px; height: 5px; border-radius: 50%; background: var(--ink-400); }
+  .dot-ev.rev { background: var(--primary-strong); }
+  .dot-ev.warn { background: var(--warn); }
+  .dot-ev.feito { background: var(--success); opacity: .6; }
+
+  /* ============ VISÃO SEMANA (premium) ============ */
+  .semana { display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--s2); height: 100%; }
+  .sem-col { border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-card);
+             display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  .sem-col.hoje { border-color: var(--primary-line); box-shadow: var(--shadow-sm); }
+  .sem-head { padding: var(--s2); text-align: center; }
+  .sem-head .dow { font-size: 10px; font-weight: 700; text-transform: uppercase;
+                   color: var(--ink-400); letter-spacing: .04em; }
+  .sem-head .dnum { font-size: var(--t-lg); font-weight: 700; color: var(--ink-700); margin-top: 1px; }
+  .sem-col.hoje .sem-head .dnum { color: var(--primary-strong); }
+  .sem-cap { padding: 0 var(--s2) var(--s2); }
+  .sem-cap .cap-row { display: flex; justify-content: space-between; font-size: 10px;
+                      color: var(--ink-400); margin-bottom: 3px; }
+  .sem-cap .cap-bar { height: 3px; background: var(--line-strong); border-radius: 99px; overflow: hidden; }
+  .sem-cap .cap-fill { height: 100%; background: var(--primary); border-radius: 99px; }
+  .sem-cap .cap-fill.over { background: var(--warn); }
+  .sem-body { padding: var(--s2); display: flex; flex-direction: column; gap: 4px;
+              flex: 1; border-top: 1px solid var(--line); overflow-y: auto; }
+  .sem-vazio { font-size: var(--t-caption); color: var(--ink-400); text-align: center; padding-top: var(--s5); }
+
+  @media (max-width: 760px) {
+    main { padding-bottom: calc(var(--bottombar-h) + var(--s4)); }
+    .page { height: auto; }
+    .mes-grid { grid-auto-rows: auto; }
+    #vistaSemana, #vistaMes { display: block; }
+    .semana { height: auto; grid-auto-flow: column; grid-template-columns: none;
+              grid-auto-columns: 82%; overflow-x: auto; scroll-snap-type: x mandatory;
+              padding-bottom: var(--s2); }
+    .sem-col { scroll-snap-align: start; min-height: 62vh; }
+    /* mês estilo iPhone: grade compacta com pontos + agenda do dia abaixo */
+    .mes-wrap { overflow-x: visible; }
+    .mes { min-width: 0; border: none; border-radius: 0; background: transparent; }
+    .mes-dow { background: transparent; border-bottom: none; }
+    .mes-dow div { text-align: center; padding: var(--s1); }
+    .mes-grid { grid-template-rows: repeat(6, 1fr); }
+    .mes-cel { border: none; min-height: 46px; overflow: visible; cursor: pointer;
+               align-items: center; justify-content: flex-start; padding: var(--s2) 0 var(--s1); gap: 4px; }
+    .mes-cel .dtop { justify-content: center; }
+    .mes-cel .hoje-tag { display: none; }
+    .mes-cel .dnum { align-self: center; font-size: var(--t-meta); padding: 0; }
+    .mes-cel .ev, .mes-mais { display: none; }
+    .mes-dots { display: flex; gap: 3px; justify-content: center; min-height: 6px; }
+    .mes-cel.hoje { background: none; box-shadow: none; }
+    .mes-cel.hoje .dnum { background: none; color: var(--primary-strong); }
+    .mes-cel.sel .dnum { background: var(--primary); color: #fff; min-width: 26px; height: 26px;
+                         border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .mes-agenda { display: block; margin-top: var(--s4); }
+    .agenda-tit { font-size: var(--t-md); font-weight: 600; margin-bottom: var(--s3); text-transform: capitalize; }
+    .agenda-list { display: flex; flex-direction: column; gap: var(--s2); }
+    .agenda-list .ev { padding: var(--s2) var(--s3); }
+  }
+
+  /* ---- T5: painel lateral do tópico ---- */
+  .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.45); opacity: 0;
+              pointer-events: none; transition: opacity var(--speed); z-index: 45; }
+  .backdrop.aberto { opacity: 1; pointer-events: auto; }
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(420px, 100vw);
+            background: var(--bg-card); border-left: 1px solid var(--line);
+            box-shadow: -16px 0 48px rgba(0,0,0,0.3); z-index: 46;
+            transform: translateX(102%); transition: transform var(--speed);
+            display: flex; flex-direction: column; }
+  .drawer.aberto { transform: none; }
+  .drawer-head { padding: var(--s4) var(--s5); border-bottom: 1px solid var(--line); }
+  .drawer-body { padding: var(--s4) var(--s5); overflow-y: auto; flex: 1; }
+  .drawer-body h4 { font-size: var(--t-caption); font-weight: 600; text-transform: uppercase;
+                    letter-spacing: 0.08em; color: var(--ink-500); margin: var(--s5) 0 var(--s2); }
+  .drawer-body h4:first-child { margin-top: 0; }
+  .drawer .fechar { position: absolute; top: var(--s3); right: var(--s3); }
+  .acao-row { display: flex; gap: var(--s2); flex-wrap: wrap; margin-top: var(--s3); }
+  .hist-item { display: flex; justify-content: space-between; gap: var(--s3); padding: var(--s2) 0;
+               border-bottom: 1px solid var(--line); font-size: var(--t-meta); }
+  .hist-item:last-child { border-bottom: none; }
+  .hist-item .d { color: var(--ink-400); }
+  .link-row { display: flex; align-items: center; gap: var(--s2); font-size: var(--t-meta); padding: var(--s1) 0; }
+  .link-row a { color: var(--primary-strong); text-decoration: none; }
+
+  /* ---- Resumo do dia (drawer ao clicar num dia, desktop) ---- */
+  .day-hoje-badge { font-size: var(--t-kicker); font-weight: 700; text-transform: uppercase;
+                    letter-spacing: .06em; color: #fff; background: var(--primary);
+                    padding: 2px var(--s2); border-radius: 99px; }
+  .cap-line { margin-top: var(--s3); }
+  .cap-line .cap-row { display: flex; justify-content: space-between; font-size: var(--t-meta);
+                       color: var(--ink-500); margin-bottom: var(--s1); }
+  .cap-line .cap-row b { color: var(--ink-700); font-weight: 600; }
+  .cap-line .cap-bar { height: 6px; background: var(--line-strong); border-radius: 99px; overflow: hidden; }
+  .cap-line .cap-fill { height: 100%; background: var(--primary); border-radius: 99px; }
+  .cap-line .cap-fill.over { background: var(--warn); }
+  .cap-line .cap-aviso { font-size: var(--t-caption); color: var(--warn); margin-top: var(--s2);
+                         display: flex; align-items: center; gap: var(--s1); }
+  #dayLista .ev { padding: var(--s2) var(--s3); }
+  #dayLista .ev .tag { display: inline; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-hoje" viewBox="0 0 24 24"><path d="M3 18h18"/><path d="M7.5 18a4.5 4.5 0 0 1 9 0"/><path d="M12 4v3M5.2 8.6l1.5 1.5M18.8 8.6l-1.5 1.5M2.5 13H5M19 13h2.5"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-planos" viewBox="0 0 24 24"><path d="M12 3 3 7.5l9 4.5 9-4.5L12 3z"/><path d="M3 12l9 4.5L21 12"/><path d="M3 16.5 12 21l9-4.5"/></symbol>
+    <symbol id="i-prog" viewBox="0 0 24 24"><path d="M5 19V10M12 19V5M19 19v-6"/></symbol>
+    <symbol id="i-config" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-width="2.25"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15.5H6.5A2.5 2.5 0 0 0 4 21z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/></symbol>
+    <symbol id="i-redo" viewBox="0 0 24 24"><path d="M4 11a8 8 0 0 1 14-4.5L20 9M20 4v5h-5"/><path d="M20 13a8 8 0 0 1-14 4.5L4 15M4 20v-5h5"/></symbol>
+    <symbol id="i-prev" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+    <symbol id="i-next" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M9 15l6-6M10.5 6.5l1-1a3.5 3.5 0 0 1 5 5l-1 1M13.5 17.5l-1 1a3.5 3.5 0 0 1-5-5l1-1"/></symbol>
+  </defs>
+</svg>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo"><span class="mark">C</span> Cognix <span class="v">v2</span></div>
+    <button class="btn-novo" onclick="location.href='t6-novo-plano.html'">
+      <svg class="icon sm"><use href="#i-plus"/></svg> Novo
+    </button>
+    <a class="nav-item" href="t1-hoje.html"><svg class="icon"><use href="#i-hoje"/></svg> Hoje</a>
+    <a class="nav-item active" href="t2-calendario.html"><svg class="icon"><use href="#i-cal"/></svg> Calendário</a>
+    <a class="nav-item" href="t3-planos.html"><svg class="icon"><use href="#i-planos"/></svg> Planos</a>
+    <a class="nav-item" href="t7-progresso.html"><svg class="icon"><use href="#i-prog"/></svg> Progresso</a>
+    <div class="spacer"></div>
+    <a class="side-foco" href="t1-hoje.html">
+      <span class="sf-kick">Foco de hoje</span>
+      <div class="sf-next">
+        <span class="sf-play"><svg class="icon" viewBox="0 0 24 24"><path d="M8 6.5v11l9-5.5z" fill="currentColor" stroke="none"/></svg></span>
+        <span class="sf-info">
+          <span class="sf-t">Juros compostos</span>
+          <span class="sf-c">Mat. Financeira · ~40min</span>
+        </span>
+      </div>
+      <div class="sf-bar"><i style="width:33%"></i></div>
+      <div class="sf-meta">1 de 3 estudos feitos</div>
+    </a>
+    <a class="nav-item" href="t8-config.html"><svg class="icon"><use href="#i-config"/></svg> Configurações</a>
+  </aside>
+
+  <main><div class="page">
+
+    <div class="page-kicker">Calendário</div>
+
+    <div class="cal-head">
+      <div class="cal-nav">
+        <button class="nav-btn" id="navPrev" aria-label="Anterior"><svg class="icon sm"><use href="#i-prev"/></svg></button>
+        <button class="nav-btn" id="navNext" aria-label="Próximo"><svg class="icon sm"><use href="#i-next"/></svg></button>
+        <button class="btn sm" id="btnHoje">Hoje</button>
+        <span class="periodo" id="periodo">—</span>
+      </div>
+      <div class="cal-tools">
+        <div class="seg">
+          <button id="segSemana">Semana</button>
+          <button id="segMes">Mês</button>
+        </div>
+        <button class="btn" id="btnReplan"><svg class="icon sm"><use href="#i-redo"/></svg> Replanejar</button>
+      </div>
+    </div>
+
+    <div class="legenda">
+      <span><svg class="icon ic leg-est"><use href="#i-book"/></svg> Estudo</span>
+      <span><svg class="icon ic leg-rev"><use href="#i-redo"/></svg> Revisão</span>
+      <span><span class="leg-proj-box"></span> Projeção (revisão futura)</span>
+      <span><span class="leg-warn-box"></span> Não feito / atrasado</span>
+    </div>
+
+    <div id="vistaSemana"><div class="semana" id="semanaGrid"></div></div>
+    <div id="vistaMes" class="hidden">
+      <div class="mes-wrap">
+        <div class="mes">
+          <div class="mes-dow" id="mesDow"></div>
+          <div class="mes-grid" id="mesGrid"></div>
+        </div>
+      </div>
+      <div class="mes-agenda" id="mesAgenda"></div>
+    </div>
+
+  </div></main>
+</div>
+
+<!-- ===================== T5: painel lateral do tópico ===================== -->
+<div class="backdrop" id="backdrop"></div>
+<aside class="drawer" id="drawer" aria-label="Detalhe do tópico">
+  <button class="btn ghost sm fechar" id="btnFechar" aria-label="Fechar"><svg class="icon sm"><use href="#i-x"/></svg></button>
+  <div class="drawer-head">
+    <div class="page-kicker" id="dCrumb">—</div>
+    <div class="title-xl" id="dTitulo" style="margin:var(--s1) 0;">—</div>
+    <span class="badge soft" id="dEstado">—</span>
+    <div class="acao-row">
+      <button class="btn primary sm" data-acao="concluir"><svg class="icon sm"><use href="#i-check"/></svg> Concluí</button>
+      <button class="btn sm" data-acao="domino">Já domino</button>
+      <button class="btn ghost sm" data-acao="reabrir">Reabrir</button>
+    </div>
+  </div>
+  <div class="drawer-body">
+    <h4>Notas</h4>
+    <textarea rows="3" placeholder="Anotações do tópico (markdown) — diferente das anotações de cada sessão"></textarea>
+
+    <h4>Links <span style="font-weight:400; text-transform:none;">(sem upload de arquivo — D6)</span></h4>
+    <button class="btn ghost sm" data-nav="Adicionar link">+ adicionar link</button>
+
+    <h4>Sessões de estudo</h4>
+    <div id="dSessoes"></div>
+
+    <h4>Revisões</h4>
+    <div id="dRevisoes"></div>
+  </div>
+</aside>
+
+<!-- ===================== Resumo do dia (clique num dia) ===================== -->
+<aside class="drawer" id="dayDrawer" aria-label="Resumo do dia">
+  <button class="btn ghost sm fechar" id="btnFecharDia" aria-label="Fechar"><svg class="icon sm"><use href="#i-x"/></svg></button>
+  <div class="drawer-head">
+    <div class="page-kicker">Resumo do dia</div>
+    <div class="title-xl" id="dayTitulo" style="margin:var(--s1) 0;">—</div>
+    <div id="dayBadge"></div>
+    <div class="cap-line" id="dayCap"></div>
+  </div>
+  <div class="drawer-body">
+    <h4>Agenda do dia</h4>
+    <div class="agenda-list" id="dayLista" style="display:flex; flex-direction:column; gap:var(--s2);"></div>
+  </div>
+</aside>
+
+<nav class="bottombar" aria-label="Navegação principal">
+  <a href="t1-hoje.html"><svg class="icon"><use href="#i-hoje"/></svg>Hoje</a>
+  <a href="t2-calendario.html" class="active"><svg class="icon"><use href="#i-cal"/></svg>Calendário</a>
+  <div class="fab"><button aria-label="Novo" onclick="location.href='t6-novo-plano.html'"><svg class="icon"><use href="#i-plus"/></svg></button></div>
+  <a href="t3-planos.html"><svg class="icon"><use href="#i-planos"/></svg>Planos</a>
+  <a href="t7-progresso.html"><svg class="icon"><use href="#i-prog"/></svg>Progresso</a>
+</nav>
+
+<nav class="demo-bar" aria-label="Demo">
+  <span class="lbl">T2</span>
+  <a href="t1-hoje.html">← T1</a>
+  <a href="t4-plano.html">T4</a>
+  <a href="t6-novo-plano.html">T6</a>
+  <span class="sep"></span>
+  <button class="theme" id="themeToggle" title="Alternar tema">tema</button>
+</nav>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toastMsg"></span></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let toastTimer = null;
+function toast(msg) {
+  $('toastMsg').textContent = msg;
+  $('toast').classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $('toast').classList.remove('show'), 4000);
+}
+document.querySelectorAll('[data-nav]').forEach(el => el.addEventListener('click', (e) => {
+  e.preventDefault(); e.stopPropagation();
+  toast(`${el.dataset.nav}: ainda não construída neste protótipo.`);
+}));
+$('themeToggle').addEventListener('click', () => {
+  const r = document.documentElement;
+  r.dataset.theme = r.dataset.theme === 'light' ? 'dark' : 'light';
+  localStorage.setItem('cognix-tema', r.dataset.theme);
+});
+
+/* ===== datas ===== */
+const HOJE = new Date(2026, 5, 15); // 15/06/2026 — "hoje" do protótipo
+const MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+const MES_ABREV = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+const DOW = ['dom','seg','ter','qua','qui','sex','sáb'];
+const DISP = [180, 60, 60, 60, 60, 60, 180]; // disponibilidade D7 por getDay (dom..sáb), em min
+
+function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
+function keyOf(d) { return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; }
+function sameDay(a, b) { return keyOf(a) === keyOf(b); }
+function startOfWeek(d) { return addDays(d, -d.getDay()); } // semana começa no domingo
+function fmtMin(m) {
+  if (!m) return '0';
+  const h = Math.floor(m / 60), min = m % 60;
+  if (min === 0) return `${h}h`;
+  return h > 0 ? `${h}h${String(min).padStart(2, '0')}` : `${min}m`;
+}
+
+/* ===== dados (mock da IA + algoritmo) — offset em dias relativo a HOJE ===== */
+const RAW = [
+  { off:-13, tipo:'estudo', titulo:'Ortografia oficial', ctx:'BB 2026 › Português', estado:'feito', min:45 },
+  { off:-11, tipo:'estudo', titulo:'Conjuntos numéricos', ctx:'BB 2026 › Matemática', estado:'feito', min:40 },
+  { off:-10, tipo:'revisao', titulo:'Ortografia oficial', num:'1ª', ctx:'BB 2026 › Português', estado:'feito' },
+  { off:-8,  tipo:'estudo', titulo:'Sistema Financeiro Nacional', ctx:'BB 2026 › Bancários', estado:'feito', min:40 },
+  { off:-7,  tipo:'estudo', titulo:'Razão e proporção', ctx:'BB 2026 › Matemática', estado:'feito', min:30 },
+  { off:-6,  tipo:'estudo', titulo:'Juros simples', ctx:'BB 2026 › Mat. Financeira', estado:'feito', min:40 },
+  { off:-5,  tipo:'estudo', titulo:'Concordância verbal', ctx:'BB 2026 › Português', estado:'feito', min:30 },
+  { off:-4,  tipo:'estudo', titulo:'Porcentagem', ctx:'BB 2026 › Matemática', estado:'atrasado', min:40 },
+  { off:-3,  tipo:'revisao', titulo:'Juros simples', num:'1ª', ctx:'BB 2026 › Mat. Financeira', estado:'feito' },
+  { off:-2,  tipo:'estudo', titulo:'Cartões de crédito', ctx:'BB 2026 › Bancários', estado:'feito', min:30 },
+  { off:-1,  tipo:'estudo', titulo:'Função de 1º grau', ctx:'BB 2026 › Matemática', estado:'feito', min:40 },
+  { off:-1,  tipo:'revisao', titulo:'Concordância verbal', num:'1ª', ctx:'BB 2026 › Português', estado:'atrasado' },
+
+  { off:0, tipo:'estudo', titulo:'Juros compostos', ctx:'BB 2026 › Mat. Financeira', estado:'foco', min:40 },
+  { off:0, tipo:'revisao', titulo:'Sistema Financeiro Nacional', num:'1ª', ctx:'BB 2026 › Bancários', estado:'firme' },
+  { off:0, tipo:'estudo', titulo:'Probabilidade', ctx:'BB 2026 › Matemática', estado:'firme', min:30 },
+
+  { off:1, tipo:'estudo', titulo:'Função exponencial', ctx:'BB 2026 › Matemática', estado:'firme', min:40 },
+  { off:1, tipo:'revisao', titulo:'Juros compostos', num:'1ª', ctx:'BB 2026 › Mat. Financeira', estado:'firme' },
+  { off:2, tipo:'estudo', titulo:'Open Finance', ctx:'BB 2026 › Bancários', estado:'firme', min:30 },
+  { off:2, tipo:'estudo', titulo:'Voz passiva', ctx:'BB 2026 › Inglês', estado:'firme', min:30 },
+  { off:3, tipo:'estudo', titulo:'PIX e meios de pagamento', ctx:'BB 2026 › Atualidades', estado:'firme', min:30 },
+  { off:3, tipo:'revisao', titulo:'Porcentagem', num:'1ª', ctx:'BB 2026 › Matemática', estado:'firme' },
+  { off:4, tipo:'estudo', titulo:'Crase', ctx:'BB 2026 › Português', estado:'firme', min:40 },
+  { off:4, tipo:'estudo', titulo:'Análise combinatória', ctx:'BB 2026 › Matemática', estado:'firme', min:45 },
+  { off:5, tipo:'estudo', titulo:'Sistemas de equações', ctx:'BB 2026 › Matemática', estado:'firme', min:45 },
+  { off:5, tipo:'estudo', titulo:'Previdência complementar', ctx:'BB 2026 › Bancários', estado:'firme', min:30 },
+  { off:5, tipo:'estudo', titulo:'Tempos verbais', ctx:'BB 2026 › Inglês', estado:'firme', min:30 },
+  { off:5, tipo:'revisao', titulo:'Concordância verbal', num:'2ª', ctx:'BB 2026 › Português', estado:'proj' },
+  { off:6, tipo:'estudo', titulo:'Mercado de capitais', ctx:'BB 2026 › Bancários', estado:'firme', min:30 },
+
+  { off:7,  tipo:'revisao', titulo:'Juros compostos', num:'2ª', ctx:'BB 2026 › Mat. Financeira', estado:'proj' },
+  { off:8,  tipo:'estudo', titulo:'Regência verbal', ctx:'BB 2026 › Português', estado:'firme', min:40 },
+  { off:9,  tipo:'revisao', titulo:'Sistema Financeiro Nacional', num:'2ª', ctx:'BB 2026 › Bancários', estado:'proj' },
+  { off:10, tipo:'estudo', titulo:'Geometria plana', ctx:'BB 2026 › Matemática', estado:'firme', min:45 },
+  { off:12, tipo:'revisao', titulo:'Porcentagem', num:'2ª', ctx:'BB 2026 › Matemática', estado:'proj' },
+  { off:14, tipo:'estudo', titulo:'Fundos de investimento', ctx:'BB 2026 › Bancários', estado:'firme', min:30 },
+  { off:14, tipo:'revisao', titulo:'Juros simples', num:'2ª', ctx:'BB 2026 › Mat. Financeira', estado:'proj' },
+  { off:16, tipo:'estudo', titulo:'Banking vocabulary', ctx:'BB 2026 › Inglês', estado:'firme', min:30 },
+  { off:18, tipo:'estudo', titulo:'Reforma tributária', ctx:'BB 2026 › Atualidades', estado:'firme', min:30 },
+];
+
+/* indexa eventos por dia */
+const EVENTOS = {};
+RAW.forEach(e => {
+  const d = addDays(HOJE, e.off);
+  const k = keyOf(d);
+  (EVENTOS[k] = EVENTOS[k] || []).push(e);
+});
+// estudo antes de revisão dentro do dia
+Object.values(EVENTOS).forEach(list => list.sort((a, b) => (a.tipo === b.tipo ? 0 : a.tipo === 'estudo' ? -1 : 1)));
+
+function chipHTML(e) {
+  const d = addDays(HOJE, e.off);
+  const cls = ['ev', e.tipo === 'revisao' ? 'rev' : '', e.estado].filter(Boolean).join(' ');
+  const ico = e.tipo === 'revisao' ? '#i-redo' : '#i-book';
+  const titulo = e.tipo === 'revisao' ? `${e.titulo} (${e.num})` : e.titulo;
+  const tag = e.estado === 'proj' ? '<span class="tag">proj</span>' : '';
+  const dd = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+  return `<button type="button" class="${cls}" data-base="${e.titulo.replace(/"/g,'&quot;')}" data-tipo="${e.tipo}" data-num="${e.num||''}" data-data="${dd}" data-c="${e.ctx}" data-e="${e.estado}">
+    <svg class="icon tipo"><use href="${ico}"/></svg>
+    <span class="ev-t">${titulo}</span>${tag}
+  </button>`;
+}
+
+/* ===== estado da view ===== */
+let modo = 'semana';
+let ancora = new Date(HOJE);
+
+function renderSemana() {
+  const ini = startOfWeek(ancora);
+  let html = '';
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(ini, i);
+    const k = keyOf(d);
+    const evs = EVENTOS[k] || [];
+    const ehHoje = sameDay(d, HOJE);
+    const disp = DISP[d.getDay()];
+    const carga = evs.filter(e => e.tipo === 'estudo' && e.estado !== 'feito').reduce((s, e) => s + (e.min || 0), 0);
+    const pctCarga = disp ? Math.min(100, Math.round(carga / disp * 100)) : 0;
+    const over = carga > disp;
+    const corpo = evs.length
+      ? evs.map(chipHTML).join('')
+      : '<div class="sem-vazio">—</div>';
+    html += `<div class="sem-col${ehHoje ? ' hoje' : ''}">
+      <div class="sem-head"><div class="dow">${DOW[d.getDay()]}</div><div class="dnum">${d.getDate()}</div></div>
+      <div class="sem-cap">
+        <div class="cap-row"><span>${carga ? fmtMin(carga) : 'livre'}</span><span>${fmtMin(disp)}</span></div>
+        <div class="cap-bar"><div class="cap-fill${over ? ' over' : ''}" style="width:${over ? 100 : pctCarga}%"></div></div>
+      </div>
+      <div class="sem-body">${corpo}</div>
+    </div>`;
+  }
+  $('semanaGrid').innerHTML = html;
+  const fim = addDays(ini, 6);
+  $('periodo').textContent = ini.getMonth() === fim.getMonth()
+    ? `${ini.getDate()} – ${fim.getDate()} ${MES_ABREV[ini.getMonth()]}`
+    : `${ini.getDate()} ${MES_ABREV[ini.getMonth()]} – ${fim.getDate()} ${MES_ABREV[fim.getMonth()]}`;
+}
+
+function renderMes() {
+  $('mesDow').innerHTML = DOW.map(d => `<div>${d}</div>`).join('');
+  const primeiro = new Date(ancora.getFullYear(), ancora.getMonth(), 1);
+  const ini = startOfWeek(primeiro);
+  let html = '';
+  for (let i = 0; i < 42; i++) {
+    const d = addDays(ini, i);
+    const k = keyOf(d);
+    const evs = EVENTOS[k] || [];
+    const fora = d.getMonth() !== ancora.getMonth();
+    const ehHoje = sameDay(d, HOJE);
+    let corpo = '';
+    const MAX = 3;
+    if (evs.length <= MAX) {
+      corpo = evs.map(chipHTML).join('');
+    } else {
+      corpo = evs.slice(0, MAX).map(chipHTML).join('')
+        + `<button type="button" class="mes-mais" data-dia="${k}">+${evs.length - MAX} mais</button>`;
+    }
+    html += `<div class="mes-cel${fora ? ' fora' : ''}${ehHoje ? ' hoje' : ''}" data-k="${k}">
+      <div class="dtop"><span class="dnum">${d.getDate()}</span>${ehHoje ? '<span class="hoje-tag">hoje</span>' : ''}</div>
+      <div class="mes-dots">${evs.slice(0, 3).map(dotHTML).join('')}</div>${corpo}
+    </div>`;
+  }
+  $('mesGrid').innerHTML = html;
+  $('periodo').textContent = `${MESES[ancora.getMonth()]} ${ancora.getFullYear()}`;
+  const hojeNoMes = HOJE.getFullYear() === ancora.getFullYear() && HOJE.getMonth() === ancora.getMonth();
+  selecionaDia(hojeNoMes ? keyOf(HOJE) : keyOf(new Date(ancora.getFullYear(), ancora.getMonth(), 1)));
+}
+
+const DIAS_LONGOS = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
+function dotHTML(e) {
+  const c = e.tipo === 'revisao' ? 'rev' : (e.estado === 'atrasado' ? 'warn' : (e.estado === 'feito' ? 'feito' : ''));
+  return `<span class="dot-ev ${c}"></span>`;
+}
+function renderAgenda(k) {
+  const [y, m, dd] = k.split('-').map(Number);
+  const d = new Date(y, m, dd);
+  const evs = EVENTOS[k] || [];
+  const lista = evs.length ? evs.map(chipHTML).join('') : '<div class="sem-vazio" style="padding:var(--s4) 0;">Nada agendado neste dia</div>';
+  $('mesAgenda').innerHTML = `<div class="agenda-tit">${DIAS_LONGOS[d.getDay()]}, ${dd} de ${MESES[m]}</div><div class="agenda-list">${lista}</div>`;
+}
+function selecionaDia(k) {
+  document.querySelectorAll('.mes-cel').forEach(c => c.classList.toggle('sel', c.dataset.k === k));
+  renderAgenda(k);
+}
+
+function render() {
+  $('segSemana').classList.toggle('on', modo === 'semana');
+  $('segMes').classList.toggle('on', modo === 'mes');
+  $('vistaSemana').classList.toggle('hidden', modo !== 'semana');
+  $('vistaMes').classList.toggle('hidden', modo !== 'mes');
+  modo === 'semana' ? renderSemana() : renderMes();
+}
+
+/* ===== interações ===== */
+$('segSemana').addEventListener('click', () => { modo = 'semana'; render(); });
+$('segMes').addEventListener('click', () => { modo = 'mes'; render(); });
+$('navPrev').addEventListener('click', () => { ancora = modo === 'semana' ? addDays(ancora, -7) : new Date(ancora.getFullYear(), ancora.getMonth() - 1, 1); render(); });
+$('navNext').addEventListener('click', () => { ancora = modo === 'semana' ? addDays(ancora, 7) : new Date(ancora.getFullYear(), ancora.getMonth() + 1, 1); render(); });
+$('btnHoje').addEventListener('click', () => { ancora = new Date(HOJE); render(); });
+
+$('btnReplan').addEventListener('click', () => {
+  toast('Replanejamento aplicado (R3): 1 estudo deslizado, 1 revisão reancorada para hoje. [simulado]');
+});
+
+document.body.addEventListener('click', (e) => {
+  const mais = e.target.closest('.mes-mais');
+  if (mais) { abreDia(mais.dataset.dia); return; }
+  const cel = e.target.closest('.mes-cel');
+  if (cel && !e.target.closest('.ev')) {
+    if (window.matchMedia('(max-width: 760px)').matches) selecionaDia(cel.dataset.k);
+    else if (modo === 'mes') abreDia(cel.dataset.k);
+    return;
+  }
+  const ev = e.target.closest('.ev');
+  if (ev) abrePainel(ev);
+});
+
+/* ===== T5: painel lateral do tópico (mesmo componente da T4) ===== */
+const ACOES = {
+  nao_iniciado: ['concluir', 'domino'],
+  em_estudo:    ['concluir', 'domino'],
+  em_revisao:   ['domino', 'reabrir'],
+  dominado:     ['reabrir'],
+};
+function abrePainel(el) {
+  const tipo = el.dataset.tipo, estadoCal = el.dataset.e, num = el.dataset.num, data = el.dataset.data;
+  $('dTitulo').textContent = el.dataset.base;
+  $('dCrumb').textContent = el.dataset.c;
+  let topo, badge;
+  if (tipo === 'revisao') { topo = 'em_revisao'; badge = `Em revisão (${num} · ${data})`; }
+  else if (estadoCal === 'feito') { topo = 'em_revisao'; badge = 'Em revisão'; }
+  else if (estadoCal === 'foco') { topo = 'em_estudo'; badge = 'Em estudo'; }
+  else if (estadoCal === 'atrasado') { topo = 'em_estudo'; badge = 'Em estudo · atrasado'; }
+  else { topo = 'nao_iniciado'; badge = 'Não iniciado'; }
+  $('dEstado').textContent = badge;
+  const validas = ACOES[topo];
+  document.querySelectorAll('#drawer [data-acao]').forEach(b => b.classList.toggle('hidden', !validas.includes(b.dataset.acao)));
+  $('dSessoes').innerHTML = topo === 'nao_iniciado'
+    ? '<div class="hist-item"><span class="meta-dim">Nenhuma sessão ainda</span><span></span></div>'
+    : '<div class="hist-item"><span>Sessão · 45 min · "resolvi 12 exercícios"</span><span class="d tnum">10/06</span></div><div class="hist-item"><span>Sessão · 25 min</span><span class="d tnum">08/06</span></div>';
+  $('dRevisoes').innerHTML = topo === 'em_revisao'
+    ? `<div class="hist-item"><span>${tipo === 'revisao' ? num + ' revisão · prevista ' + data : 'Próxima revisão agendada'}</span><span class="d">agendada</span></div><div class="hist-item"><span class="meta-dim">As seguintes nascem ao concluir a anterior (R1, encadeado)</span><span></span></div>`
+    : '<div class="hist-item"><span>Ciclo previsto: 1ª +1d · 2ª +7d · 3ª +21d</span><span class="d">após concluir</span></div><div class="hist-item"><span class="meta-dim">Nenhuma agendada — revisões nascem ao concluir o tópico (R1)</span><span></span></div>';
+  $('dayDrawer').classList.remove('aberto');
+  $('drawer').classList.add('aberto');
+  sincronizaBackdrop();
+}
+function sincronizaBackdrop() {
+  const algum = $('drawer').classList.contains('aberto') || $('dayDrawer').classList.contains('aberto');
+  $('backdrop').classList.toggle('aberto', algum);
+}
+function fechaPainel() { $('drawer').classList.remove('aberto'); sincronizaBackdrop(); }
+function fechaDia()    { $('dayDrawer').classList.remove('aberto'); sincronizaBackdrop(); }
+function fechaTudo()   { $('drawer').classList.remove('aberto'); $('dayDrawer').classList.remove('aberto'); sincronizaBackdrop(); }
+
+/* Resumo do dia: abre ao clicar num dia no mês (desktop) */
+function abreDia(k) {
+  const [y, m, dd] = k.split('-').map(Number);
+  const d = new Date(y, m, dd);
+  const evs = EVENTOS[k] || [];
+  $('dayTitulo').textContent = `${DIAS_LONGOS[d.getDay()]}, ${dd} de ${MESES[m]}`;
+  $('dayBadge').innerHTML = sameDay(d, HOJE) ? '<span class="day-hoje-badge">hoje</span>' : '';
+  const disp = DISP[d.getDay()];
+  const carga = evs.filter(e => e.tipo === 'estudo' && e.estado !== 'feito').reduce((s, e) => s + (e.min || 0), 0);
+  const over = carga > disp;
+  const pct = disp ? Math.min(100, Math.round(carga / disp * 100)) : 0;
+  const nEst = evs.filter(e => e.tipo === 'estudo').length;
+  const nRev = evs.filter(e => e.tipo === 'revisao').length;
+  $('dayCap').innerHTML = `
+    <div class="cap-row"><span>Carga de estudo: <b>${carga ? fmtMin(carga) : 'livre'}</b></span><span>Disponível: <b>${fmtMin(disp)}</b></span></div>
+    <div class="cap-bar"><div class="cap-fill${over ? ' over' : ''}" style="width:${over ? 100 : pct}%"></div></div>
+    ${over ? '<div class="cap-aviso">Dia sobrecarregado — antecipe ou replaneje.</div>' : ''}
+    <div class="meta-dim" style="margin-top:var(--s2);">${nEst} estudo${nEst !== 1 ? 's' : ''} · ${nRev} revis${nRev !== 1 ? 'ões' : 'ão'}</div>`;
+  $('dayLista').innerHTML = evs.length
+    ? evs.map(chipHTML).join('')
+    : '<div class="sem-vazio" style="padding:var(--s4) 0;">Nada agendado neste dia.</div>';
+  $('dayDrawer').classList.add('aberto');
+  $('drawer').classList.remove('aberto');
+  sincronizaBackdrop();
+}
+
+$('btnFechar').addEventListener('click', fechaPainel);
+$('btnFecharDia').addEventListener('click', fechaDia);
+$('backdrop').addEventListener('click', fechaTudo);
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fechaTudo(); });
+
+document.querySelector('[data-acao="concluir"]').addEventListener('click', () => {
+  $('dEstado').textContent = 'Em revisão (1ª amanhã)';
+  toast('Concluído. Revisões agendadas: amanhã · +7d · +21d (R1).');
+});
+document.querySelector('[data-acao="domino"]').addEventListener('click', () => {
+  $('dEstado').textContent = 'Dominado (manutenção a cada 60d)';
+  toast('Dominado. Revisões do ciclo canceladas; manutenção a cada 60 dias (D1/R2).');
+});
+document.querySelector('[data-acao="reabrir"]').addEventListener('click', () => {
+  $('dEstado').textContent = 'Em estudo';
+  toast('Reaberto: revisões pendentes removidas; o ciclo recomeça ao concluir (D4).');
+});
+
+render();
+</script>
+</body>
+</html>
