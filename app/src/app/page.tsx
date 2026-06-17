@@ -1,66 +1,31 @@
-import Image from "next/image";
-import styles from "./page.module.css";
-
+// Home mínima — prova que o design system (wireframe.css) está vivo no app.
+// Será substituída pela tela T1 "Hoje" na primeira fatia vertical.
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main>
+      <div className="page">
+        <div className="page-head">
+          <p className="page-kicker">Cognix v2</p>
+          <h1>Design system no ar</h1>
+          <p className="day-summary">
+            Tokens, tipografia e componentes portados do protótipo —{" "}
+            <b>modo escuro padrão</b>.
           </p>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="card hero">
+          <p className="title-xl">Scaffold + design system prontos</p>
+          <p className="meta" style={{ marginTop: "var(--s2)" }}>
+            Próximo passo: cliente Supabase e a fatia{" "}
+            <b>ALIMENTAR → RECEBER</b>.
+          </p>
+          <div style={{ display: "flex", gap: "var(--s2)", marginTop: "var(--s4)" }}>
+            <button className="btn primary">Ação primária</button>
+            <button className="btn">Ação secundária</button>
+            <span className="badge soft">índigo</span>
+          </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }

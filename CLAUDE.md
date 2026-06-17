@@ -45,7 +45,7 @@ ALIMENTAR (conteúdo entra, IA ou manual) → RECEBER ("hoje estude X") → EXEC
 
 ## Design System (Fase 5) — inegociável
 
-- Use os **tokens de `css/wireframe.css`** (CSS variables). **Nunca** hex solto;
+- Use os **tokens de `app/src/styles/wireframe.css`** (CSS variables). **Nunca** hex solto;
   **nunca** tamanho fora da escala.
 - **Dark é o padrão**; claro via `[data-theme="light"]`.
 - **Cor só com significado:** primária (ação/ativo/foco), âmbar (atenção, nunca em

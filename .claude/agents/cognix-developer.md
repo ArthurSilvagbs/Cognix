@@ -19,7 +19,7 @@ O Cognix é greenfield: no começo há pouco a reusar, então metade do trabalho
 2. Se é o **primeiro** do tipo, crie-o como **padrão canônico** — com capricho, porque
    vira referência.
 3. Procure uma **tela/feature similar** já feita e use como molde de estrutura.
-4. **Use os tokens** do `css/wireframe.css` — nunca improvise cor/tamanho.
+4. **Use os tokens** do `app/src/styles/wireframe.css` — nunca improvise cor/tamanho.
 
 Diga no raciocínio o que procurou, o que achou e o que vai reusar antes de codar.
 
