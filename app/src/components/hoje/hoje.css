@@ -1,0 +1,83 @@
+/* Estilos específicos da T1 "Hoje" — portados do <style> do protótipo.
+   Usam só tokens do design system. Se algo aqui virar padrão de outra tela,
+   promover para um stylesheet compartilhado. */
+
+.hero-top {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  margin-bottom: var(--s3);
+}
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  margin-top: var(--s5);
+  flex-wrap: wrap;
+}
+.hero-reason {
+  font-size: var(--t-meta);
+  color: var(--ink-400);
+  margin-top: var(--s2);
+}
+
+.timer-wrap {
+  text-align: center;
+  padding: var(--s4) 0 var(--s2);
+}
+.timer-display {
+  font-size: var(--t-timer);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.timer-display.paused {
+  color: var(--ink-400);
+}
+.timer-state {
+  font-size: var(--t-kicker);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin-bottom: var(--s2);
+}
+.timer-state.paused {
+  color: var(--ink-400);
+}
+
+.session-form .field {
+  margin-top: var(--s4);
+}
+.session-form .actions {
+  display: flex;
+  gap: var(--s3);
+  margin-top: var(--s5);
+  flex-wrap: wrap;
+}
+
+.done-line {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  font-size: var(--t-meta);
+  color: var(--ink-500);
+}
+.done-line .icon {
+  color: var(--primary);
+}
+
+.fim-resumo {
+  display: flex;
+  gap: var(--s6);
+  margin-top: var(--s4);
+  flex-wrap: wrap;
+}
+.fim-resumo .kpi .n {
+  font-size: var(--t-xl);
+  font-weight: 700;
+}
+.fim-resumo .kpi .l {
+  font-size: var(--t-caption);
+  color: var(--ink-400);
+}
