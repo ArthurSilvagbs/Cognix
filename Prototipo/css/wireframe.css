@@ -8,38 +8,86 @@
    ============================================================ */
 
 :root {
-  /* ---------- TEMA ESCURO (padrão) ---------- */
+  /* ============================================================
+     ARQUITETURA DE TOKEN EM 3 CAMADAS (refator #1, 2026-06-19)
+     1) PRIMITIVO — a tinta crua, sem papel (não usar direto em componente)
+     2) SEMÂNTICO — o papel; é ISTO que os componentes devem usar
+     3) ALIAS LEGADO — nomes antigos mantidos p/ não quebrar os HTMLs; deprecados
+     Ver: 05 - Design System/Refatoração do Design System.md
+     ============================================================ */
+
+  /* ---------- 1) PRIMITIVO (independente de tema) ---------- */
+  --indigo-50:  #eef2ff;
+  --indigo-200: #c7d2fe;
+  --indigo-400: #818cf8;
+  --indigo-500: #6366f1;   /* índigo PROVISÓRIO 🔶 — trocar aqui revalida o app todo */
+  --indigo-600: #4f46e5;
+  --indigo-700: #4338ca;
+  --amber-100: #fef3c7;
+  --amber-300: #fcd34d;
+  --amber-400: #fbbf24;
+  --amber-700: #b45309;
+  --green-400: #4ade80;
+  --green-600: #16a34a;
+  --white:     #ffffff;
+  --zinc-100:  #f4f4f5;
+  --zinc-200:  #e4e4e7;
+  --zinc-300:  #d4d4d8;
+  --zinc-400:  #a1a1aa;
+  --zinc-450:  #8b8b96;   /* piso AA p/ texto muted no DARK (#8) */
+  --zinc-500:  #71717a;
+  --zinc-550:  #6b6b73;   /* piso AA p/ texto muted no LIGHT (#8) */
+  --zinc-600:  #52525b;   /* Tailwind zinc-600 real (antes #70707a, abaixo de AA) */
+  --zinc-700:  #3f3f46;
+  --zinc-900:  #18181b;
+  --gray-925:  #101013;    /* superfícies escuras custom (não-Tailwind) */
+  --gray-900:  #17171b;
+  --gray-850:  #222227;
+  --gray-800:  #26262b;
+  --gray-750:  #3a3a42;
+
+  /* ---------- 2) SEMÂNTICO — TEMA ESCURO (padrão) ---------- */
   color-scheme: dark;
+  --text-primary:    var(--zinc-100);   /* texto mais forte */
+  --text-secondary:  var(--zinc-300);
+  --text-tertiary:   var(--zinc-400);
+  --text-muted:      var(--zinc-450);   /* AA 4.7:1 (#8 — era zinc-600 #70707a = 3.2 ❌) */
+  --surface-bg:      var(--gray-925);   /* fundo do app */
+  --surface-1:       var(--gray-900);   /* card */
+  --surface-2:       var(--gray-850);   /* superfície rebaixada */
+  --border:          var(--gray-800);
+  --border-strong:   var(--gray-750);
+  --action:          var(--indigo-500); /* ação primária / ativo / foco */
+  --action-hover:    var(--indigo-400);
+  --action-soft:     rgba(99, 102, 241, 0.16);
+  --action-line:     var(--indigo-600);
+  --text-on-action:  var(--white);      /* texto/ícone sobre a primária (#4) */
+  --attention:       var(--amber-400);  /* atenção/pendência — nunca em botão */
+  --attention-soft:  rgba(251, 191, 36, 0.10);
+  --attention-line:  rgba(251, 191, 36, 0.35);
+  --success:         var(--green-400);  /* só indicador de "dominado" */
+  --toast-bg:        var(--zinc-100);   /* toast invertido p/ contraste */
+  --toast-fg:        var(--zinc-900);
+  --toast-undo:      var(--indigo-600);
 
-  /* Neutros (nomes mantêm a semântica: ink-900 = texto mais forte) */
-  --ink-900: #f4f4f5;
-  --ink-700: #d4d4d8;
-  --ink-500: #a1a1aa;
-  --ink-400: #70707a;
-  --line:    #26262b;
-  --line-strong: #3a3a42;
-  --bg-app:  #101013;
-  --bg-card: #17171b;
-  --bg-soft: #222227;
-
-  /* Primária — PROVISÓRIA 🔶 (validar na Fase 5) */
-  --primary:        #6366f1;
-  --primary-strong: #818cf8;
-  --primary-soft:   rgba(99, 102, 241, 0.16);
-  --primary-line:   #4f46e5;
-
-  /* Atenção/pendência (PRD §8: cor com significado) */
-  --warn:      #fbbf24;
-  --warn-soft: rgba(251, 191, 36, 0.10);
-  --warn-line: rgba(251, 191, 36, 0.35);
-
-  /* Sucesso/dominado — só em indicadores de estado, nunca em botões */
-  --success:   #4ade80;
-
-  /* Toast invertido em relação ao fundo (contraste) */
-  --toast-bg: #f4f4f5;
-  --toast-fg: #18181b;
-  --toast-undo: #4f46e5;
+  /* ---------- 3) ALIAS LEGADO (deprecado — migrar componentes p/ os semânticos) ----------
+     Mesmo valor de antes => zero regressão visual. NÃO criar usos novos. */
+  --ink-900: var(--text-primary);
+  --ink-700: var(--text-secondary);
+  --ink-500: var(--text-tertiary);
+  --ink-400: var(--text-muted);
+  --line:    var(--border);
+  --line-strong: var(--border-strong);
+  --bg-app:  var(--surface-bg);
+  --bg-card: var(--surface-1);
+  --bg-soft: var(--surface-2);
+  --primary:        var(--action);
+  --primary-strong: var(--action-hover);
+  --primary-soft:   var(--action-soft);
+  --primary-line:   var(--action-line);
+  --warn:      var(--attention);
+  --warn-soft: var(--attention-soft);
+  --warn-line: var(--attention-line);
 
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
   --shadow-md: 0 1px 2px rgba(0,0,0,0.4), 0 12px 32px -16px rgba(0,0,0,0.55);
@@ -67,34 +115,32 @@
   --speed: 180ms;   /* janela 150–250ms */
 }
 
-/* ---------- TEMA CLARO (alternativa) ---------- */
+/* ---------- 2) SEMÂNTICO — TEMA CLARO (alternativa) ----------
+   Só os papéis mudam; primitivos e aliases legados herdam daqui automaticamente. */
 :root[data-theme="light"] {
   color-scheme: light;
 
-  --ink-900: #18181b;
-  --ink-700: #3f3f46;
-  --ink-500: #71717a;
-  --ink-400: #a1a1aa;
-  --line:    #e4e4e7;
-  --line-strong: #d4d4d8;
-  --bg-app:  #f4f4f5;
-  --bg-card: #ffffff;
-  --bg-soft: #f4f4f5;
-
-  --primary:        #4f46e5;
-  --primary-strong: #4338ca;
-  --primary-soft:   #eef2ff;
-  --primary-line:   #c7d2fe;
-
-  --warn:      #b45309;
-  --warn-soft: #fef3c7;
-  --warn-line: #fcd34d;
-
-  --success:   #16a34a;
-
-  --toast-bg: #18181b;
-  --toast-fg: #ffffff;
-  --toast-undo: #c7d2fe;
+  --text-primary:    var(--zinc-900);
+  --text-secondary:  var(--zinc-700);
+  --text-tertiary:   var(--zinc-600);   /* AA 7.0:1 (#8 — era zinc-500 #71717a = 4.4) */
+  --text-muted:      var(--zinc-550);   /* AA 4.8:1 (#8 — era zinc-400 #a1a1aa = 2.3 ❌) */
+  --surface-bg:      var(--zinc-100);
+  --surface-1:       var(--white);
+  --surface-2:       var(--zinc-100);
+  --border:          var(--zinc-200);
+  --border-strong:   var(--zinc-300);
+  --action:          var(--indigo-600);
+  --action-hover:    var(--indigo-700);
+  --action-soft:     var(--indigo-50);
+  --action-line:     var(--indigo-200);
+  --text-on-action:  var(--white);
+  --attention:       var(--amber-700);
+  --attention-soft:  var(--amber-100);
+  --attention-line:  var(--amber-300);
+  --success:         var(--green-600);
+  --toast-bg:        var(--zinc-900);
+  --toast-fg:        var(--white);
+  --toast-undo:      var(--indigo-200);
 
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
   --shadow-md: 0 1px 2px rgba(0,0,0,0.05), 0 12px 32px -16px rgba(0,0,0,0.18);
