@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hoje — Cognix v2 · protótipo T1 (design 2.0)</title>
+<script>
+  /* tema antes do primeiro paint (evita flash). Escuro é o padrão. */
+  document.documentElement.dataset.theme = localStorage.getItem('cognix-tema') || 'dark';
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   Cognix v2 — T1 Hoje · DESIGN 2.0 (teste das skills de design)
+   Mesmos tokens de cor + escala tipográfica do wireframe.css.
+   Mesma estrutura, mesmo fluxo. Só a execução visual foi elevada:
+   profundidade, hero focal, estados táteis, ritmo de espaço.
+   ============================================================ */
+
+:root {
+  color-scheme: dark;
+  --ink-900:#f4f4f5; --ink-700:#d4d4d8; --ink-500:#a1a1aa; --ink-400:#70707a;
+  --line:#26262b; --line-strong:#3a3a42;
+  --bg-app:#101013; --bg-card:#17171b; --bg-soft:#222227;
+  --primary:#6366f1; --primary-strong:#818cf8;
+  --primary-soft:rgba(99,102,241,0.16); --primary-line:#4f46e5;
+  --warn:#fbbf24; --warn-soft:rgba(251,191,36,0.10); --warn-line:rgba(251,191,36,0.35);
+  --success:#4ade80;
+
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.4);
+  --shadow-md:0 1px 2px rgba(0,0,0,0.4), 0 12px 32px -16px rgba(0,0,0,0.55);
+  /* 2.0: sombra do hero com leve halo da primária — profundidade com significado */
+  --shadow-hero:0 1px 2px rgba(0,0,0,0.5), 0 24px 60px -28px rgba(0,0,0,0.7), 0 0 0 1px var(--primary-line);
+  --glow-primary:0 0 0 4px var(--primary-soft);
+
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:64px;
+  --t-kicker:11px; --t-caption:12px; --t-meta:13px; --t-body:14px; --t-md:15px;
+  --t-lg:17px; --t-section:20px; --t-xl:22px; --t-h1:28px; --t-timer:56px;
+  --radius:14px; --radius-sm:9px; --sidebar-w:236px; --speed:180ms;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --ink-900:#18181b; --ink-700:#3f3f46; --ink-500:#71717a; --ink-400:#a1a1aa;
+  --line:#e4e4e7; --line-strong:#d4d4d8;
+  --bg-app:#f7f7f8; --bg-card:#ffffff; --bg-soft:#f4f4f5;
+  --primary:#4f46e5; --primary-strong:#4338ca;
+  --primary-soft:#eef2ff; --primary-line:#c7d2fe;
+  --warn:#b45309; --warn-soft:#fef3c7; --warn-line:#fcd34d;
+  --success:#16a34a;
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md:0 1px 2px rgba(0,0,0,0.05), 0 12px 32px -16px rgba(0,0,0,0.18);
+  --shadow-hero:0 1px 2px rgba(0,0,0,0.05), 0 24px 50px -28px rgba(79,70,229,0.35), 0 0 0 1px var(--primary-line);
+  --glow-primary:0 0 0 4px var(--primary-soft);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { -webkit-text-size-adjust:100%; }
+body {
+  font-family:Inter,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg-app); color:var(--ink-900);
+  font-size:var(--t-body); line-height:1.5; -webkit-font-smoothing:antialiased;
+  /* 2.0: fundo com glow índigo sutil no topo (profundidade, não decoração) */
+  background-image:radial-gradient(1100px 460px at 72% -8%, var(--primary-soft), transparent 70%);
+  background-attachment:fixed;
+}
+.tnum { font-variant-numeric:tabular-nums; }
+.grow { flex:1; }
+.hidden { display:none !important; }
+
+.icon { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.75;
+        stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+.icon.sm { width:15px; height:15px; }
+
+::selection { background:var(--primary-soft); }
+a { color:inherit; }
+*:focus-visible { outline:2px solid var(--primary); outline-offset:2px; border-radius:6px; }
+
+@media (prefers-reduced-motion:reduce){ *{ transition:none !important; animation:none !important; } }
+
+/* ---------- App shell ---------- */
+.app { display:flex; min-height:100vh; }
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  width:var(--sidebar-w); background:color-mix(in srgb, var(--bg-card) 80%, transparent);
+  backdrop-filter:blur(8px);
+  border-right:1px solid var(--line); padding:var(--s5) var(--s3) var(--s4);
+  display:flex; flex-direction:column; gap:2px; position:sticky; top:0; height:100vh;
+}
+.logo { font-weight:800; letter-spacing:0.02em; font-size:var(--t-md); color:var(--ink-900);
+        padding:0 var(--s2) var(--s5); display:flex; align-items:center; gap:var(--s2); }
+.logo .mark { width:26px; height:26px; border-radius:8px; flex-shrink:0;
+  background:linear-gradient(145deg, var(--primary-strong), var(--primary));
+  color:#fff; box-shadow:var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.25);
+  display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; }
+.logo .v { font-size:var(--t-kicker); font-weight:700; color:var(--primary-strong); }
+
+.btn-novo { display:flex; align-items:center; justify-content:center; gap:var(--s2);
+  margin:0 0 var(--s4); padding:10px var(--s3); border-radius:var(--radius-sm);
+  background:linear-gradient(145deg, var(--primary-strong), var(--primary)); color:#fff;
+  font:inherit; font-size:var(--t-body); font-weight:600; border:none; cursor:pointer; width:100%;
+  box-shadow:var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.2);
+  transition:transform var(--speed), box-shadow var(--speed), filter var(--speed); }
+.btn-novo:hover { transform:translateY(-1px); box-shadow:var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.2); filter:brightness(1.05); }
+.btn-novo:active { transform:translateY(0); }
+
+.nav-item { display:flex; align-items:center; gap:var(--s3); padding:9px var(--s3);
+  border-radius:var(--radius-sm); color:var(--ink-500); text-decoration:none;
+  font-size:var(--t-body); font-weight:500; position:relative;
+  transition:background var(--speed), color var(--speed); }
+.nav-item .icon { color:var(--ink-400); transition:color var(--speed); }
+.nav-item:hover { background:var(--bg-soft); color:var(--ink-700); }
+.nav-item:hover .icon { color:var(--ink-700); }
+.nav-item.active { background:var(--primary-soft); color:var(--primary-strong); font-weight:600; }
+.nav-item.active .icon { color:var(--primary-strong); }
+.nav-item.active::before { content:""; position:absolute; left:calc(-1 * var(--s3) + 1px); top:50%;
+  transform:translateY(-50%); width:3px; height:20px;
+  background:var(--primary); border-radius:0 99px 99px 0; box-shadow:0 0 12px var(--primary); }
+.spacer { flex:1; }
+
+.side-foco { display:block; text-decoration:none; border-radius:var(--radius);
+  padding:var(--s3); margin-bottom:var(--s2);
+  background:linear-gradient(160deg, var(--primary-soft), color-mix(in srgb, var(--primary-soft) 30%, transparent));
+  border:1px solid var(--primary-line);
+  transition:transform var(--speed), box-shadow var(--speed); }
+.side-foco:hover { transform:translateY(-1px); box-shadow:var(--shadow-md); }
+.sf-kick { display:block; margin-bottom:var(--s2); font-size:var(--t-kicker); font-weight:700;
+  letter-spacing:0.08em; text-transform:uppercase; color:var(--primary-strong); }
+.sf-next { display:flex; align-items:center; gap:var(--s2); }
+.sf-play { width:28px; height:28px; border-radius:50%; flex-shrink:0;
+  background:linear-gradient(145deg, var(--primary-strong), var(--primary)); color:#fff;
+  box-shadow:var(--shadow-sm); display:flex; align-items:center; justify-content:center; }
+.sf-play .icon { width:12px; height:12px; }
+.sf-info { display:flex; flex-direction:column; min-width:0; }
+.sf-t { font-size:var(--t-meta); font-weight:600; color:var(--ink-900); line-height:1.25;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sf-c { font-size:11px; color:var(--ink-500); line-height:1.2;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sf-bar { height:6px; background:rgba(0,0,0,0.25); border-radius:99px; overflow:hidden; margin-top:var(--s3); }
+.sf-bar i { display:block; height:100%; border-radius:99px;
+  background:linear-gradient(90deg, var(--primary), var(--primary-strong)); }
+.sf-meta { font-size:10px; color:var(--ink-400); margin-top:4px; text-align:right; }
+
+/* ---------- Conteúdo ---------- */
+main { flex:1; padding:var(--s6) var(--s6) var(--s8); }
+.page { max-width:1040px; margin:0 auto; }
+
+.page-head { margin-bottom:var(--s5); }
+.page-kicker { font-size:var(--t-kicker); color:var(--ink-400); text-transform:uppercase;
+  letter-spacing:0.10em; font-weight:600; }
+h1 { font-size:var(--t-h1); font-weight:700; letter-spacing:-0.02em; margin:var(--s1) 0 var(--s2);
+  background:linear-gradient(180deg, var(--ink-900), color-mix(in srgb, var(--ink-900) 78%, var(--primary)));
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+.day-summary { font-size:var(--t-meta); color:var(--ink-500); }
+.day-summary b { color:var(--ink-700); font-weight:600; }
+
+.layout { display:grid; grid-template-columns:minmax(0,1fr) 312px; gap:var(--s5); align-items:start; }
+.side { display:flex; flex-direction:column; gap:var(--s4); position:sticky; top:var(--s6); }
+
+h2.section { font-size:var(--t-section); color:var(--ink-900); font-weight:600; letter-spacing:-0.01em;
+  margin:var(--s6) 0 var(--s3); display:flex; align-items:center; gap:var(--s2); }
+h2.section .count { background:var(--bg-soft); border-radius:99px; padding:2px var(--s3);
+  font-size:var(--t-caption); color:var(--ink-500); font-weight:600; }
+
+.card { background:var(--bg-card); border:1px solid var(--line); border-radius:var(--radius);
+  padding:var(--s4) var(--s5); box-shadow:var(--shadow-sm); }
+
+.meta { font-size:var(--t-meta); color:var(--ink-500); }
+.meta-dim { font-size:var(--t-meta); color:var(--ink-400); }
+.title-xl { font-size:var(--t-xl); font-weight:700; letter-spacing:-0.01em; }
+.title-md { font-size:var(--t-md); font-weight:600; }
+.crumb { font-size:var(--t-meta); color:var(--ink-500); }
+.crumb .sep { color:var(--ink-400); padding:0 2px; }
+
+/* ---------- Badges / chips ---------- */
+.badge { display:inline-flex; align-items:center; gap:var(--s1); font-size:var(--t-kicker);
+  font-weight:700; text-transform:uppercase; letter-spacing:0.08em;
+  padding:4px var(--s2); border-radius:var(--radius-sm);
+  background:linear-gradient(145deg, var(--primary-strong), var(--primary)); color:#fff;
+  box-shadow:0 2px 10px -2px var(--primary); }
+.badge.soft { background:var(--primary-soft); color:var(--primary-strong); box-shadow:none; }
+.chip { display:inline-flex; align-items:center; gap:var(--s1); font-size:var(--t-caption);
+  font-weight:500; color:var(--ink-500); border:1px solid var(--line-strong);
+  border-radius:99px; padding:3px var(--s3); background:var(--bg-card); }
+.chip.warn { color:var(--warn); border-color:var(--warn-line); background:var(--warn-soft); font-weight:600; }
+
+/* ---------- Botões ---------- */
+.btn { display:inline-flex; align-items:center; gap:var(--s2); font:inherit; font-size:var(--t-body);
+  font-weight:600; cursor:pointer; padding:9px var(--s4); border-radius:var(--radius-sm);
+  border:1px solid var(--line-strong); background:var(--bg-card); color:var(--ink-700);
+  box-shadow:var(--shadow-sm);
+  transition:transform var(--speed), background var(--speed), border-color var(--speed), color var(--speed); }
+.btn:hover { background:var(--bg-soft); color:var(--ink-900); transform:translateY(-1px); }
+.btn:active { transform:translateY(0); }
+.btn.primary { color:#fff; border-color:transparent;
+  background:linear-gradient(145deg, var(--primary-strong), var(--primary));
+  box-shadow:0 2px 14px -2px var(--primary), inset 0 1px 0 rgba(255,255,255,0.2); }
+.btn.primary:hover { filter:brightness(1.06); }
+.btn.ghost { border-color:transparent; background:transparent; color:var(--ink-500); box-shadow:none; }
+.btn.ghost:hover { background:var(--bg-soft); color:var(--ink-700); }
+.btn.sm { font-size:var(--t-meta); padding:6px var(--s3); }
+.btn-lg { font-size:var(--t-md); padding:12px var(--s5); }
+
+/* ---------- Banner do caos ---------- */
+.banner { border:1px dashed var(--warn-line); border-radius:var(--radius);
+  padding:var(--s4) var(--s4) var(--s3); margin-bottom:var(--s4);
+  background:linear-gradient(180deg, var(--warn-soft), transparent); }
+.banner-title { display:flex; align-items:center; gap:var(--s3); margin-bottom:var(--s1); }
+.warn-badge { width:34px; height:34px; border-radius:10px; flex-shrink:0; display:flex;
+  align-items:center; justify-content:center; color:var(--warn);
+  background:var(--warn-soft); border:1px solid var(--warn-line); }
+.banner-actions { display:flex; align-items:center; gap:var(--s2); margin-top:var(--s3); flex-wrap:wrap; }
+.banner-details { border-top:1px dashed var(--warn-line); margin-top:var(--s3); padding-top:var(--s3);
+  display:flex; flex-direction:column; gap:var(--s2); }
+.pend-item { display:flex; align-items:center; gap:var(--s2); font-size:var(--t-meta); flex-wrap:wrap;
+  padding:var(--s2) var(--s3); border-radius:var(--radius-sm); background:var(--bg-card);
+  border:1px solid var(--line); }
+.pend-item .t { color:var(--ink-700); font-weight:600; }
+.pend-item .m { color:var(--ink-400); }
+.chev { transition:transform var(--speed); }
+.chev.aberto { transform:rotate(180deg); }
+
+/* ---------- HERO (foco dos 10 segundos) ---------- */
+.hero { position:relative; overflow:hidden; border:1px solid var(--primary-line);
+  border-radius:18px; padding:var(--s6); box-shadow:var(--shadow-hero);
+  background:
+    radial-gradient(520px 200px at 88% -30%, var(--primary-soft), transparent 70%),
+    var(--bg-card); }
+.hero::before { content:""; position:absolute; inset:0 auto 0 0; width:4px;
+  background:linear-gradient(180deg, var(--primary-strong), var(--primary)); }
+.hero-top { display:flex; align-items:center; gap:var(--s2); margin-bottom:var(--s4); }
+.hero-title { font-size:30px; font-weight:700; letter-spacing:-0.02em; line-height:1.12; margin-bottom:var(--s2); }
+.hero .crumb { font-size:var(--t-body); }
+.hero-reason { font-size:var(--t-meta); color:var(--ink-500); margin-top:var(--s3);
+  display:flex; align-items:center; gap:var(--s2); }
+.hero-reason .dot { width:6px; height:6px; border-radius:50%; background:var(--success); flex-shrink:0;
+  box-shadow:0 0 8px var(--success); }
+.hero-actions { display:flex; align-items:center; gap:var(--s3); margin-top:var(--s5); flex-wrap:wrap; }
+.badge-pulse { position:relative; }
+.badge-pulse::after { content:""; position:absolute; inset:-3px; border-radius:inherit;
+  border:1px solid var(--primary); opacity:0; animation:pulse 2.4s ease-out infinite; }
+@keyframes pulse { 0%{ opacity:.5; transform:scale(1); } 100%{ opacity:0; transform:scale(1.25); } }
+
+/* ---------- Fila de hoje ---------- */
+#filaCard { padding:var(--s2) var(--s3); }
+.fila-item { display:flex; align-items:center; gap:var(--s3); padding:var(--s3); border-radius:var(--radius-sm);
+  position:relative; transition:background var(--speed), transform var(--speed); }
+.fila-item + .fila-item { margin-top:2px; }
+.fila-item:hover { background:var(--bg-soft); }
+.fila-item .num { width:26px; height:26px; border-radius:50%; flex-shrink:0; display:flex;
+  align-items:center; justify-content:center; font-size:var(--t-caption); font-weight:700;
+  color:var(--ink-500); background:var(--bg-soft); border:1px solid var(--line-strong); }
+.fila-item.atual { background:var(--primary-soft); }
+.fila-item.atual .num { background:linear-gradient(145deg, var(--primary-strong), var(--primary));
+  color:#fff; border-color:transparent; box-shadow:0 2px 10px -2px var(--primary); }
+.fila-item.atual::before { content:""; position:absolute; left:0; top:8px; bottom:8px; width:3px;
+  border-radius:99px; background:var(--primary); }
+.fila-item.done { opacity:.55; }
+.fila-item.done .num { background:var(--success); color:#06281a; border-color:transparent; }
+.fila-meta { display:flex; align-items:center; gap:6px; font-size:var(--t-meta); color:var(--ink-400); margin-top:2px; }
+.tipo-ico { width:14px; height:14px; color:var(--ink-500); }
+.fila-actions { display:flex; align-items:center; gap:var(--s2); flex-shrink:0; }
+.state-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.dot-study { background:var(--warn); }
+.dot-review { background:var(--primary); }
+.fila-foot { padding:var(--s3) var(--s3) var(--s2); font-size:var(--t-meta); color:var(--ink-400);
+  display:flex; align-items:center; gap:var(--s2); }
+
+/* ---------- Alternativas ---------- */
+.alt-item { display:flex; align-items:center; gap:var(--s3); padding:var(--s3); border-radius:var(--radius-sm);
+  transition:background var(--speed); }
+.alt-item:hover { background:var(--bg-soft); }
+.alt-item + .alt-item { border-top:1px solid var(--line); }
+
+/* ---------- Lateral (contexto, só leitura) ---------- */
+.side h3 { font-size:var(--t-caption); text-transform:uppercase; letter-spacing:0.08em;
+  font-weight:700; color:var(--ink-400); margin-bottom:var(--s3);
+  display:flex; align-items:center; justify-content:space-between; }
+.side h3 a { font-size:var(--t-caption); text-transform:none; letter-spacing:0; font-weight:500;
+  color:var(--primary-strong); text-decoration:none; }
+.side h3 a:hover { text-decoration:underline; }
+
+.week { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+.day { text-align:center; padding:var(--s2) 0; border-radius:var(--radius-sm); background:var(--bg-soft);
+  border:1px solid transparent; }
+.day .dow { font-size:9px; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-400); }
+.day .dnum { font-size:var(--t-meta); font-weight:600; color:var(--ink-700); margin:2px 0 4px; }
+.day .st { font-size:11px; color:var(--ink-400); height:16px; display:flex; align-items:center; justify-content:center; }
+.day .st .icon { width:13px; height:13px; color:var(--success); }
+.day.today { background:var(--primary-soft); border-color:var(--primary-line); }
+.day.today .dnum { color:var(--primary-strong); }
+.day.today .st { color:var(--primary-strong); }
+.week-caption { margin-top:var(--s3); }
+
+.side-stat { display:flex; align-items:baseline; justify-content:space-between; gap:var(--s2); margin-bottom:6px; }
+.side-stat .v { font-size:var(--t-meta); font-weight:600; color:var(--ink-900); }
+.side-stat .l { font-size:var(--t-meta); color:var(--ink-500); }
+.progress-bar { height:7px; background:var(--bg-soft); border-radius:99px; overflow:hidden; margin-bottom:var(--s2); }
+.progress-bar .fill { height:100%; border-radius:99px;
+  background:linear-gradient(90deg, var(--primary), var(--primary-strong)); }
+.side-divider { border-top:1px solid var(--line); padding-top:var(--s3); margin-top:var(--s3); }
+
+/* ---------- Bottombar mobile ---------- */
+.bottombar { display:none; }
+.demo-bar { position:fixed; left:var(--s4); bottom:var(--s4); z-index:50; display:flex; align-items:center;
+  gap:var(--s2); padding:var(--s2) var(--s3); border-radius:99px; background:var(--bg-card);
+  border:1px solid var(--line-strong); box-shadow:var(--shadow-md); font-size:var(--t-caption); }
+.demo-bar .lbl { font-size:10px; font-weight:700; letter-spacing:0.1em; color:var(--ink-400); }
+.demo-bar button { font:inherit; cursor:pointer; border:none; background:transparent; color:var(--ink-500);
+  padding:4px var(--s2); border-radius:99px; }
+.demo-bar button:hover { background:var(--bg-soft); color:var(--ink-900); }
+
+/* ---------- Responsivo ---------- */
+@media (max-width:980px){
+  .layout { grid-template-columns:1fr; }
+  .side { position:static; }
+}
+@media (max-width:720px){
+  .sidebar { display:none; }
+  main { padding:var(--s5) var(--s4) 88px; }
+  .hero { padding:var(--s5); }
+  .hero-title { font-size:25px; }
+  .bottombar { display:flex; position:fixed; left:0; right:0; bottom:0; z-index:40; height:64px;
+    background:color-mix(in srgb, var(--bg-card) 88%, transparent); backdrop-filter:blur(12px);
+    border-top:1px solid var(--line); align-items:center; justify-content:space-around; padding:0 var(--s2); }
+  .bottombar a { display:flex; flex-direction:column; align-items:center; gap:2px; font-size:10px;
+    color:var(--ink-400); text-decoration:none; padding:6px var(--s2); }
+  .bottombar a.active { color:var(--primary-strong); }
+  .bottombar .fab button { width:48px; height:48px; border-radius:50%; border:none; cursor:pointer;
+    color:#fff; background:linear-gradient(145deg, var(--primary-strong), var(--primary));
+    box-shadow:0 6px 20px -6px var(--primary); display:flex; align-items:center; justify-content:center; }
+  .demo-bar { left:var(--s3); bottom:76px; }
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-hoje" viewBox="0 0 24 24"><path d="M3 18h18"/><path d="M7.5 18a4.5 4.5 0 0 1 9 0"/><path d="M12 4v3M5.2 8.6l1.5 1.5M18.8 8.6l-1.5 1.5M2.5 13H5M19 13h2.5"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-planos" viewBox="0 0 24 24"><path d="M12 3 3 7.5l9 4.5 9-4.5L12 3z"/><path d="M3 12l9 4.5L21 12"/><path d="M3 16.5 12 21l9-4.5"/></symbol>
+  <symbol id="i-prog" viewBox="0 0 24 24"><path d="M5 19V10M12 19V5M19 19v-6"/></symbol>
+  <symbol id="i-config" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 6.5v11l9-5.5z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 24 24"><path d="M4 11a8 8 0 0 1 14-4.5L20 9M20 4v5h-5"/><path d="M20 13a8 8 0 0 1-14 4.5L4 15M4 20v-5h5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-width="2.25"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15.5H6.5A2.5 2.5 0 0 0 4 21z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 4 2.8 19.5h18.4z"/><path d="M12 10v4M12 16.8v.2"/></symbol>
+</defs></svg>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="logo"><span class="mark">C</span> Cognix <span class="v">v2</span></div>
+    <button class="btn-novo"><svg class="icon sm"><use href="#i-plus"/></svg> Novo</button>
+    <a class="nav-item active" href="#"><svg class="icon"><use href="#i-hoje"/></svg> Hoje</a>
+    <a class="nav-item" href="#"><svg class="icon"><use href="#i-cal"/></svg> Calendário</a>
+    <a class="nav-item" href="#"><svg class="icon"><use href="#i-planos"/></svg> Planos</a>
+    <a class="nav-item" href="#"><svg class="icon"><use href="#i-prog"/></svg> Progresso</a>
+    <div class="spacer"></div>
+    <a class="side-foco" href="#">
+      <span class="sf-kick">Foco de hoje</span>
+      <div class="sf-next">
+        <span class="sf-play"><svg class="icon"><use href="#i-play"/></svg></span>
+        <span class="sf-info">
+          <span class="sf-t">Juros Compostos</span>
+          <span class="sf-c">Mat. Financeira · ~40min</span>
+        </span>
+      </div>
+      <div class="sf-bar"><i style="width:33%"></i></div>
+      <div class="sf-meta">1 de 3 estudos feitos</div>
+    </a>
+    <a class="nav-item" href="#"><svg class="icon"><use href="#i-config"/></svg> Configurações</a>
+  </aside>
+
+  <main><div class="page">
+
+    <div class="page-head">
+      <div class="page-kicker">Quinta-feira, 11 de junho</div>
+      <h1>Hoje</h1>
+      <div class="day-summary"><b>2 estudos</b> (~1h10) · <b>2 revisões</b> · 2 planos ativos</div>
+    </div>
+
+    <div class="layout">
+
+      <!-- ==================== COLUNA PRINCIPAL ==================== -->
+      <div class="col-main">
+
+        <!-- Banner do caos (âmbar = atenção; tom factual, nunca culpa) -->
+        <div class="banner">
+          <div class="banner-title">
+            <span class="warn-badge"><svg class="icon"><use href="#i-warn"/></svg></span>
+            <div>
+              <div class="title-md">Ontem ficou pendente.</div>
+              <div class="meta-dim">Sem problema — dá pra reorganizar em um clique.</div>
+            </div>
+          </div>
+          <div class="banner-actions">
+            <button class="btn primary sm"><svg class="icon sm"><use href="#i-redo"/></svg> Replanejar</button>
+            <button class="btn ghost sm">Estudar o de ontem</button>
+            <span class="grow"></span>
+            <button class="btn ghost sm" id="btnDetalhes" aria-expanded="true">
+              Detalhes <svg class="icon sm chev aberto"><use href="#i-chev"/></svg>
+            </button>
+          </div>
+          <div class="banner-details" id="bannerDetalhes">
+            <div class="pend-item"><span class="chip warn">estudo não feito</span><span class="t">Razão e Proporção</span><span class="m">~35 min · BB 2026 › Matemática</span></div>
+            <div class="pend-item"><span class="chip warn">estudo não feito</span><span class="t">Funções</span><span class="m">~30 min · BB 2026 › Matemática</span></div>
+            <div class="pend-item"><span class="chip warn">revisão não feita</span><span class="t">Juros Simples</span><span class="m">3ª de 3 · BB 2026 › Matemática</span></div>
+          </div>
+        </div>
+
+        <!-- HERO: a resposta dos 10 segundos -->
+        <section class="hero" aria-live="polite">
+          <div class="hero-top">
+            <span class="badge badge-pulse">Estude agora</span>
+            <span class="chip tnum"><svg class="icon sm"><use href="#i-clock"/></svg> ~40 min</span>
+          </div>
+          <div class="hero-title">Juros Compostos</div>
+          <div class="crumb">BB 2026 <span class="sep">›</span> Matemática Financeira</div>
+          <div class="hero-reason"><span class="dot"></span> Próximo na sua ordem — nada vencido antes dele.</div>
+          <div class="hero-actions">
+            <button class="btn primary btn-lg"><svg class="icon sm"><use href="#i-play"/></svg> Iniciar</button>
+            <button class="btn ghost">Registrar sem timer</button>
+          </div>
+        </section>
+
+        <!-- FILA DE HOJE -->
+        <h2 class="section">Fila de hoje <span class="count tnum">1 de 4</span></h2>
+        <div class="card" id="filaCard">
+          <div class="fila-item atual">
+            <span class="num">1</span>
+            <div class="grow">
+              <div class="title-md">Juros Compostos</div>
+              <div class="fila-meta"><span class="state-dot dot-study"></span><svg class="icon tipo-ico"><use href="#i-book"/></svg>Estudo · Matemática Financeira · ~40 min</div>
+            </div>
+            <span class="fila-actions"><span class="badge soft">em foco</span></span>
+          </div>
+          <div class="fila-item">
+            <span class="num">2</span>
+            <div class="grow">
+              <div class="title-md">Beans e Injeção de Dependência</div>
+              <div class="fila-meta"><span class="state-dot dot-study"></span><svg class="icon tipo-ico"><use href="#i-book"/></svg>Estudo · Spring Boot › Fundamentos · ~30 min</div>
+            </div>
+            <span class="fila-actions"><button class="btn ghost sm">Focar</button></span>
+          </div>
+          <div class="fila-item">
+            <span class="num">3</span>
+            <div class="grow">
+              <div class="title-md">Regra de Três</div>
+              <div class="fila-meta"><span class="state-dot dot-review"></span><svg class="icon tipo-ico"><use href="#i-redo"/></svg>Revisão 2 de 3 · BB 2026 › Matemática · concluído há 7 dias</div>
+            </div>
+            <div class="fila-actions">
+              <button class="btn sm">Revisar</button>
+              <button class="btn ghost sm">Adiar</button>
+            </div>
+          </div>
+          <div class="fila-item">
+            <span class="num">4</span>
+            <div class="grow">
+              <div class="title-md">Crase</div>
+              <div class="fila-meta"><span class="state-dot dot-review"></span><svg class="icon tipo-ico"><use href="#i-redo"/></svg>Revisão 1 de 3 · BB 2026 › Português · concluído ontem</div>
+            </div>
+            <div class="fila-actions">
+              <button class="btn sm">Revisar</button>
+              <button class="btn ghost sm">Adiar</button>
+            </div>
+          </div>
+          <div class="fila-foot">
+            <svg class="icon sm"><use href="#i-check"/></svg>
+            A fila se reorganiza sozinha quando algo muda — sem dever de casa de planejamento.
+          </div>
+        </div>
+
+        <!-- ALTERNATIVAS -->
+        <h2 class="section">Se não estiver no clima</h2>
+        <div class="card" style="padding:var(--s2) var(--s3);">
+          <div class="alt-item">
+            <div class="grow">
+              <div class="title-md">Porcentagem</div>
+              <div class="meta-dim">Matemática Financeira · ~30 min</div>
+            </div>
+            <button class="btn sm">Antecipar</button>
+          </div>
+          <div class="alt-item">
+            <div class="grow">
+              <div class="title-md">Interpretação de Texto</div>
+              <div class="meta-dim">Português · ~25 min</div>
+            </div>
+            <button class="btn sm">Antecipar</button>
+          </div>
+          <div class="fila-foot">Antecipar não bagunça o plano — o item vem pro seu foco agora e a data original só é cumprida mais cedo.</div>
+        </div>
+
+      </div>
+
+      <!-- ==================== LATERAL: contexto (só leitura) ==================== -->
+      <aside class="side">
+
+        <div class="card">
+          <h3>Sua semana <a href="#">calendário →</a></h3>
+          <div class="week tnum">
+            <div class="day"><div class="dow">seg</div><div class="dnum">8</div><div class="st"><svg class="icon"><use href="#i-check"/></svg></div></div>
+            <div class="day"><div class="dow">ter</div><div class="dnum">9</div><div class="st"><svg class="icon"><use href="#i-check"/></svg></div></div>
+            <div class="day"><div class="dow">qua</div><div class="dnum">10</div><div class="st">—</div></div>
+            <div class="day today"><div class="dow">qui</div><div class="dnum">11</div><div class="st">·····</div></div>
+            <div class="day"><div class="dow">sex</div><div class="dnum">12</div><div class="st">···</div></div>
+            <div class="day"><div class="dow">sáb</div><div class="dnum">13</div><div class="st">··</div></div>
+            <div class="day"><div class="dow">dom</div><div class="dnum">14</div><div class="st"></div></div>
+          </div>
+          <div class="meta-dim week-caption">2 de 3 dias cumpridos · quarta foi replanejada, não perdida.</div>
+        </div>
+
+        <div class="card">
+          <h3>Planos ativos <a href="#">todos →</a></h3>
+          <div class="side-stat"><span class="v">BB 2026</span><span class="l tnum">47 de 138</span></div>
+          <div class="progress-bar"><div class="fill" style="width:34%"></div></div>
+          <div class="meta-dim" style="margin-bottom:var(--s4);">Prova 08/11 · em 150 dias</div>
+          <div class="side-stat"><span class="v">Spring Boot</span><span class="l tnum">12 de 40</span></div>
+          <div class="progress-bar"><div class="fill" style="width:30%"></div></div>
+          <div class="meta-dim">Sem prazo · no seu ritmo</div>
+          <div class="side-divider">
+            <div class="side-stat"><span class="l">Revisões em dia</span><span class="v tnum">92%</span></div>
+            <div class="side-stat"><span class="l">Ritmo desta semana</span><span class="v tnum">3h40 / 5h</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Avulsos <a href="#">todos →</a></h3>
+          <div class="side-stat"><span class="l">Docker básico</span><span class="v">em estudo</span></div>
+          <div class="side-stat"><span class="l">SQL window functions</span><span class="v">revisão sex</span></div>
+        </div>
+
+      </aside>
+    </div>
+
+  </div></main>
+</div>
+
+<nav class="bottombar" aria-label="Navegação principal">
+  <a href="#" class="active"><svg class="icon"><use href="#i-hoje"/></svg>Hoje</a>
+  <a href="#"><svg class="icon"><use href="#i-cal"/></svg>Calendário</a>
+  <div class="fab"><button aria-label="Novo"><svg class="icon"><use href="#i-plus"/></svg></button></div>
+  <a href="#"><svg class="icon"><use href="#i-planos"/></svg>Planos</a>
+  <a href="#"><svg class="icon"><use href="#i-prog"/></svg>Progresso</a>
+</nav>
+
+<nav class="demo-bar" aria-label="Tema">
+  <span class="lbl">TEMA</span>
+  <button id="btnTema">alternar claro/escuro</button>
+</nav>
+
+<script>
+  // alternar tema (só demo)
+  document.getElementById('btnTema').addEventListener('click', () => {
+    const cur = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+    document.documentElement.dataset.theme = cur;
+    localStorage.setItem('cognix-tema', cur);
+  });
+  // sanfona do banner
+  const btn = document.getElementById('btnDetalhes');
+  btn.addEventListener('click', () => {
+    const open = document.getElementById('bannerDetalhes').classList.toggle('hidden');
+    btn.setAttribute('aria-expanded', String(!open));
+    btn.querySelector('.chev').classList.toggle('aberto', !open);
+  });
+</script>
+</body>
+</html>

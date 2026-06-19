@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Criar conta — Cognix v2 · protótipo (cadastro)</title>
+<script>document.documentElement.dataset.theme = localStorage.getItem('cognix-tema') || 'dark';</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/wireframe.css">
+<style>
+  body { font-family:Inter,-apple-system,"Segoe UI",sans-serif; }
+  .scene { position:fixed; inset:0; overflow:hidden; background:var(--bg-app); }
+
+  .vignette { position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(78% 56% at 50% 28%, var(--primary-soft), transparent 62%); opacity:.8; }
+
+  .grid-lines { position:absolute; inset:0; pointer-events:none; opacity:.8; }
+  .hline, .vline { position:absolute; background:var(--line-strong); will-change:transform,opacity; }
+  .hline { left:0; right:0; height:1px; transform:scaleX(0); transform-origin:50% 50%;
+    animation:drawX .8s cubic-bezier(.22,.61,.36,1) forwards; }
+  .vline { top:0; bottom:0; width:1px; transform:scaleY(0); transform-origin:50% 0%;
+    animation:drawY .9s cubic-bezier(.22,.61,.36,1) forwards; }
+  .hline:nth-child(1){ top:18%; animation-delay:.12s } .hline:nth-child(2){ top:50%; animation-delay:.22s }
+  .hline:nth-child(3){ top:82%; animation-delay:.32s }
+  .vline:nth-child(4){ left:22%; animation-delay:.42s } .vline:nth-child(5){ left:50%; animation-delay:.54s }
+  .vline:nth-child(6){ left:78%; animation-delay:.66s }
+  .hline::after, .vline::after { content:""; position:absolute; inset:0; opacity:0;
+    background:linear-gradient(90deg, transparent, var(--primary-strong), transparent);
+    animation:shimmer 1s ease-out forwards; }
+  .vline::after { background:linear-gradient(180deg, transparent, var(--primary-strong), transparent); }
+  .hline:nth-child(1)::after{ animation-delay:.12s } .hline:nth-child(2)::after{ animation-delay:.22s }
+  .hline:nth-child(3)::after{ animation-delay:.32s } .vline:nth-child(4)::after{ animation-delay:.42s }
+  .vline:nth-child(5)::after{ animation-delay:.54s } .vline:nth-child(6)::after{ animation-delay:.66s }
+  @keyframes drawX { 0%{ transform:scaleX(0); opacity:0 } 60%{ opacity:.95 } 100%{ transform:scaleX(1); opacity:.7 } }
+  @keyframes drawY { 0%{ transform:scaleY(0); opacity:0 } 60%{ opacity:.95 } 100%{ transform:scaleY(1); opacity:.7 } }
+  @keyframes shimmer { 0%{ opacity:0 } 35%{ opacity:.5 } 100%{ opacity:0 } }
+
+  canvas#dust { position:absolute; inset:0; width:100%; height:100%; opacity:.5; mix-blend-mode:screen; pointer-events:none; }
+
+  .topbar { position:absolute; left:0; right:0; top:0; z-index:2; display:flex; align-items:center; justify-content:space-between;
+    padding:var(--s4) var(--s5); border-bottom:1px solid var(--line); }
+  .brand { display:flex; align-items:center; gap:var(--s2); font-weight:800; letter-spacing:.02em; font-size:var(--t-md); }
+  .brand .mark { width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+    color:#fff; font-weight:800; font-size:14px; background:linear-gradient(145deg, var(--primary-strong), var(--primary));
+    box-shadow:var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,.25); }
+  .brand .v { font-size:var(--t-kicker); font-weight:700; color:var(--primary-strong); }
+
+  .center { position:relative; z-index:1; height:100%; display:grid; place-items:center; padding:var(--s5); }
+  .login-card { width:100%; max-width:384px; border-radius:var(--radius);
+    border:1px solid var(--line-strong);
+    background:color-mix(in srgb, var(--bg-card) 72%, transparent); backdrop-filter:blur(14px);
+    box-shadow:var(--shadow-md); padding:var(--s6);
+    opacity:0; transform:translateY(20px); animation:fadeUp .8s cubic-bezier(.22,.61,.36,1) .4s forwards; }
+  @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+  .login-card h1 { font-size:var(--t-h1); font-weight:700; letter-spacing:-.02em; }
+  .login-card .sub { color:var(--ink-500); font-size:var(--t-meta); margin-top:var(--s1); margin-bottom:var(--s5); }
+
+  .lf { margin-bottom:var(--s4); }
+  .lf label { font-size:var(--t-caption); font-weight:600; color:var(--ink-700); display:block; margin-bottom:var(--s2); }
+  .in-wrap { position:relative; }
+  .in-wrap .lead { position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--ink-400); display:flex; }
+  .login-card input[type="email"], .login-card input[type="password"], .login-card input[type="text"] {
+    font:inherit; width:100%; padding:11px var(--s3) 11px 38px; border-radius:var(--radius-sm);
+    border:1px solid var(--line-strong); background:var(--bg-app); color:var(--ink-900);
+    transition:border-color var(--speed), box-shadow var(--speed); }
+  .login-card input::placeholder { color:var(--ink-400); }
+  .login-card input:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px var(--primary-soft); }
+  .in-wrap .eye { position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none;
+    cursor:pointer; color:var(--ink-400); padding:6px; border-radius:6px; display:flex; }
+  .in-wrap .eye:hover { color:var(--ink-700); background:var(--bg-soft); }
+
+  /* medidor de força — escala de estado do DS (cinza → âmbar → primária), sem vermelho/verde */
+  .pw-meter { display:flex; align-items:center; gap:var(--s2); margin-top:var(--s2); }
+  .pw-track { flex:1; height:5px; border-radius:99px; background:var(--bg-soft); overflow:hidden; }
+  .pw-fill { height:100%; width:0; border-radius:99px; background:var(--ink-400); transition:width var(--speed), background var(--speed); }
+  .pw-fill.f1 { width:33%; background:var(--warn); }
+  .pw-fill.f2 { width:66%; background:var(--primary); }
+  .pw-fill.f3 { width:100%; background:var(--primary-strong); }
+  .pw-label { font-size:var(--t-caption); color:var(--ink-400); min-width:42px; text-align:right; }
+  .pw-hint { font-size:var(--t-caption); color:var(--ink-400); margin-top:6px; }
+  .pw-match { font-size:var(--t-caption); margin-top:6px; min-height:16px; display:flex; align-items:center; gap:5px; }
+  .pw-match.no { color:var(--warn); }
+  .pw-match.ok { color:var(--primary-strong); }
+
+  .btn.block { width:100%; justify-content:center; padding:11px; font-size:var(--t-md); margin-top:var(--s2); }
+  .btn.primary.block { transition:transform var(--speed), background var(--speed), border-color var(--speed); }
+  .btn.primary.block:hover { transform:translateY(-1px); }
+
+  .terms { font-size:var(--t-caption); color:var(--ink-400); margin-top:var(--s3); text-align:center; line-height:1.5; }
+  .terms a { color:var(--ink-700); text-decoration:underline; text-underline-offset:2px; }
+  .terms a:hover { color:var(--ink-900); }
+
+  .or { position:relative; text-align:center; margin:var(--s5) 0; }
+  .or::before { content:""; position:absolute; inset:50% 0 auto; height:1px; background:var(--line); }
+  .or span { position:relative; padding:0 var(--s3); font-size:11px; text-transform:uppercase;
+    letter-spacing:.12em; color:var(--ink-400);
+    box-shadow:0 0 0 6px color-mix(in srgb, var(--bg-card) 72%, transparent); border-radius:99px; }
+  .socials { display:grid; grid-template-columns:1fr 1fr; gap:var(--s3); }
+  .socials .btn { justify-content:center; gap:var(--s2); padding:10px; }
+  .socials .btn svg { width:17px; height:17px; }
+
+  .foot { text-align:center; font-size:var(--t-meta); color:var(--ink-500); margin-top:var(--s5); }
+  .foot a { color:var(--ink-900); font-weight:600; text-decoration:none; }
+  .foot a:hover { text-decoration:underline; }
+
+  .demo-bar { position:fixed; left:var(--s4); bottom:var(--s4); z-index:50; display:flex; align-items:center; gap:var(--s2);
+    padding:var(--s2) var(--s3); border-radius:99px; background:var(--bg-card); border:1px solid var(--line-strong);
+    box-shadow:var(--shadow-md); font-size:var(--t-caption); }
+  .demo-bar button { font:inherit; cursor:pointer; border:none; background:transparent; color:var(--ink-500);
+    padding:4px var(--s2); border-radius:99px; }
+  .demo-bar button:hover { background:var(--bg-soft); color:var(--ink-900); }
+
+  @media (prefers-reduced-motion:reduce){ *{ animation:none !important; transition:none !important; }
+    .login-card{ opacity:1; transform:none; } .hline{ transform:scaleX(1); } .vline{ transform:scaleY(1); } }
+</style>
+</head>
+<body>
+
+<div class="scene">
+  <div class="vignette"></div>
+  <div class="grid-lines" aria-hidden="true">
+    <div class="hline"></div><div class="hline"></div><div class="hline"></div>
+    <div class="vline"></div><div class="vline"></div><div class="vline"></div>
+  </div>
+  <canvas id="dust" aria-hidden="true"></canvas>
+
+  <header class="topbar">
+    <div class="brand"><span class="mark">C</span> Cognix <span class="v">v2</span></div>
+    <a class="btn ghost sm" href="#">Precisa de ajuda?</a>
+  </header>
+
+  <div class="center">
+    <div class="login-card">
+      <h1>Criar sua conta</h1>
+      <div class="sub">Leva 30 segundos. Depois é só dizer o que quer estudar.</div>
+
+      <div class="lf">
+        <label for="nome">Nome completo</label>
+        <div class="in-wrap">
+          <span class="lead"><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <input type="text" id="nome" placeholder="Seu nome" autocomplete="name">
+        </div>
+      </div>
+
+      <div class="lf">
+        <label for="email">Email</label>
+        <div class="in-wrap">
+          <span class="lead"><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>
+          <input type="email" id="email" placeholder="voce@email.com" autocomplete="email" inputmode="email">
+        </div>
+      </div>
+
+      <div class="lf">
+        <label for="senha">Senha</label>
+        <div class="in-wrap">
+          <span class="lead"><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+          <input type="password" id="senha" placeholder="Crie uma senha" autocomplete="new-password">
+          <button class="eye" id="eye" type="button" aria-label="Mostrar senha">
+            <svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="pw-meter">
+          <div class="pw-track"><div class="pw-fill" id="pwFill"></div></div>
+          <span class="pw-label" id="pwLabel">—</span>
+        </div>
+        <div class="pw-hint">Use 8+ caracteres, com letras e números.</div>
+      </div>
+
+      <div class="lf">
+        <label for="senha2">Confirmar senha</label>
+        <div class="in-wrap">
+          <span class="lead"><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+          <input type="password" id="senha2" placeholder="Repita a senha" autocomplete="new-password">
+          <button class="eye" id="eye2" type="button" aria-label="Mostrar senha">
+            <svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="pw-match" id="pwMatch"></div>
+      </div>
+
+      <button class="btn primary block">Criar conta</button>
+      <div class="terms">Ao criar conta, você concorda com os <a href="#">Termos de Uso</a> e a <a href="#">Política de Privacidade</a>.</div>
+
+      <div class="or"><span>ou</span></div>
+
+      <div class="socials">
+        <button class="btn">
+          <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22 22-9.8 22-22c0-1.5-.2-2.6-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" transform="translate(0 -2)"/><path fill="#4CAF50" d="M24 46c5.5 0 10.4-2.1 14.1-5.5l-6.5-5.5C29.6 36.7 26.9 38 24 38c-5.2 0-9.6-3.3-11.2-7.9l-6.6 5.1C9.6 41.6 16.2 46 24 46z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.5l6.5 5.5C41.9 35.7 46 30.4 46 24c0-1.5-.2-2.6-.4-3.5z"/></svg>
+          Google
+        </button>
+        <button class="btn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.12 0-.23-.02-.3-.03-.01-.06-.04-.22-.04-.39 0-1.15.572-2.27 1.206-2.98.804-.95 2.142-1.64 3.248-1.68.03.13.05.28.05.43zm4.565 15.71c-.03.07-.463 1.58-1.518 3.12-.945 1.34-1.94 2.71-3.43 2.71-1.517 0-1.9-.88-3.63-.88-1.698 0-2.302.91-3.67.91-1.377 0-2.332-1.26-3.428-2.8-1.287-1.82-2.323-4.63-2.323-7.28 0-4.28 2.797-6.55 5.552-6.55 1.448 0 2.675.95 3.6.95.865 0 2.222-1.01 3.902-1.01.613 0 2.886.06 4.374 2.19-.13.09-2.383 1.37-2.383 4.19 0 3.26 2.854 4.42 2.955 4.45z"/></svg>
+          Apple
+        </button>
+      </div>
+
+      <div class="foot">Já tem conta? <a href="login.html">Entrar</a></div>
+    </div>
+  </div>
+</div>
+
+<nav class="demo-bar" aria-label="Tema"><button id="btnTema">alternar claro/escuro</button></nav>
+
+<script>
+  document.getElementById('btnTema').onclick = () => {
+    const t = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+    document.documentElement.dataset.theme = t; localStorage.setItem('cognix-tema', t);
+  };
+  const eye = document.getElementById('eye'), senha = document.getElementById('senha');
+  eye.onclick = () => { senha.type = senha.type === 'password' ? 'text' : 'password';
+    eye.setAttribute('aria-label', senha.type === 'password' ? 'Mostrar senha' : 'Ocultar senha'); };
+
+  // medidor de força (mostra na hora, sem regra rígida — skill signup-flow-cro)
+  const fill = document.getElementById('pwFill'), label = document.getElementById('pwLabel');
+  const senha2 = document.getElementById('senha2'), match = document.getElementById('pwMatch');
+  const eye2 = document.getElementById('eye2');
+  eye2.onclick = () => { senha2.type = senha2.type === 'password' ? 'text' : 'password';
+    eye2.setAttribute('aria-label', senha2.type === 'password' ? 'Mostrar senha' : 'Ocultar senha'); };
+
+  function checkMatch() {
+    if (!senha2.value) { match.className = 'pw-match'; match.textContent = ''; return; }
+    if (senha.value === senha2.value) { match.className = 'pw-match ok'; match.textContent = '✓ As senhas conferem'; }
+    else { match.className = 'pw-match no'; match.textContent = 'As senhas não conferem'; }
+  }
+  function strength() {
+    const v = senha.value; let s = 0;
+    if (v.length >= 8) s++;
+    if (/[a-z]/.test(v) && /[A-Z]/.test(v)) s++;
+    if (/\d/.test(v)) s++;
+    if (/[^A-Za-z0-9]/.test(v)) s++;
+    const lvl = v.length === 0 ? 0 : Math.min(3, Math.max(1, s));
+    fill.className = 'pw-fill' + (lvl ? ' f' + lvl : '');
+    label.textContent = ['—', 'Fraca', 'Média', 'Forte'][lvl];
+  }
+  senha.oninput = () => { strength(); checkMatch(); };
+  senha2.oninput = checkMatch;
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const canvas = document.getElementById('dust'), ctx = canvas.getContext('2d');
+  let ps = [], raf = 0;
+  const setSize = () => { canvas.width = innerWidth; canvas.height = innerHeight; };
+  const make = () => ({ x:Math.random()*canvas.width, y:Math.random()*canvas.height,
+    v:Math.random()*0.25+0.05, o:Math.random()*0.35+0.15 });
+  const init = () => { ps = []; const n = Math.floor((canvas.width*canvas.height)/9000); for (let i=0;i<n;i++) ps.push(make()); };
+  const draw = () => {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ps.forEach(p => {
+      p.y -= p.v;
+      if (p.y < 0) { p.x = Math.random()*canvas.width; p.y = canvas.height + Math.random()*40;
+        p.v = Math.random()*0.25+0.05; p.o = Math.random()*0.35+0.15; }
+      ctx.fillStyle = `rgba(244,244,245,${p.o})`;
+      ctx.fillRect(p.x, p.y, 0.8, 2.4);
+    });
+    raf = requestAnimationFrame(draw);
+  };
+  setSize(); init();
+  if (!reduce) raf = requestAnimationFrame(draw);
+  addEventListener('resize', () => { setSize(); init(); });
+</script>
+</body>
+</html>
