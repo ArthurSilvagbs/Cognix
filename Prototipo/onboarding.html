@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bem-vindo — Cognix v2 · protótipo (onboarding)</title>
+<script>document.documentElement.dataset.theme = localStorage.getItem('cognix-tema') || 'dark';</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/wireframe.css">
+<style>
+  body { font-family:Inter,-apple-system,"Segoe UI",sans-serif; }
+  .scene { position:fixed; inset:0; overflow:hidden; background:var(--bg-app); }
+
+  /* ---- cenário compartilhado com cadastro/verifique-email (consistência) ---- */
+  .vignette { position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(78% 56% at 50% 28%, var(--primary-soft), transparent 62%); opacity:.8; }
+
+  .grid-lines { position:absolute; inset:0; pointer-events:none; opacity:.8; }
+  .hline, .vline { position:absolute; background:var(--line-strong); will-change:transform,opacity; }
+  .hline { left:0; right:0; height:1px; transform:scaleX(0); transform-origin:50% 50%;
+    animation:drawX .8s cubic-bezier(.22,.61,.36,1) forwards; }
+  .vline { top:0; bottom:0; width:1px; transform:scaleY(0); transform-origin:50% 0%;
+    animation:drawY .9s cubic-bezier(.22,.61,.36,1) forwards; }
+  .hline:nth-child(1){ top:18%; animation-delay:.12s } .hline:nth-child(2){ top:50%; animation-delay:.22s }
+  .hline:nth-child(3){ top:82%; animation-delay:.32s }
+  .vline:nth-child(4){ left:22%; animation-delay:.42s } .vline:nth-child(5){ left:50%; animation-delay:.54s }
+  .vline:nth-child(6){ left:78%; animation-delay:.66s }
+  .hline::after, .vline::after { content:""; position:absolute; inset:0; opacity:0;
+    background:linear-gradient(90deg, transparent, var(--primary-strong), transparent);
+    animation:shimmer 1s ease-out forwards; }
+  .vline::after { background:linear-gradient(180deg, transparent, var(--primary-strong), transparent); }
+  .hline:nth-child(1)::after{ animation-delay:.12s } .hline:nth-child(2)::after{ animation-delay:.22s }
+  .hline:nth-child(3)::after{ animation-delay:.32s } .vline:nth-child(4)::after{ animation-delay:.42s }
+  .vline:nth-child(5)::after{ animation-delay:.54s } .vline:nth-child(6)::after{ animation-delay:.66s }
+  @keyframes drawX { 0%{ transform:scaleX(0); opacity:0 } 60%{ opacity:.95 } 100%{ transform:scaleX(1); opacity:.7 } }
+  @keyframes drawY { 0%{ transform:scaleY(0); opacity:0 } 60%{ opacity:.95 } 100%{ transform:scaleY(1); opacity:.7 } }
+  @keyframes shimmer { 0%{ opacity:0 } 35%{ opacity:.5 } 100%{ opacity:0 } }
+
+  canvas#dust { position:absolute; inset:0; width:100%; height:100%; opacity:.5; mix-blend-mode:screen; pointer-events:none; }
+
+  .topbar { position:absolute; left:0; right:0; top:0; z-index:2; display:flex; align-items:center; justify-content:space-between;
+    padding:var(--s4) var(--s5); border-bottom:1px solid var(--line); }
+  .brand { display:flex; align-items:center; gap:var(--s2); font-weight:800; letter-spacing:.02em; font-size:var(--t-md); }
+  .brand .mark { width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+    color:#fff; font-weight:800; font-size:14px; background:linear-gradient(145deg, var(--primary-strong), var(--primary));
+    box-shadow:var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,.25); }
+  .brand .v { font-size:var(--t-kicker); font-weight:700; color:var(--primary-strong); }
+
+  .center { position:relative; z-index:1; height:100%; display:grid; place-items:center; padding:var(--s5); }
+
+  /* ---- card de slides ---- */
+  .card { width:100%; max-width:440px; border-radius:var(--radius);
+    border:1px solid var(--line-strong);
+    background:color-mix(in srgb, var(--bg-card) 72%, transparent); backdrop-filter:blur(14px);
+    box-shadow:var(--shadow-md); padding:var(--s6) var(--s6) var(--s5);
+    opacity:0; transform:translateY(20px); animation:fadeUp .8s cubic-bezier(.22,.61,.36,1) .4s forwards; }
+  @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+
+  /* progresso — segmentos (CRO: progresso cria motivação) */
+  .progress { display:flex; gap:var(--s2); margin-bottom:var(--s6); }
+  .seg { flex:1; height:4px; border-radius:99px; background:var(--bg-soft); overflow:hidden; cursor:pointer; }
+  .seg i { display:block; height:100%; width:0; border-radius:99px; background:var(--primary);
+    transition:width .45s cubic-bezier(.22,.61,.36,1); }
+  .seg.done i { width:100%; }
+  .seg.active i { width:100%; }
+
+  /* viewport + trilho dos slides */
+  .viewport { overflow:hidden; }
+  .track { display:flex; transition:transform .45s cubic-bezier(.22,.61,.36,1); }
+  .slide { min-width:100%; flex:0 0 100%; display:flex; flex-direction:column; align-items:center; text-align:center;
+    padding:var(--s1) var(--s1) 0; }
+
+  .kicker { font-size:var(--t-kicker); font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--primary-strong); margin-bottom:var(--s3); }
+  .slide h1 { font-size:var(--t-xl); font-weight:700; letter-spacing:-.02em; line-height:1.2; }
+  .slide .sub { color:var(--ink-500); font-size:var(--t-body); margin-top:var(--s3); line-height:1.6; max-width:34ch; }
+  .slide .sub b { color:var(--ink-900); font-weight:600; }
+
+  /* badge/visual de topo de cada slide */
+  .badge { width:72px; height:72px; border-radius:20px; margin-bottom:var(--s5); display:flex; align-items:center; justify-content:center;
+    color:var(--primary-strong); background:var(--primary-soft); border:1px solid var(--primary-line); position:relative; flex:none; }
+  .badge svg { width:34px; height:34px; }
+  .badge::after { content:""; position:absolute; inset:-6px; border-radius:24px; border:1px solid var(--primary-line);
+    opacity:0; animation:ping 2.6s ease-out infinite; }
+  @keyframes ping { 0%{ opacity:.5; transform:scale(1); } 100%{ opacity:0; transform:scale(1.18); } }
+
+  /* mini-mocks (UI conta a história) */
+  .mock { width:100%; margin-top:var(--s5); border:1px solid var(--line); border-radius:var(--radius-sm);
+    background:var(--bg-app); padding:var(--s4); text-align:left; }
+  .mock .mock-h { display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--s3); }
+  .mock .mock-t { font-size:var(--t-caption); font-weight:600; color:var(--ink-500); letter-spacing:.02em; }
+  .pill-ai { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600;
+    color:var(--primary-strong); background:var(--primary-soft); border:1px solid var(--primary-line);
+    padding:3px var(--s2); border-radius:99px; }
+  .pill-ai svg { width:12px; height:12px; }
+  .chips { display:flex; flex-wrap:wrap; gap:var(--s2); }
+  .chip { font-size:var(--t-caption); font-weight:500; color:var(--ink-700);
+    background:var(--bg-soft); border:1px solid var(--line-strong); padding:5px var(--s3); border-radius:99px; }
+
+  /* mock "Hoje" */
+  .row { display:flex; align-items:center; gap:var(--s3); padding:var(--s3) 0; }
+  .row + .row { border-top:1px solid var(--line); }
+  .dot { width:8px; height:8px; border-radius:99px; flex:none; }
+  .dot.todo { background:var(--ink-400); }
+  .dot.done { background:var(--success); }
+  .row .nm { font-size:var(--t-meta); color:var(--ink-900); font-weight:500; flex:1; }
+  .row .nm.is-done { color:var(--ink-400); text-decoration:line-through; }
+  .row .min { font-size:var(--t-caption); color:var(--ink-400); font-variant-numeric:tabular-nums; }
+  .timer-mini { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; color:var(--primary-strong); }
+  .timer-mini svg { width:13px; height:13px; }
+
+  /* mock "Adaptar" — antes/depois das datas */
+  .replan { display:flex; align-items:center; justify-content:center; gap:var(--s3); }
+  .day { display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .day .d-cap { font-size:11px; color:var(--ink-400); }
+  .day .d-box { width:44px; height:44px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center;
+    font-size:var(--t-meta); font-weight:700; border:1px solid var(--line-strong); background:var(--bg-soft); color:var(--ink-500); }
+  .day.over .d-box { color:var(--warn); border-color:var(--warn-line); background:var(--warn-soft); }
+  .day.now .d-box { color:var(--text-on-action); border-color:var(--primary); background:var(--primary); }
+  .arrow { color:var(--ink-400); display:flex; }
+  .arrow svg { width:20px; height:20px; }
+  .replan-cap { display:flex; align-items:center; justify-content:center; gap:6px; margin-top:var(--s3);
+    font-size:var(--t-caption); color:var(--ink-500); }
+  .replan-cap .pin { display:inline-flex; align-items:center; gap:5px; font-weight:600; color:var(--primary-strong);
+    background:var(--primary-soft); border:1px solid var(--primary-line); padding:3px var(--s2); border-radius:99px; }
+  .replan-cap .pin svg { width:12px; height:12px; }
+
+  /* loop visual no slide de boas-vindas */
+  .loop { display:flex; align-items:center; gap:var(--s2); margin-top:var(--s5); flex-wrap:wrap; justify-content:center; }
+  .loop .step { font-size:var(--t-caption); font-weight:600; color:var(--ink-700);
+    background:var(--bg-soft); border:1px solid var(--line-strong); padding:5px var(--s3); border-radius:99px; }
+  .loop .sep { color:var(--ink-400); display:flex; }
+  .loop .sep svg { width:14px; height:14px; }
+
+  /* navegação */
+  .nav { display:flex; align-items:center; gap:var(--s3); margin-top:var(--s6); }
+  .nav .back { opacity:1; transition:opacity var(--speed); }
+  .nav .back[hidden] { display:inline-flex; opacity:0; pointer-events:none; }
+  .nav .spacer { flex:1; }
+  .btn.next { min-width:160px; justify-content:center; padding:11px var(--s5); font-size:var(--t-md); }
+  .btn.primary.next { transition:transform var(--speed), background var(--speed), border-color var(--speed); }
+  .btn.primary.next:hover { transform:translateY(-1px); }
+  .btn.next svg { width:16px; height:16px; }
+
+  .skip { background:none; border:none; cursor:pointer; font:inherit; font-size:var(--t-meta); font-weight:600;
+    color:var(--ink-500); display:inline-flex; align-items:center; gap:4px; }
+  .skip:hover { color:var(--ink-900); }
+  .skip svg { width:14px; height:14px; }
+
+  .demo-bar { position:fixed; left:var(--s4); bottom:var(--s4); z-index:50; display:flex; align-items:center; gap:var(--s2);
+    padding:var(--s2) var(--s3); border-radius:99px; background:var(--bg-card); border:1px solid var(--line-strong);
+    box-shadow:var(--shadow-md); font-size:var(--t-caption); }
+  .demo-bar button { font:inherit; cursor:pointer; border:none; background:transparent; color:var(--ink-500);
+    padding:4px var(--s2); border-radius:99px; }
+  .demo-bar button:hover { background:var(--bg-soft); color:var(--ink-900); }
+
+  @media (max-width:480px){ .card { padding:var(--s5) var(--s4); } .slide h1 { font-size:var(--t-lg); } }
+
+  @media (prefers-reduced-motion:reduce){ *{ animation:none !important; }
+    .track { transition:none; } .card{ opacity:1; transform:none; }
+    .hline{ transform:scaleX(1); } .vline{ transform:scaleY(1); } .seg i{ transition:none; } }
+</style>
+</head>
+<body>
+
+<div class="scene">
+  <div class="vignette"></div>
+  <div class="grid-lines" aria-hidden="true">
+    <div class="hline"></div><div class="hline"></div><div class="hline"></div>
+    <div class="vline"></div><div class="vline"></div><div class="vline"></div>
+  </div>
+  <canvas id="dust" aria-hidden="true"></canvas>
+
+  <header class="topbar">
+    <div class="brand"><span class="mark">C</span> Cognix <span class="v">v2</span></div>
+    <button class="skip" id="skip">Pular introdução
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+    </button>
+  </header>
+
+  <div class="center">
+    <div class="card">
+      <div class="progress" id="progress" role="tablist" aria-label="Progresso do onboarding">
+        <div class="seg" role="tab" aria-label="Passo 1"><i></i></div>
+        <div class="seg" role="tab" aria-label="Passo 2"><i></i></div>
+        <div class="seg" role="tab" aria-label="Passo 3"><i></i></div>
+        <div class="seg" role="tab" aria-label="Passo 4"><i></i></div>
+      </div>
+
+      <div class="viewport">
+        <div class="track" id="track">
+
+          <!-- 1 · BOAS-VINDAS -->
+          <section class="slide" aria-label="Boas-vindas">
+            <div class="badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="m16.24 7.76 2.83-2.83"/></svg>
+            </div>
+            <div class="kicker">Bem-vindo ao Cognix</div>
+            <h1>Pare de decidir o que<br>estudar hoje.</h1>
+            <div class="sub">O Cognix carrega o peso de organizar seus estudos. Você só <b>senta e executa</b>. Veja em 1 minuto como funciona o ciclo.</div>
+            <div class="loop">
+              <span class="step">Alimentar</span>
+              <span class="sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span>
+              <span class="step">Receber</span>
+              <span class="sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span>
+              <span class="step">Executar</span>
+              <span class="sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span>
+              <span class="step">Adaptar</span>
+            </div>
+          </section>
+
+          <!-- 2 · ALIMENTAR -->
+          <section class="slide" aria-label="Alimentar">
+            <div class="badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>
+            </div>
+            <div class="kicker">1 · Alimentar</div>
+            <h1>Joga tudo aqui dentro.</h1>
+            <div class="sub">Cole um edital, uma ementa ou só escreva os temas. A <b>IA monta o plano</b> com matérias, tópicos e revisões — ou você monta no detalhe, do seu jeito.</div>
+            <div class="mock" aria-hidden="true">
+              <div class="mock-h">
+                <span class="mock-t">Plano · Concurso BB</span>
+                <span class="pill-ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 8l7-5 7 5"/><path d="M5 16l7 5 7-5"/></svg> Gerado por IA</span>
+              </div>
+              <div class="chips">
+                <span class="chip">Matemática Financeira</span>
+                <span class="chip">Português</span>
+                <span class="chip">Conhec. Bancários</span>
+                <span class="chip">Atualidades</span>
+                <span class="chip">+8 tópicos</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- 3 · RECEBER + EXECUTAR -->
+          <section class="slide" aria-label="Hoje">
+            <div class="badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>
+            </div>
+            <div class="kicker">2 · Todo dia</div>
+            <h1>Abra e veja só o<br>que importa hoje.</h1>
+            <div class="sub">Nada de painel pra interpretar. O Cognix <b>já escolheu</b> seus tópicos do dia e o tempo de cada um. Liga o timer e marca o que terminou.</div>
+            <div class="mock" aria-hidden="true">
+              <div class="mock-h">
+                <span class="mock-t">Hoje · sex, 19 jun</span>
+                <span class="mock-t">3 tópicos · 45 min</span>
+              </div>
+              <div class="row">
+                <span class="dot todo"></span>
+                <span class="nm">Juros compostos</span>
+                <span class="timer-mini"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> 25 min</span>
+              </div>
+              <div class="row">
+                <span class="dot todo"></span>
+                <span class="nm">Crase — revisão</span>
+                <span class="min">15 min</span>
+              </div>
+              <div class="row">
+                <span class="dot done"></span>
+                <span class="nm is-done">Sistema financeiro</span>
+                <span class="min">feito</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- 4 · ADAPTAR + CTA -->
+          <section class="slide" aria-label="Adaptar">
+            <div class="badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+            </div>
+            <div class="kicker">3 · Quando a vida acontece</div>
+            <h1>Furou um dia? Sem culpa.</h1>
+            <div class="sub">Um clique em <b>Replanejar</b> e tudo se reorganiza sozinho: as revisões atrasadas reancoram em hoje, o resto desliza. O app <b>absorve o caos</b> — não te pune.</div>
+            <div class="mock" aria-hidden="true">
+              <div class="replan">
+                <div class="day over"><span class="d-cap">atrasada</span><span class="d-box">ter</span></div>
+                <div class="day over"><span class="d-cap">atrasada</span><span class="d-box">qua</span></div>
+                <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span>
+                <div class="day now"><span class="d-cap">hoje</span><span class="d-box">sex</span></div>
+              </div>
+              <div class="replan-cap">
+                <span class="pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg> Replanejar</span>
+                tudo de volta nos trilhos
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+      <div class="nav">
+        <button class="btn ghost back" id="back" hidden>Voltar</button>
+        <span class="spacer"></span>
+        <button class="btn primary next" id="next">
+          <span id="nextLabel">Continuar</span>
+          <svg id="nextIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<nav class="demo-bar" aria-label="Tema"><button id="btnTema">alternar claro/escuro</button></nav>
+
+<script>
+  document.getElementById('btnTema').onclick = () => {
+    const t = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+    document.documentElement.dataset.theme = t; localStorage.setItem('cognix-tema', t);
+  };
+
+  // personaliza o kicker do slide 1 se vier ?nome= (no app, vem do cadastro)
+  const params = new URLSearchParams(location.search);
+  const nome = params.get('nome');
+  if (nome) document.querySelector('.slide .kicker').textContent = 'Bem-vindo, ' + nome.split(' ')[0];
+
+  const track = document.getElementById('track');
+  const segs = [...document.querySelectorAll('.seg')];
+  const back = document.getElementById('back');
+  const next = document.getElementById('next');
+  const nextLabel = document.getElementById('nextLabel');
+  const nextIcon = document.getElementById('nextIcon');
+  const total = segs.length;
+  let i = 0;
+
+  const CREATE_PLAN = 't6-novo-plano.html';  // aha moment: criar o primeiro plano
+  const HOJE = 't1-hoje-v2.html';            // pular = explorar primeiro
+
+  function render() {
+    track.style.transform = `translateX(${-i * 100}%)`;
+    segs.forEach((s, k) => { s.classList.toggle('done', k < i); s.classList.toggle('active', k === i); });
+    back.hidden = i === 0;
+    const last = i === total - 1;
+    nextLabel.textContent = last ? 'Criar meu primeiro plano' : 'Continuar';
+    // no último passo o ícone vira "+" (criar); nos demais, seta de avanço
+    nextIcon.innerHTML = last
+      ? '<path d="M5 12h14"/><path d="M12 5v14"/>'
+      : '<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/>';
+  }
+  next.onclick = () => { if (i < total - 1) { i++; render(); } else { location.href = CREATE_PLAN; } };
+  back.onclick = () => { if (i > 0) { i--; render(); } };
+  document.getElementById('skip').onclick = () => { location.href = HOJE; };
+  segs.forEach((s, k) => s.onclick = () => { i = k; render(); });
+
+  // teclado: setas navegam
+  addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') next.click();
+    if (e.key === 'ArrowLeft' && i > 0) back.click();
+  });
+
+  render();
+
+  // poeira ambiente (idêntico às telas de entrada)
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const canvas = document.getElementById('dust'), ctx = canvas.getContext('2d');
+  let ps = [], raf = 0;
+  const setSize = () => { canvas.width = innerWidth; canvas.height = innerHeight; };
+  const make = () => ({ x:Math.random()*canvas.width, y:Math.random()*canvas.height,
+    v:Math.random()*0.25+0.05, o:Math.random()*0.35+0.15 });
+  const init = () => { ps = []; const n = Math.floor((canvas.width*canvas.height)/9000); for (let i=0;i<n;i++) ps.push(make()); };
+  const draw = () => {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ps.forEach(p => {
+      p.y -= p.v;
+      if (p.y < 0) { p.x = Math.random()*canvas.width; p.y = canvas.height + Math.random()*40;
+        p.v = Math.random()*0.25+0.05; p.o = Math.random()*0.35+0.15; }
+      ctx.fillStyle = `rgba(244,244,245,${p.o})`;
+      ctx.fillRect(p.x, p.y, 0.8, 2.4);
+    });
+    raf = requestAnimationFrame(draw);
+  };
+  setSize(); init();
+  if (!reduce) raf = requestAnimationFrame(draw);
+  addEventListener('resize', () => { setSize(); init(); });
+</script>
+</body>
+</html>

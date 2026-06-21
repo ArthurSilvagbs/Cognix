@@ -1,0 +1,5 @@
+{
+  "autoPort": true,
+  "command": "python -m http.server $PORT",
+  "url": "http://localhost:$PORT/onboarding.html"
+}

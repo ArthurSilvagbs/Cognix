@@ -186,7 +186,10 @@
   });
   verificar.onclick = () => {  // no app: supabase.auth.verifyOtp({ email, token, type:'signup' })
     verificar.disabled = true; verificar.textContent = 'Verificando…';
-    setTimeout(() => showToast('Conta verificada! Redirecionando…'), 600);
+    setTimeout(() => {  // usuário novo → onboarding (no app, só na 1ª vez)
+      showToast('Conta verificada! Redirecionando…');
+      setTimeout(() => { location.href = 'onboarding.html'; }, 700);
+    }, 600);
   };
 
   // reenviar com cooldown (demonstra estado disabled + feedback)
