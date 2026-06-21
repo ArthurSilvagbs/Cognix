@@ -2,7 +2,8 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Icon } from "./ui/Icon";
 import { DESTINOS, CONFIG_DESTINO, type NavKey } from "./nav";
-import type { FocoSidebar } from "./hoje/mock";
+import type { FocoSidebar } from "@/domain/types";
+import { SignOutButton } from "./SignOutButton";
 
 /** Link interno usa next/link; placeholder ("#") de tela ainda não construída
  * usa <a> simples. */
@@ -57,9 +58,9 @@ export function Sidebar({ active, foco }: { active: NavKey; foco?: FocoSidebar }
         <span className="mark">C</span> Cognix <span className="v">v2</span>
       </div>
 
-      <a className="btn-novo" href="#">
+      <Link className="btn-novo" href="/planos/novo">
         <Icon name="plus" className="icon sm" /> Novo
-      </a>
+      </Link>
 
       {DESTINOS.map((d) => (
         <NavItem
@@ -98,6 +99,7 @@ export function Sidebar({ active, foco }: { active: NavKey; foco?: FocoSidebar }
         label={CONFIG_DESTINO.label}
         active={active === "config"}
       />
+      <SignOutButton />
     </aside>
   );
 }

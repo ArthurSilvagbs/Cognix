@@ -1,21 +1,14 @@
 import { AppShell } from "@/components/AppShell";
 import { Hoje } from "@/components/hoje/Hoje";
-import { dadosCheio, dadosVazio } from "@/components/hoje/mock";
+import { getDadosHoje } from "@/lib/data/hoje";
 
-// Server Component: escolhe a origem dos dados e passa pra tela. Hoje vem do
-// mock; quando o Supabase entrar, é aqui que a query do usuário logado será
-// feita — a <Hoje> não muda. (No Next 16, searchParams é assíncrono.)
+// Server Component: consulta os dados do usuário logado no Supabase e passa pra
+// tela. A <Hoje> não sabe de onde vêm os dados — só renderiza a projeção.
 //
-// PADRÃO = VAZIO: todo usuário começa sem nada cadastrado. O conjunto cheio
-// é só um atalho de dev (`/?estado=cheio`) pra visualizar a tela populada
-// enquanto não há backend nem login.
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: Promise<{ estado?: string }>;
-}) {
-  const { estado } = await searchParams;
-  const dados = estado === "cheio" ? dadosCheio : dadosVazio;
+// Usuário novo (sem planos) cai no cold-start "comece criando um plano"; isso
+// agora é REAL, vindo do banco, não mais mock.
+export default async function Page() {
+  const dados = await getDadosHoje();
 
   return (
     <AppShell active="hoje" foco={dados.focoSidebar}>

@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { ItemHoje } from "@/domain/types";
+import type {
+  Alternativa,
+  DadosHoje,
+  Detalhe,
+  FocoView,
+  ItemHoje,
+} from "@/domain/types";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import { PageHead } from "../ui/PageHead";
@@ -13,13 +19,11 @@ import { EmptyHoje } from "./EmptyHoje";
 import { FilaItemRow } from "./FilaItemRow";
 import { Hero, type HeroMode } from "./Hero";
 import { SideColumn } from "./SideColumn";
-import {
-  proximoInicial,
-  type Alternativa,
-  type DadosHoje,
-  type Detalhe,
-  type FocoView,
-} from "./mock";
+
+// Placeholder do "próximo da fila": só é lido no caminho de fila populada, que
+// ainda não é alcançável (sem camada de agendamento). Vira dado real na fatia
+// que preenche a fila em getDadosHoje().
+const proximoInicial = { titulo: "", caminho: "", minutos: 0 };
 
 let _seq = 0;
 const uid = () => `g${++_seq}`;

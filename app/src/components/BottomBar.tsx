@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Icon } from "./ui/Icon";
 import { DESTINOS, type NavKey } from "./nav";
 
@@ -15,9 +16,9 @@ export function BottomBar({ active }: { active: NavKey }) {
         <Icon name="cal" /> Calendário
       </a>
       <div className="fab">
-        <button aria-label="Novo">
+        <Link href="/planos/novo" aria-label="Novo">
           <Icon name="plus" />
-        </button>
+        </Link>
       </div>
       <a
         href={DESTINOS[2].href}

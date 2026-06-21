@@ -1,0 +1,193 @@
+/* Login — card central, no estilo do Cognix original (v1), porém com os tokens
+   do design system v2 (sem hex solto; erro em âmbar, pois vermelho é proibido). */
+
+.auth {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: var(--s6) var(--s4);
+  background: var(--bg-app);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  padding: var(--s6) var(--s5);
+}
+
+/* ---------- logo + título ---------- */
+.auth-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: var(--s6);
+}
+.auth-mark {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius);
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--s3);
+  box-shadow: var(--shadow-sm);
+}
+.auth-mark .icon {
+  width: 24px;
+  height: 24px;
+  color: #fff;
+}
+.auth-title {
+  font-size: var(--t-xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink-900);
+}
+.auth-sub {
+  font-size: var(--t-meta);
+  color: var(--ink-500);
+  margin-top: var(--s1);
+}
+
+/* ---------- formulário ---------- */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+}
+
+.auth-pass {
+  position: relative;
+}
+.auth-pass input {
+  padding-right: 42px;
+}
+.auth-pass .eye {
+  position: absolute;
+  right: var(--s3);
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ink-400);
+  padding: 0;
+  display: flex;
+}
+.auth-pass .eye:hover {
+  color: var(--ink-700);
+}
+
+.auth-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.auth-check {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  cursor: pointer;
+  user-select: none;
+  font-size: var(--t-meta);
+  color: var(--ink-500);
+}
+.auth-check .box {
+  width: 16px;
+  height: 16px;
+  border-radius: 5px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-app);
+  border: 1px solid var(--line-strong);
+  transition: background var(--speed), border-color var(--speed);
+}
+.auth-check .box.on {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+.auth-check .box .icon {
+  width: 11px;
+  height: 11px;
+  stroke-width: 3;
+}
+.auth-link {
+  font-size: var(--t-meta);
+  font-weight: 500;
+  color: var(--primary-strong);
+  text-decoration: none;
+}
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+.auth-error {
+  border-radius: var(--radius-sm);
+  padding: var(--s3);
+  font-size: var(--t-meta);
+  background: var(--warn-soft);
+  border: 1px solid var(--warn-line);
+  color: var(--warn);
+}
+
+.auth-submit {
+  width: 100%;
+  justify-content: center;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+/* ---------- divisor + Google ---------- */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  margin: var(--s5) 0;
+}
+.auth-divider .ln {
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+.auth-divider span {
+  font-size: var(--t-kicker);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-400);
+}
+
+.auth-google {
+  width: 100%;
+  justify-content: center;
+  gap: var(--s2);
+}
+
+.auth-foot {
+  text-align: center;
+  font-size: var(--t-meta);
+  color: var(--ink-500);
+  margin-top: var(--s5);
+}
+.auth-foot button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  color: var(--primary-strong);
+  padding: 0;
+  margin-left: 4px;
+}
+.auth-foot button:hover {
+  text-decoration: underline;
+}

@@ -5,7 +5,7 @@ import { Chip } from "../ui/Chip";
 import { Crumb } from "../ui/Crumb";
 import { Field } from "../ui/Field";
 import { Icon } from "../ui/Icon";
-import type { FocoView } from "./mock";
+import type { FocoView } from "@/domain/types";
 
 export type HeroMode = "idle" | "timer" | "form" | "done" | "fim";
 

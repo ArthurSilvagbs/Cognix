@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Button } from "../ui/Button";
 
 /** Estado vazio da T1. Dois sabores:
@@ -22,8 +23,12 @@ export function EmptyHoje({ temPlanos }: { temPlanos: boolean }) {
           flexWrap: "wrap",
         }}
       >
-        <Button variant="primary">Criar um plano</Button>
-        <Button>Tópico avulso</Button>
+        <Link href="/planos/novo">
+          <Button variant="primary">Criar um plano</Button>
+        </Link>
+        <Link href="/planos">
+          <Button>Tópico avulso</Button>
+        </Link>
       </div>
     </div>
   );

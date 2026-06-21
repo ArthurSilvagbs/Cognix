@@ -14,7 +14,7 @@ export interface NavDestino {
 export const DESTINOS: NavDestino[] = [
   { key: "hoje", label: "Hoje", icon: "hoje", href: "/" },
   { key: "calendario", label: "Calendário", icon: "cal", href: "#" },
-  { key: "planos", label: "Planos", icon: "planos", href: "#" },
+  { key: "planos", label: "Planos", icon: "planos", href: "/planos" },
   { key: "progresso", label: "Progresso", icon: "prog", href: "#" },
 ];
 

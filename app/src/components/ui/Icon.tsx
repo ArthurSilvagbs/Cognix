@@ -19,7 +19,12 @@ export type IconName =
   | "plus"
   | "book"
   | "chev"
-  | "warn";
+  | "warn"
+  | "grad"
+  | "eye"
+  | "eye-off"
+  | "doc"
+  | "hand";
 
 const PATHS: Record<IconName, ReactNode> = {
   hoje: (
@@ -77,6 +82,36 @@ const PATHS: Record<IconName, ReactNode> = {
       <path d="M12 4 2.8 19.5h18.4z" />
       <path d="M12 10v4M12 16.8v.2" />
     </>
+  ),
+  grad: (
+    <>
+      <path d="M22 10 12 5 2 10l10 5 10-5z" />
+      <path d="M6 12v4.5c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5V12" />
+      <path d="M22 10v5" />
+    </>
+  ),
+  eye: (
+    <>
+      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z" />
+      <circle cx="12" cy="12" r="3" />
+    </>
+  ),
+  "eye-off": (
+    <>
+      <path d="M3 3l18 18" />
+      <path d="M10.6 10.6a3 3 0 0 0 4.24 4.24" />
+      <path d="M9.4 5.2A10.6 10.6 0 0 1 12 5c6.4 0 10 7 10 7a18.4 18.4 0 0 1-3.9 4.9" />
+      <path d="M6.2 6.2A18.3 18.3 0 0 0 2 12s3.6 7 10 7a10.6 10.6 0 0 0 3.4-.56" />
+    </>
+  ),
+  doc: (
+    <>
+      <path d="M6 3h9l4 4v14H6z" />
+      <path d="M15 3v4h4M9 12h6M9 16h6" />
+    </>
+  ),
+  hand: (
+    <path d="M14 4.5a1.5 1.5 0 0 1 3 0V12m0-5.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-1a7 7 0 0 1-6-3.4L4 13.5a1.6 1.6 0 0 1 2.7-1.6L8 13V6a1.5 1.5 0 0 1 3 0m0 0v5m3-6.5V11" />
   ),
 };
 

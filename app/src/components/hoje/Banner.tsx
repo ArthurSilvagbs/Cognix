@@ -1,7 +1,7 @@
 import { Button } from "../ui/Button";
 import { Chip } from "../ui/Chip";
 import { Icon } from "../ui/Icon";
-import type { Detalhe } from "./mock";
+import type { Detalhe } from "@/domain/types";
 
 type Props = {
   visible: boolean;

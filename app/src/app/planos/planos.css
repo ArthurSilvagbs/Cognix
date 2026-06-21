@@ -1,0 +1,357 @@
+/* Estilos da T3 (Planos) e T6 (Novo plano). Portados fiel do protótipo
+   (Prototipo/t3-planos.html e t6-novo-plano.html). Só tokens do design system. */
+
+/* ---------- T3: header com ação à direita ---------- */
+.planos-head-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s4);
+  flex-wrap: wrap;
+}
+
+/* ---------- T3: grid de cards de plano ---------- */
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--s4);
+  margin-bottom: var(--s6);
+}
+.plan-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--s4) var(--s5);
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--speed), box-shadow var(--speed);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  text-decoration: none;
+  color: inherit;
+}
+.plan-card:hover {
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-md);
+}
+.plan-card.rascunho {
+  opacity: 0.85;
+}
+.plan-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s2);
+}
+.plan-card-head .name {
+  flex: 1;
+  font-size: var(--t-md);
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--ink-900);
+}
+.plan-card-badges {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  flex-wrap: wrap;
+}
+.badge.draft {
+  background: var(--bg-soft);
+  color: var(--ink-500);
+}
+
+/* Progresso */
+.plan-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+}
+.pct-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.pct-val {
+  font-size: var(--t-meta);
+  font-weight: 700;
+  color: var(--ink-700);
+}
+.pct-lbl {
+  font-size: var(--t-caption);
+  color: var(--ink-400);
+}
+
+/* KPIs */
+.plan-kpis {
+  display: flex;
+  gap: var(--s5);
+  flex-wrap: wrap;
+}
+.plan-kpis .kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.plan-kpis .kpi .n {
+  font-size: var(--t-body);
+  font-weight: 700;
+  color: var(--ink-900);
+}
+.plan-kpis .kpi .l {
+  font-size: var(--t-caption);
+  color: var(--ink-400);
+}
+
+/* Footer do card */
+.plan-card-foot {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  flex-wrap: wrap;
+  padding-top: var(--s2);
+  border-top: 1px solid var(--line);
+  margin-top: auto;
+}
+.plan-card-foot .grow {
+  flex: 1;
+}
+
+/* Tópicos avulsos */
+.avulso-list {
+  display: flex;
+  flex-direction: column;
+}
+.avulso-item {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s3) var(--s2);
+  border-bottom: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+.avulso-item:last-child {
+  border-bottom: none;
+}
+.avulso-item .grow {
+  flex: 1;
+  min-width: 0;
+}
+.avulso-item .t {
+  font-size: var(--t-body);
+  font-weight: 600;
+}
+.avulso-item .m2 {
+  font-size: var(--t-caption);
+  color: var(--ink-400);
+}
+
+/* Empty state onboarding (2 caminhos) */
+.ob-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s4);
+  max-width: 520px;
+  margin: var(--s5) auto 0;
+}
+.ob-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--s5);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color var(--speed), box-shadow var(--speed);
+  text-decoration: none;
+  color: inherit;
+  font: inherit;
+}
+.ob-card:hover {
+  border-color: var(--primary-line);
+  box-shadow: var(--shadow-md);
+}
+.ob-card .ob-ico {
+  color: var(--primary-strong);
+  margin-bottom: var(--s3);
+  display: flex;
+  justify-content: center;
+}
+.ob-card .ob-title {
+  font-size: var(--t-md);
+  font-weight: 700;
+  color: var(--ink-900);
+  margin-bottom: var(--s2);
+}
+.ob-card .ob-desc {
+  font-size: var(--t-meta);
+  color: var(--ink-500);
+}
+
+/* ---------- T6: passos do wizard ---------- */
+.passos {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  margin-bottom: var(--s5);
+  font-size: var(--t-caption);
+  color: var(--ink-400);
+}
+.passos .p {
+  display: flex;
+  align-items: center;
+  gap: var(--s1);
+}
+.passos .p .dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-soft);
+  font-weight: 700;
+  font-size: 11px;
+}
+.passos .p.on {
+  color: var(--primary-strong);
+  font-weight: 600;
+}
+.passos .p.on .dot {
+  background: var(--primary);
+  color: #fff;
+}
+.passos .lig {
+  width: 24px;
+  height: 1px;
+  background: var(--line-strong);
+}
+
+/* T6 passo 1: cards de modo */
+.modos {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--s3);
+}
+.modo {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--s4);
+  cursor: pointer;
+  transition: border-color var(--speed), box-shadow var(--speed);
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  display: block;
+  width: 100%;
+}
+.modo:hover:not(:disabled) {
+  border-color: var(--primary-line);
+  box-shadow: var(--shadow-md);
+}
+.modo .icon {
+  color: var(--primary-strong);
+  margin-bottom: var(--s2);
+  width: 22px;
+  height: 22px;
+}
+.modo .ex {
+  font-size: var(--t-caption);
+  color: var(--ink-400);
+  margin-top: var(--s2);
+  border-top: 1px dashed var(--line);
+  padding-top: var(--s2);
+}
+.modo:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.modo .em-breve {
+  display: inline-block;
+  margin-top: var(--s2);
+  font-size: var(--t-caption);
+  font-weight: 600;
+  color: var(--warn);
+}
+
+/* T6 passo 2: input */
+.dropzone {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  margin-top: var(--s3);
+  padding: var(--s3);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-app);
+  color: var(--ink-500);
+  font-size: var(--t-meta);
+}
+.dropzone .icon {
+  color: var(--ink-400);
+  flex-shrink: 0;
+}
+.dropzone b {
+  color: var(--ink-700);
+  font-weight: 600;
+}
+.perg {
+  display: flex;
+  gap: var(--s3);
+  flex-wrap: wrap;
+  margin-top: var(--s4);
+}
+.perg .field {
+  flex: 1;
+  min-width: 200px;
+}
+.field-hint {
+  font-size: var(--t-caption);
+  color: var(--ink-400);
+  margin-top: var(--s1);
+}
+.field-hint a {
+  color: var(--primary-strong);
+  text-decoration: none;
+}
+.field-hint a:hover {
+  text-decoration: underline;
+}
+label .opt {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+  color: var(--ink-400);
+  font-size: var(--t-caption);
+  margin-left: var(--s1);
+}
+
+@media (max-width: 768px) {
+  .plans-grid,
+  .modos,
+  .ob-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- compartilhado: form em linha (T4 add matéria/tópico, avulso) ---------- */
+.row-form {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--s3);
+  flex-wrap: wrap;
+}
+.row-form .field {
+  margin: 0;
+}
+
+/* Voltar pro índice (T4). */
+.back-link {
+  display: inline-block;
+  margin-bottom: var(--s3);
+  color: var(--ink-500);
+  text-decoration: none;
+  font-size: var(--t-meta);
+}
+.back-link:hover {
+  color: var(--ink-700);
+}

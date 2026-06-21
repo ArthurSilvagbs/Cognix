@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Sidebar } from "./Sidebar";
 import { BottomBar } from "./BottomBar";
 import type { NavKey } from "./nav";
-import type { FocoSidebar } from "./hoje/mock";
+import type { FocoSidebar } from "@/domain/types";
 
 /** Casca padrão de todas as telas: sidebar (desktop) + conteúdo + barra
  * inferior (mobile). O conteúdo já entra dentro de `.page` (largura máxima

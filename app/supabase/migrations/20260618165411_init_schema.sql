@@ -1,11 +1,7 @@
 -- Cognix v2 — schema inicial (fatia ALIMENTAR→RECEBER).
--- Cole e rode no SQL Editor do Supabase (https://supabase.com/dashboard →
--- seu projeto → SQL Editor). Pode ser reexecutado (usa if not exists / drops).
---
--- Modelo (Fase 2): Plano → Matéria → Tópico (entidade central; tópico avulso =
--- materia_id null). Revisões e sessões entram na próxima fatia.
--- RLS liga cada linha ao dono (auth.uid()): cada usuário só vê o que é dele —
--- é isso que torna o app "por usuário" de verdade.
+-- Primeira migration: Plano → Matéria → Tópico (entidade central; tópico avulso
+-- = materia_id null). Revisões e sessões entram numa migration futura.
+-- RLS liga cada linha ao dono (auth.uid()): cada usuário só vê o que é dele.
 
 -- updated_at automático em qualquer UPDATE
 create or replace function public.set_updated_at()

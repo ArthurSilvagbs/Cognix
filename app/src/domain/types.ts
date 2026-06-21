@@ -64,3 +64,52 @@ export interface Pendencia {
   meta: string;
   tipo: TipoItem;
 }
+
+/** Alternativa de estudo ("se não estiver no clima") — projeção, não entidade. */
+export interface Alternativa {
+  id: ID;
+  titulo: string;
+  caminho: string;
+  materia: string;
+  minutos: number;
+}
+
+/** Linha de detalhe do banner de pendência. */
+export interface Detalhe {
+  id: ID;
+  chipText: string;
+  status: "warn" | "foco";
+  titulo: string;
+  meta: string;
+}
+
+/** Foco de hoje (card do Hero). */
+export interface FocoView {
+  titulo: string;
+  caminho: string;
+  reason: string;
+  minutos: number;
+}
+
+/** Conteúdo do card "Foco de hoje" da sidebar. Ausente = sem foco (não renderiza). */
+export interface FocoSidebar {
+  titulo: string;
+  contexto: string;
+  progresso: number; // 0–100
+  legenda: string;
+}
+
+/** View model da T1 "Hoje". A fila é uma PROJEÇÃO do domínio (estudos
+ * agendados + revisões vencendo), montada na camada de dados — por isso vive
+ * aqui, separada das entidades. */
+export interface DadosHoje {
+  fila: ItemHoje[];
+  alternativas: Alternativa[];
+  pendencias: Pendencia[];
+  detalhes: Detalhe[];
+  foco: FocoView;
+  /** Há ao menos um plano (ou avulso) cadastrado? Distingue cold-start de dia-vazio. */
+  temPlanos: boolean;
+  /** Foco do dia para a sidebar; ausente quando não há nada a estudar. */
+  focoSidebar?: FocoSidebar;
+}
